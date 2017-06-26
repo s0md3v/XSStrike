@@ -1,3 +1,2 @@
 colorama
 mechanize
-webbrowser
