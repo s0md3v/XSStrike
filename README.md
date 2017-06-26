@@ -46,4 +46,4 @@ XSStrike currently supports GET only but support for POST will be added soon. Un
 If you find any bug or have any suggestion to make the program better please let me know on Ultimate Hacker's [facebook page](https://www.facebook.com/weareultimates) or start an issue on XSStrike's Github repository.
 
 ### Credits
-XSStrike is inspired from [BruteXSS](https://github.com/shawarkhanethicalhacker/BruteXSS) and [Intellifuzz-XSS](https://github.com/matthewdfuller/intellifuzz-xss).
+XSStrike is inspired from [BruteXSS](https://github.com/shawarkhanethicalhacker/BruteXSS) and [Intellifuzz-XSS](https://github.com/matthewdfuller/intellifuzzer-xss).
