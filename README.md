@@ -40,6 +40,8 @@ If its not protected by WAF you will get three options
 
 XSStrike can also bypass WAFs
 ![XSStrike 5]( http://teamultimate.in/wp-content/uploads/2017/06/Screenshot-from-2017-06-26-15-17-29.png "Screenshot 5")
+XSStrike supports POST method too
+![XSStrike 6]( http://teamultimate.in/wp-content/uploads/2017/06/Screenshot-from-2017-06-28-17-51-24.png "Screenshot 6")
 Unlike other stupid bruteforce programs, XSStrike has a small list of payloads but they are the best one. Most of them are carefully crafted by me.
 If you find any bug or have any suggestion to make the program better please let me know on Ultimate Hacker's [facebook page](https://www.facebook.com/weareultimates) or start an issue on XSStrike's Github repository.
 ### Demo video
