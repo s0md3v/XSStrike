@@ -5,8 +5,10 @@ Here's a list of things I have planned for XSStrike:
 - [x] Parameter bruteforcing
 - [x] WAF Detect and Bypass functionality
 - [ ] Crawler
+- [ ] Cookie Support
 - [ ] Making it "intelligent"
-This project is under heavy development so I will complete the last two soon. You can send suggestions/bug reports to s0md3v@gmail.com
+
+This project is under heavy development so I will complete the last three objectives soon. You can send suggestions/bug reports to s0md3v@gmail.com
 ### Installing XSStrike
 Use the following command to download it
 ```
