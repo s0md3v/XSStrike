@@ -22,6 +22,9 @@ from colorama import init , Style, Back,Fore
 from io import open
 from itertools import izip
 
+reload(sys) # for avoid UnicodeDecodeError 
+sys.setdefaultencoding('utf-8')
+
 # Just some variables
 
 WAF = ""
