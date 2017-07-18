@@ -1,14 +1,8 @@
 # XSStrike
-XSStrike is a python which can fuzz and bruteforce parameters for XSS. It can also detect and bypass WAFs.
-Here's a list of things I have planned for XSStrike:
-- [x] Fuzzer for XSS
-- [x] Parameter bruteforcing
-- [x] WAF Detect and Bypass functionality
-- [ ] Crawler
-- [ ] Cookie Support
-- [ ] Making it "intelligent"
 
-This project is under heavy development so I will complete the last three objectives soon. You can send suggestions/bug reports to s0md3v@gmail.com
+<img src='https://i.imgur.com/KTTlhPW.png' />
+
+XSStrike is a python which can fuzz and bruteforce parameters for XSS. It can also detect and bypass WAFs.
 ### Installing XSStrike
 Use the following command to download it
 ```
