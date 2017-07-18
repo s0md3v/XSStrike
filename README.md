@@ -1,8 +1,19 @@
+<p align="middle"><img src="https://i.imgur.com/KTTlhPW.png" /></p>
+
 # XSStrike
+XSStrike is a python script designed to detect and exploit XSS vulnerabilites.
 
-<img src='https://i.imgur.com/KTTlhPW.png' />
+A list of features XSStrike has to offer:
 
-XSStrike is a python which can fuzz and bruteforce parameters for XSS. It can also detect and bypass WAFs.
+- [x] Fuzzes a parameter and builds a suitable payload
+- [x] Bruteforces paramteres with payloads
+- [x] Has an inbuilt crawler like functionality
+- [x] Detects and tries to bypass WAFs
+- [x] Both GET and POST support
+- [x] Most of the payloads are hand crafted
+- [x] Negligible number of false positives
+- [x] Opens the POC in a browser window
+
 ### Installing XSStrike
 Use the following command to download it
 ```
