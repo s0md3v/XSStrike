@@ -1,4 +1,4 @@
-<p align="middle"><img src="https://i.imgur.com/KTTlhPW.png" /></p>
+<p align="middle"><img src='https://i.imgur.com/TKMnPRJ.png' /></p>
 
 # XSStrike
 XSStrike is a python script designed to detect and exploit XSS vulnerabilites.
