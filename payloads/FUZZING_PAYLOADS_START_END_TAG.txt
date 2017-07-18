@@ -1,3 +1,0 @@
-"/><script>alert(1)</script>
-"\/><img src="blah.jpg" onerror="alert()"/>
-"\/><img src="blahjpg" onerror="alert()"/>
