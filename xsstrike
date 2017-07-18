@@ -845,9 +845,6 @@ print"""\033[1;31m _     _ _______ _______ _______  ______ _____ _     _ _______
 print"\t\033[1;32m       Enter \"help\" to access help manual\033[1;m"
 print"\033[1;31m-----------------------------------------------------------------\033[1;m"
 URL = raw_input('\033[1;34m[?]\033[1;m\033[1;97m Enter the target URL: \033[1;m')
-cookie = raw_input('\033[1;34m[?]\033[1;m\033[1;97m Enter cookie (if any): \033[1;m')
-if URL == "post":
-    POST()
 if URL == "help":
     print """\033[1;31m--------------------------------------------\033[1;m
 \033[1;33m[!]\033[1;m Information  \033[1;34m[?]\033[1;m Prompt  \033[1;31m[-]\033[1;m Bad News  \033[1;32m[+]\033[1;m Good News  \033[1;97m[>]\033[1;m Processing
@@ -859,6 +856,10 @@ if URL == "help":
 If there are multiple parameters and Striker gives false positive then enter the payload manually into the vulnerable parameter.
 \033[1;31m--------------------------------------------\033[1;m"""
     quit()
+if "d3v" not in URL:
+    print Style.BRIGHT + Fore.RED + "[-] You have to insert \"d3v\" in the most crucial parameter to use Fuzzer and Hulk.\nFor example: website.com/search.php?q=d3v&category=1"
+    quit()
+cookie = raw_input('\033[1;34m[?]\033[1;m\033[1;97m Enter cookie (if any): \033[1;m')
 if "=" not in URL:
     print Style.BRIGHT + Fore.RED + "[-] The URL you entered doesn't seem to use GET Method."
     post = raw_input("\033[1;34m[?]\033[1;m Does it use POST method? [Y/n] ")
@@ -866,9 +867,6 @@ if "=" not in URL:
         quit()
     else:
         POST()
-if "d3v" not in URL:
-    print Style.BRIGHT + Fore.RED + "[-] You have to insert \"d3v\" in the most crucial parameter to use Fuzzer and Hulk.\nFor example: website.com/search.php?q=d3v&category=1"
-    quit()
 if 'https://' in URL:
     pass
 elif 'http://' in URL:
