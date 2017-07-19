@@ -78,4 +78,4 @@ If you find any bug or have any suggestion to make the program better please let
 alt="watch xsstrike in action" border="10" /></a>
 
 #### Credits
-XSStrike uses code from [BruteXSS](https://github.com/shawarkhanethicalhacker/BruteXSS) and [Intellifuzzer-XSS](https://github.com/matthewdfuller/intellifuzz-xss).
+XSStrike uses code from [BruteXSS](https://github.com/shawarkhanethicalhacker/BruteXSS) and [Intellifuzzer-XSS](https://github.com/matthewdfuller/intellifuzz-xss), <a href="https://github.com/The404Hacking/XsSCan">XsSCan</a>.
