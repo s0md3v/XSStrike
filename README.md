@@ -1,5 +1,7 @@
 <p align="middle"><img src='https://i.imgur.com/TKMnPRJ.png' /></p>
 
+<a href="http://teamultimate.in">![Website](https://img.shields.io/website-up-down-green-red/http/shields.io.svg?label=teamultimate.in&style=flat-square)</a> ![Python](https://img.shields.io/badge/Requires-Python2.7-blue.svg) ![Version](https://img.shields.io/badge/Version-1.2-red.svg) ![Bugs](https://img.shields.io/badge/Known--Issues-0-yellow.svg)                     
+
 # XSStrike
 XSStrike is a python script designed to detect and exploit XSS vulnerabilites.
 
