@@ -10,13 +10,13 @@ A list of features XSStrike has to offer:
 - [x] Fuzzes a parameter and builds a suitable payload
 - [x] Bruteforces paramteres with payloads
 - [x] Has an inbuilt crawler like functionality
+- [x] Can reverse engineer the rules of a WAF/Filter
 - [x] Detects and tries to bypass WAFs
 - [x] Both GET and POST support
 - [x] Most of the payloads are hand crafted
 - [x] Negligible number of false positives
 - [x] Opens the POC in a browser window
 
-You can download XSStrike's debian package from <a href="http://s000.tinyupload.com/?file_id=59938473688400227490">here</a>.
 ### Installing XSStrike
 Use the following command to download it
 ```
