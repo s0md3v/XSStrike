@@ -410,7 +410,7 @@ class MyHTMLParser(HTMLParser):
 
 ############################################################################
 #                        Striker (Forked from BruteXSS)
-############################################################################
+############################################################################z
 def striker():
     def re():
         inp = raw_input("\033[1;34m[?]\033[1;m Send the target to Hulk? [Y/n]").lower()
@@ -419,15 +419,6 @@ def striker():
             quit()
         else:
             hulk()
-    def complete(conclusion): #Prints the result
-        print "\033[1;33m[!]\033[1;m Strike completed."
-        if conclusion == 0:
-            print "\033[1;31m[-]\033[1;m Given parameters are not vulnerable to XSS."
-            re()
-        elif conclusion == 1:
-            print "\033[1;32m[+]\033[1;m %s Parameter is vulnerable to XSS." %conclusion
-        else:
-            print "\033[1;32m[+]\033[1;m %s Parameters are vulnerable to XSS."%conclusion
     def GET():
             try:
                 try:
@@ -532,7 +523,7 @@ def striker():
                                     try:
                                         page = br.open(data)
                                     except:
-                                        print Style.BRIGHT + Fore.RED + "\n[-] Target responded with HTTP 404 Error. Consider exiting.."
+                                        print Style.BRIGHT + Fore.RED + "\n[-] Target responded with HTTP Error."
                                     sourcecode = page.read()
                                     if x in sourcecode:
                                         print "\n\033[1;32m[+]\033[1;m XSS Vulnerability Found! \n\033[1;32m[+]\033[1;m Parameter:\t%s\n\033[1;32m[+]\033[1;m Payload:\t%s" %(param_name,x)
@@ -554,109 +545,93 @@ def striker():
                                 progress = progress + 1
                                 pass
                             progress = 0
-                        complete(conclusion)                   
+                    quit()
                 except(httplib.HTTPResponse, socket.error), Exit:
-                    print "\033[1;31m[-]\033[1;m URL "+domain+" is offline!"
-                    re()
+                    print "\033[1;31m[-]\033[1;m URL is offline!"
+                    quit()
             except(KeyboardInterrupt), Exit:
                 print "\n\033[1;33m[!]\033[1;m Exiting..."
     print GET()
 
 def POST():
-    def complete(conclusion):
-        print "\033[1;33m[!]\033[1;m Strike completed."
-        if conclusion == 0:
-            print "\033[1;31m[-]\033[1;m Given parameters are not vulnerable to XSS."
-            quit()
-        elif conclusion ==1:
-            print "\033[1;32m[+]\033[1;m %s Parameter is vulnerable to XSS." %conclusion
-            quit()
-        else:
-            print "\033[1;32m[+]\033[1;m %s Parameters are vulnerable to XSS."%conclusion
-            quit()
     try:
         try:
-            try:
-                param = param_data
-                finalurl = urlparse(URL)
-                urldata = parse_qsl(finalurl.query)
-                domain0 = '{uri.scheme}://{uri.netloc}/'.format(uri=finalurl)
-                domain = domain0.replace("https://","").replace("http://","").replace("www.","").replace("/","")
-                path = urlparse(URL).scheme+"://"+urlparse(URL).netloc+urlparse(URL).path
-                url = URL
-                lop = str(len(vectors))
-                print "\033[1;97m[>]\033[1;m Payloads loaded: "+lop
-                print "\033[1;97m[>]\033[1;m Striking the parameter(s)" 
-                params = "http://www.URL.com/?"+param
-                finalurl = urlparse(params) #Parsing the params
-                urldata = parse_qsl(finalurl.query) #Making parameter name & value list
-                o = urlparse(params) #Defines the parsed params
-                parameters = parse_qs(o.query,keep_blank_values=True)
-                paraname = []
-                paravalue = []
-                for para in parameters: #Arranging parameters and values.
-                    for i in parameters[para]:
-                        paraname.append(para)
-                        paravalue.append(i)
-                fpar = []
-                fresult = []
-                total = 0
-                progress = 0
-                pname1 = [] #Parameter
-                payload1 = [] #payload
-                for pn, pv in zip(paraname,paravalue): #Scanning the parameter.
-                    print "\033[1;97m[>]\033[1;m Testing parameter: "+pn
-                    fpar.append(str(pn))
-                    for i in vectors: #Takes payload from payload/vector list
-                        validate = i
-                        if validate == "":
-                            progress = progress + 1
-                        else:
-                            progress = progress + 1
-                            sys.stdout.write("\r\033[1;97m[>]\033[1;m Payloads injected: %i / %s"% (progress,len(vectors)))
-                            sys.stdout.flush()
-                            pname1.append(pn)
-                            payload1.append(str(i))
-                            d4rk = 0
-                            for m in range(len(paraname)):
-                                d = paraname[d4rk]
-                                d1 = paravalue[d4rk]
-                                tst= "".join(pname1)
-                                tst1 = "".join(d)
-                                if pn in d:
-                                    d4rk = d4rk + 1
-                                else:
-                                    d4rk = d4rk +1
-                                    pname1.append(str(d))
-                                    payload1.append(str(d1))
-                            data = urlencode(dict(zip(pname1,payload1)))
-                            r = br.open(path, data)
-                            sourcecode =  r.read()
-                            pname1 = []
-                            payload1 = []
-                            if i in sourcecode:
-                                print "\n\033[1;32m[+]\033[1;m XSS Vulnerability Found! \n\033[1;32m[+]\033[1;m Parameter:\t%s\n\033[1;32m[+]\033[1;m Payload:\t%s" %(pn,i)
-                                webbrowser.open(path, data)
-                                fresult.append("  Vulnerable  ")
-                                complete = 1
-                                total = total+1
-                                break
+            param = param_data
+            finalurl = urlparse(URL)
+            urldata = parse_qsl(finalurl.query)
+            domain0 = '{uri.scheme}://{uri.netloc}/'.format(uri=finalurl)
+            domain = domain0.replace("https://","").replace("http://","").replace("www.","").replace("/","")
+            path = urlparse(URL).scheme+"://"+urlparse(URL).netloc+urlparse(URL).path
+            url = URL
+            lop = str(len(vectors))
+            print "\033[1;97m[>]\033[1;m Payloads loaded: "+lop
+            print "\033[1;97m[>]\033[1;m Striking the parameter(s)" 
+            params = "http://www.URL.com/?"+param
+            finalurl = urlparse(params) #Parsing the params
+            urldata = parse_qsl(finalurl.query) #Making parameter name & value list
+            o = urlparse(params) #Defines the parsed params
+            parameters = parse_qs(o.query,keep_blank_values=True)
+            paraname = []
+            paravalue = []
+            for para in parameters: #Arranging parameters and values.
+                for i in parameters[para]:
+                    paraname.append(para)
+                    paravalue.append(i)
+            fpar = []
+            fresult = []
+            total = 0
+            progress = 0
+            pname1 = [] #Parameter
+            payload1 = [] #payload
+            for pn, pv in zip(paraname,paravalue): #Scanning the parameter.
+                print "\033[1;97m[>]\033[1;m Testing parameter: "+pn
+                fpar.append(str(pn))
+                for i in vectors: #Takes payload from payload/vector list
+                    validate = i
+                    if validate == "":
+                        progress = progress + 1
+                    else:
+                        progress = progress + 1
+                        sys.stdout.write("\r\033[1;97m[>]\033[1;m Payloads injected: %i / %s"% (progress,len(vectors)))
+                        sys.stdout.flush()
+                        pname1.append(pn)
+                        payload1.append(str(i))
+                        d4rk = 0
+                        for m in range(len(paraname)):
+                            d = paraname[d4rk]
+                            d1 = paravalue[d4rk]
+                            tst= "".join(pname1)
+                            tst1 = "".join(d)
+                            if pn in d:
+                                d4rk = d4rk + 1
                             else:
-                                complete = 0
-                    if complete == 0:
-                        print "\n\033[1;31m[-]\033[1;m '%s' parameter not vulnerable." %pn
-                        fresult.append("Not Vulnerable")
-                        pass
+                                d4rk = d4rk +1
+                                pname1.append(str(d))
+                                payload1.append(str(d1))
+                        data = urlencode(dict(zip(pname1,payload1)))
+                        r = br.open(path, data)
+                        sourcecode =  r.read()
+                        pname1 = []
+                        payload1 = []
+                        if i in sourcecode:
+                            print "\n\033[1;32m[+]\033[1;m XSS Vulnerability Found! \n\033[1;32m[+]\033[1;m Parameter:\t%s\n\033[1;32m[+]\033[1;m Payload:\t%s" %(pn,i)
+                            webbrowser.open(path, data)
+                            fresult.append("  Vulnerable  ")
+                            complete = 1
+                            total = total+1
+                            break
+                        else:
+                            complete = 0
+                if complete == 0:
+                    print "\n\033[1;31m[-]\033[1;m '%s' parameter not vulnerable." %pn
+                    fresult.append("Not Vulnerable")
+                    pass
                     progress = 0
-                complete(conclusion)
-            except(httplib.HTTPResponse, socket.error) as Exit:
-                print"\033[1;31m[-]\033[1;m Site "+domain+" is offline!"
-                quit()
-        except(KeyboardInterrupt) as Exit:
-            print("\n\033[1;31m[-]\033[1;m Exiting...")
-    except (mechanize.HTTPError,mechanize.URLError) as e:
-            print"\n\033[1;31m[-]\033[1;m HTTP ERROR! %s %s"%(e.code,e.reason)
+            complete(conclusion)
+        except:
             quit()
+    except(KeyboardInterrupt) as Exit:
+        print("\n\033[1;31m[-]\033[1;m Exiting...")
 
 #############################################################
 #                   Spider
