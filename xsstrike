@@ -577,7 +577,7 @@ def POST():
     try:
         try:
             try:
-                param_data = param
+                param = param_data
                 finalurl = urlparse(URL)
                 urldata = parse_qsl(finalurl.query)
                 domain0 = '{uri.scheme}://{uri.netloc}/'.format(uri=finalurl)
@@ -831,12 +831,12 @@ def bypasser(type, fuzz, url):
         fuzz = fuzz[0] #fuzz to be sent
         fuzz_enc = fuzz.encode('utf-8')
         try:
-            if '=' in url: # GET parameter
-                randomString, url_with_fuzz = insertFuzz(url, fuzz_enc) 
+            if '=' in URL: # GET parameter
+                randomString, url_with_fuzz = insertFuzz(URL, fuzz_enc) 
                 response = br.open(url_with_fuzz)
             else: # POST parameter
                 randomString, params_with_fuzz = setParams(param_data, fuzz_enc) 
-                response = br.open(url, urllib.urlencode(params_with_fuzz))
+                response = br.open(URL, urllib.urlencode(params_with_fuzz))
             content = response.read()
             occurence = content.find(randomString, start_from)+len(randomString) # get position of the randomString + length(randomString) to get to the fuzz
             result.append({
@@ -852,7 +852,7 @@ def bypasser(type, fuzz, url):
                 'fuzz' : fuzz_enc, 
                 'expected' : expected, 
                 'output' : '-'})
-    showOutput(url, result) 
+    showOutput(URL, result) 
 
 def extractParams(input):
     """
@@ -935,10 +935,10 @@ def jarvis():
     #    print Style.BRIGHT + Fore.GREEN + "&lt;iMg sRc=x oNerRor="+random.choice(popup)+"&gt;"
     quit()
 
-def insertFuzz(url, fuzz):
+def insertFuzz(URL, fuzz):
     """
         :Description: This function inserts the Fuzz as GET Parameter in the URL
-        :url: Target URL
+        :URL: Target URL
         :fuzz: Fuzzing string
         :return: The URL with a concatenated string consisting of a random string and the fuzz.
         :note: Some fuzzing symbols can be part of a normal response. In order to distinctly find the fuzz that was sent, a random string is added before the fuzz.
@@ -1104,6 +1104,12 @@ if URL == "help": #If the input is "help", prints helk
 If there are multiple parameters and Striker gives false positive then enter the payload manually into the vulnerable parameter.
 \033[1;31m--------------------------------------------\033[1;m"""
     quit()
+if 'https://' in URL:
+    pass
+elif 'http://' in URL:
+    pass
+else:
+    URL = "http://" + URL
 cookie = raw_input('\033[1;34m[?]\033[1;m\033[1;97m Enter cookie (if any): \033[1;m')
 if "=" not in URL: #if = is not present in URL it means it uses POST requests
     print "\033[1;33m[!]\033[1;m The URL you entered seems to use POST Method."
@@ -1116,12 +1122,6 @@ if "=" not in URL: #if = is not present in URL it means it uses POST requests
 elif "d3v" not in URL: #d3v must be present in URL so fuzzer, hulk and ninja can deal with reflections
     print Style.BRIGHT + Fore.RED + "[-] You have to insert \"d3v\" in the most crucial parameter to use Fuzzer and Hulk.\nFor example: website.com/search.php?q=d3v&category=1"
     quit()
-if 'https://' in URL:
-    pass
-elif 'http://' in URL:
-    pass
-else:
-    URL = "http://" + URL
 try:
     param_data = None #It is confirmed that GET method is in use so setting POST data to None
     WAF_detector() #Launches WAF detector :p
