@@ -429,7 +429,7 @@ def striker():
                         paravalue = [] #Parameter value
                         lop = unicode(len(vectors)) #Calculates the number of vectors i.d. WAF bypass payloads
                         print "\033[1;97m[>]\033[1;m Payloads loaded: "+lop
-                        print "\033[1;97m[>]\033[1;m Striking the paramter(s)" 
+                        print "\033[1;97m[>]\033[1;m Striking the parameter(s)" 
                         parameters = parse_qs(finalurl.query,keep_blank_values=True) #Parses parameters
                         path = finalurl.scheme+"://"+finalurl.netloc+finalurl.path #Prepares the final URL by joining its multiple components
                         for para in parameters: #Arranging parameters and values.
@@ -443,7 +443,7 @@ def striker():
                         progress = 0 #Number of payloads that has been injected
                         for param_name, pv in izip(paraname,paravalue): #Scanning the parameter.
                             print "\033[1;97m[>]\033[1;m Testing parameter: "+ param_name
-                            fpar.append(unicode(param_name)) #Appends paramter names to fpar list
+                            fpar.append(unicode(param_name)) #Appends parameter names to fpar list
                             for x in vectors: #Takes a payload from evade list
                                 validate = x #declares the validate variable
                                 if validate == "": #If the payload is absent it is skipped
@@ -493,7 +493,7 @@ def striker():
                         paravalue = []  
                         lop = unicode(len(vectors))
                         print "\033[1;97m[>]\033[1;m Payloads loaded: "+lop
-                        print "\033[1;97m[>]\033[1;m Striking the paramter(s)" 
+                        print "\033[1;97m[>]\033[1;m Striking the parameter(s)" 
                         parameters = parse_qs(finalurl.query,keep_blank_values=True)
                         path = finalurl.scheme+"://"+finalurl.netloc+finalurl.path
                         for para in parameters: #Arranging parameters and values.
