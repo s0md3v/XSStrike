@@ -98,7 +98,7 @@ vectors = [
 #######################################################################################################################
 def result(): #Prints result of fuzzing
     for payload in LIST_OF_PAYLOADS:
-        print payload
+        print (payload)
 def fuzzer(): #Basic structure of fuzzer
     init_resp = make_request(URL) #Makes request to the URL which contains "d3v" i.e. xsschecker
     if(xsschecker in init_resp.lower()):
