@@ -1,4 +1,0 @@
-colorama
-mechanize
-prettytable
-progressbar
