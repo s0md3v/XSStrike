@@ -1,5 +1,4 @@
 fuzzywuzzy
 prettytable
-webbrowser
+mechanize
 HTMLParser
-webbrowser
