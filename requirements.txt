@@ -1,0 +1,5 @@
+fuzzywuzzy
+prettytable
+webbrowser
+HTMLParser
+webbrowser
