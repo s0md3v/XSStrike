@@ -16,6 +16,8 @@ br.set_handle_robots(False) # Don't follow robots.txt
 br.set_handle_equiv(True) # I don't know what it does, but its some good shit
 br.set_handle_redirect(True) # Follow redirects
 br.set_handle_referer(True) # Include referrer
+br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'),
+('Accept-Encoding', 'deflate'), ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')]
 
 # Just some colors and shit
 white = '\033[1;97m'
@@ -277,6 +279,8 @@ def test_param_check(payload_to_check, payload_to_compare, OCCURENCE_NUM, url, p
         efficiency = fuzz.partial_ratio(check_response[m.start():m.start()+len(compare_string)].lower(), compare_string.lower())
         if efficiency == 100:
             if action == 'do':
+                print '\n%s Payload: %s' % (good, payload_to_compare)
+                print '%s Efficiency: 100%%' % good
                 choice = raw_input('%s A payload with 100%% efficiency was found. Continue scanning? [y/N]' % que).lower()
                 if choice == 'y':
                     pass
@@ -405,8 +409,8 @@ def which_quote(OCCURENCE_NUM, url, param_data, GET, POST):
 def inject(url, param_data, GET, POST):
     special = ''
     l_filling = ''
-    e_fillings = ['','%0a','%09','%0d','+'] # "Things" to use between event handler and = or between function and =
-    fillings = ['','%0a','%09','%0d','/+/'] # "Things" to use instead of space
+    e_fillings = ['%0a','%09','%0d','+'] # "Things" to use between event handler and = or between function and =
+    fillings = ['%0a','%09','%0d','/+/'] # "Things" to use instead of space
     
     for OCCURENCE_NUM, location in izip(occur_number, occur_location):
         print '\n%s Testing reflection no. %s ' % (run, OCCURENCE_NUM)
@@ -677,10 +681,9 @@ def input():
             print '%s Unable to connect to the target.' % bad
             quit()
 
-    cookie = raw_input('%s Enter cookie or press enter: ' % que)
-    # HTTP headers to mimic a browser
-    br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'),
-     ('Accept-Encoding', 'deflate'), ('Cookie', cookie), ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')]
+    cookie = raw_input('%s Enter cookie (if any): ' % que)
+    if cookie != '':
+        br.addheaders('Cookie', cookie)
     
     if '=' in target: # A url with GET request must have a = so...
         GET, POST = True, False
