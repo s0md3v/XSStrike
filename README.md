@@ -25,7 +25,7 @@ First of all clone the repo by entering the following command in terminal
 ``` bash
 git clone https://github.com/UltimateHackers/XSStrike
 ```
-Now naviagte to XSStrike directory
+Now navigate to XSStrike directory
 ``` bash
 cd XSStrike
 ```
