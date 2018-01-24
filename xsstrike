@@ -108,13 +108,13 @@ print'''  %s____  ___  _________ _________ __          __ __
 #   Fuzzer
 ###############
 
-def fuzzer(type, fuzz, url, param_data, GET, POST):
+def fuzzer(url, param_data, GET, POST):
     result = [] # Result of fuzzing
     progress = 0 # Variable for recording the progress of fuzzing
     for i in fuzzes:
         progress = progress + 1
         sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec. # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
-        sys.stdout.write('\r%s Fuzz Sent: %i/%i' % (run, progress, len(fuzz)))
+        sys.stdout.write('\r%s Fuzz Sent: %i/%i' % (run, progress, len(fuzzes)))
         sys.stdout.flush()
         try:
             fuzzy = quote_plus(i) # URL encoding the payload
@@ -590,12 +590,12 @@ def initiator(url, GET, POST):
             
             param_data = '?' + paranames[current_param] + '=' + xsschecker + ''.join(new_param_data)
             if WAF:
-                choice = raw_input('%s A WAF is active on the target. Would you like to delay requests to evade suspicion? [y/N]' % que)
+                choice = raw_input('%s A WAF is active on the target. Would you like to delay requests to evade suspicion? [y/N] ' % que)
                 if choice == 'y':
                     delay = 6
                 else:
                     delay = 0
-                fuzzer(url, param_data) #Launches fuzzer aka Ninja
+                fuzzer(url, param_data, GET, POST) #Launches fuzzer aka Ninja
             
             filter_checker(url, param_data, GET, POST) # Launces filter checker
             locater(url, param_data, GET, POST) # Launcher locater
@@ -623,12 +623,12 @@ def initiator(url, GET, POST):
                     new_param_data.append(i)
             param_data = paranames[current_param] + '=' + xsschecker + ''.join(new_param_data)
             if WAF:
-                choice = raw_input('%s A WAF is active on the target. Would you like to delay requests to evade suspicion? [y/N]' % que)
+                choice = raw_input('%s A WAF is active on the target. Would you like to delay requests to evade suspicion? [y/N] ' % que)
                 if choice == 'y':
                     delay = 6
                 else:
                     delay = 0
-                fuzzer(url, param_data) # Launches fuzzer aka Ninja
+                fuzzer(url, param_data, GET, POST) # Launches fuzzer aka Ninja
             filter_checker(url, param_data, GET, POST) # Launches filter checker
             locater(url, param_data, GET, POST) # Launches locater
             inject(url, param_data, GET, POST) # Launches injector
