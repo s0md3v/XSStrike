@@ -2,3 +2,4 @@ fuzzywuzzy
 prettytable
 mechanize
 HTMLParser
+python-Levenshtein
