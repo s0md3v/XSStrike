@@ -1,4 +1,4 @@
-# XSStrike [![python](https://img.shields.io/badge/Python-2.7-green.svg?style=style=flat-square)](https://www.python.org/downloads/) [![version](https://img.shields.io/badge/Version-Pre_Beta-blue.svg?style=style=flat-square)](https://twitter.com/s0md3v) [![license](https://img.shields.io/badge/License-GPL_3-orange.svg?style=style=flat-square)](https://github.com/UltimateHacke/XSStrike/blob/master/license.txt)
+# XSStrike [![python](https://img.shields.io/badge/Python-2.7-green.svg?style=style=flat-square)](https://www.python.org/downloads/) [![version](https://img.shields.io/badge/Version-Beta-blue.svg?style=style=flat-square)](https://twitter.com/s0md3v) [![license](https://img.shields.io/badge/License-GPL_3-orange.svg?style=style=flat-square)](https://github.com/UltimateHacke/XSStrike/blob/master/license.txt)
 
 ![banner](https://i.imgur.com/3t2X0dX.png)
 
@@ -7,16 +7,17 @@ XSStrike is an advanced XSS detection suite. It has a powerful fuzzing engine an
 Made with ![heart](https://cloud.githubusercontent.com/assets/4301109/16754758/82e3a63c-4813-11e6-9430-6015d98aeaab.png) by <a href=https://twitter.com/s0md3v>Somdev Sangwan</a>
 
 ## Features
+- Powerful fuzzing engine
+- Context breaking technology
+- Intelligent payload generation
 - GET & POST method support
 - Cookie Support
 - WAF Fingerprinting
 - Hand crafted payloads for filter and WAF evasion
-- Powerful fuzzing engine
-- Context breaking technology
-- Intelligent payload generation
+- Hidden parameter discovery
 - Accurate results via <a href=https://en.wikipedia.org/wiki/Levenshtein_distance>levenshtein distance</a> algorithm
 
-more to come...
+To know more visit <a href=https://xsstrike.tk>xsstrike.tk</a>
 
 ### Installation
 XSStrike is compatible with all \*nix based operating systems running Python 2.7.
