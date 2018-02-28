@@ -1,6 +1,6 @@
 # XSStrike [![python](https://img.shields.io/badge/Python-2.7-green.svg?style=style=flat-square)](https://www.python.org/downloads/) [![version](https://img.shields.io/badge/Version-Beta-blue.svg?style=style=flat-square)](https://twitter.com/s0md3v) [![license](https://img.shields.io/badge/License-GPL_3-orange.svg?style=style=flat-square)](https://github.com/UltimateHacke/XSStrike/blob/master/license.txt)
 
-![banner](https://i.imgur.com/3t2X0dX.png)
+![banner](https://i.imgur.com/J27uoRI.png)
 
 XSStrike is an advanced XSS detection suite. It has a powerful fuzzing engine and provides zero false positive result using fuzzy matching. XSStrike is the first XSS scanner to generate its own payloads. It is intelligent enough to detect and break out of various contexts.
 
@@ -39,8 +39,10 @@ Now you can run XSStrike
 python xsstrike
 ```
 ### Screenshots
-![ss1](https://i.imgur.com/CdPWwlw.png)
-![ss2](https://i.imgur.com/BEAVRAA.png)
+![ss1](https://xsstrike.tk/images/1.png)
+![ss2](https://xsstrike.tk/images/2.png)
+![ss3](https://xsstrike.tk/images/4.png)
+![ss4](https://xsstrike.tk/images/5.png)
 
 #### Contribution & Sponsorship
 Want to contribute? What are you waiting for? Fork it and hit up with a pull request.
