@@ -11,6 +11,8 @@ from HTMLParser import HTMLParser # For parsing HTML
 from time import sleep # To pause the program for a specific time
 import re # Module for RegEx
 
+date = '28-01-2018'
+
 br = mechanize.Browser() # Just shortening the calling function
 br.set_handle_robots(False) # Don't follow robots.txt
 br.set_handle_equiv(True) # I don't know what it does, but its some good shit
