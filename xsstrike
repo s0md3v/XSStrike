@@ -35,6 +35,7 @@ br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.
 date = '28-02-2018'
 
 def update():
+    print '%s Checking for update' % run
     xsstrike = br.open('https://github.com/UltimateHackers/XSStrike/blob/master/xsstrike').read()
     if date not in xsstrike:
         choice = raw_input('%s A new version of XSStrike is available. Would you like to update? [Y/n] ' % que).lower()
