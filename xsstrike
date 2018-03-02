@@ -243,7 +243,6 @@ def filter_checker(url, param_data, GET, POST):
                 strength = 'high'
             return strength
     except Exception as e:
-        print str(e)
         try:
             print '%s Target doesn\'t seem to respond properly. Error Code: %s' % (bad, re.search(r'\d\d\d', str(e)).group())
         except:
