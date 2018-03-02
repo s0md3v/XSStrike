@@ -32,9 +32,10 @@ br.set_handle_referer(True) # Include referrer
 br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'),
 ('Accept-Encoding', 'deflate'), ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')]
 
-date = '28-02-2018'
+date = '02-03-2018'
 
 def update():
+    print '%s Checking for updates...' % run
     xsstrike = br.open('https://github.com/UltimateHackers/XSStrike/blob/master/xsstrike').read()
     if date not in xsstrike:
         choice = raw_input('%s A new version of XSStrike is available. Would you like to update? [Y/n] ' % que).lower()
@@ -223,7 +224,7 @@ def filter_checker(url, param_data, GET, POST):
                 pass
             else:
                 if GET:
-                    webbrowser.open(url+param_data.strip(xsschecker)+payload_to_compare)
+                    webbrowser.open(url+param_data.strip(xsschecker)+'<svg/onload=(confirm)()>')
                     quit()
             strength = 'low' # As a malicious payload was not filtered, the filter is weak
         else: # If malicious payload was filtered (was not in the response)
@@ -242,6 +243,7 @@ def filter_checker(url, param_data, GET, POST):
                 strength = 'high'
             return strength
     except Exception as e:
+        print str(e)
         try:
             print '%s Target doesn\'t seem to respond properly. Error Code: %s' % (bad, re.search(r'\d\d\d', str(e)).group())
         except:
