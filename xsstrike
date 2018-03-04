@@ -32,7 +32,7 @@ br.set_handle_referer(True) # Include referrer
 br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'),
 ('Accept-Encoding', 'deflate'), ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')]
 
-date = '02-03-2018'
+date = '04-03-2018'
 
 def update():
     print '%s Checking for updates...' % run
@@ -438,7 +438,17 @@ def which_quote(OCCURENCE_NUM, url, param_data, GET, POST):
 ################
 
 def paramfinder(url, GET, POST):
+    response = br.open(url).read()
+    matches = re.findall(r'<input[^<]*name=\'[^<]*\'*>|<input[^<]*name="[^<]*"*>', response)
+    for match in matches:
+        found_param = match.encode('utf-8').split('name=')[1].split(' ')[0].replace('\'', '').replace('"', '')
+        print '%s Heuristics found a potentially valid parameter: %s%s%s. Priortizing it.' % (good, green, found_param, end)
+        blind_params.insert(0, found_param)
+    progress = 0
     for param in blind_params:
+        progress = progress + 1
+        sys.stdout.write('\r%s Parameters checked: %i/%i' % (run, progress, len(blind_params)))
+        sys.stdout.flush()
         if param not in paranames:
             if GET:
                 response = br.open(url + '?' + param + '=' + xsschecker).read()
@@ -630,74 +640,78 @@ def initiator(url, GET, POST):
     choice = raw_input('%s Would you like to look for hidden parameters? [y/N] ' % que)
     if choice == 'y':
         paramfinder(url, GET, POST)
-    if GET:
-        GET, POST = True, False
-        WAF_detector(url, '?'+paranames[0]+'='+paravalues[0], GET, POST)
-        current_param = 0
-        for param_name in paranames:
-            print ('%s-%s' % (red, end)) * 50
-            print '%s Testing parameter %s%s%s' % (run, green, param_name, end)
-            
-            paranames_combined = []
-            for param_name, param_value in izip(paranames, paravalues):
-                paranames_combined.append('&' + param_name + '=' + param_value)
-            
-            new_param_data = []
-            current = '&' + paranames[current_param] + '='
-            for i in paranames_combined:
-                if current in i:
-                    pass
-                else:
-                    new_param_data.append(i)
-            
-            param_data = '?' + paranames[current_param] + '=' + xsschecker + ''.join(new_param_data)
-            if WAF:
-                choice = raw_input('%s A WAF is active on the target. Would you like to delay requests to evade suspicion? [y/N] ' % que)
-                if choice == 'y':
-                    delay = 6
-                else:
-                    delay = 0
-                fuzzer(url, param_data, GET, POST) #Launches fuzzer aka Ninja
-                quit()
-            filter_checker(url, param_data, GET, POST) # Launces filter checker
-            locater(url, param_data, GET, POST) # Launcher locater
-            inject(url, param_data, GET, POST) # Launches injector
-            del occur_number[:]
-            del occur_location[:]
-            current_param = current_param + 1
+    if len(paranames) == 0:
+        print '%s No parameters to test.' % bad
+        quit()
+    else:
+        if GET:
+            GET, POST = True, False
+            WAF_detector(url, '?'+paranames[0]+'='+paravalues[0], GET, POST)
+            current_param = 0
+            for param_name in paranames:
+                print ('%s-%s' % (red, end)) * 50
+                print '%s Testing parameter %s%s%s' % (run, green, param_name, end)
+                
+                paranames_combined = []
+                for param_name, param_value in izip(paranames, paravalues):
+                    paranames_combined.append('&' + param_name + '=' + param_value)
+                
+                new_param_data = []
+                current = '&' + paranames[current_param] + '='
+                for i in paranames_combined:
+                    if current in i:
+                        pass
+                    else:
+                        new_param_data.append(i)
+                
+                param_data = '?' + paranames[current_param] + '=' + xsschecker + ''.join(new_param_data)
+                if WAF:
+                    choice = raw_input('%s A WAF is active on the target. Would you like to delay requests to evade suspicion? [y/N] ' % que)
+                    if choice == 'y':
+                        delay = 6
+                    else:
+                        delay = 0
+                    fuzzer(url, param_data, GET, POST) #Launches fuzzer aka Ninja
+                    quit()
+                filter_checker(url, param_data, GET, POST) # Launces filter checker
+                locater(url, param_data, GET, POST) # Launcher locater
+                inject(url, param_data, GET, POST) # Launches injector
+                del occur_number[:]
+                del occur_location[:]
+                current_param = current_param + 1
 
-    elif POST:
-        GET, POST = False, True
-        WAF_detector(url, '?'+paranames[0]+'='+xsschecker, GET, POST)
-        current_param = 0
-        for param_name in paranames:
-            print ('%s-%s' % (red, end)) * 50
-            print '%s Testing parameter %s%s%s' % (run, green, param_name, end)
-            paranames_combined = []
-            new_param_data = []
-            for param_name, param_value in izip(paranames, paravalues):
-                paranames_combined.append('&' + param_name + '=' + param_value)
-            current = '&' + paranames[current_param] + '='
-            for i in paranames_combined:
-                if current in i:
-                    pass
-                else:
-                    new_param_data.append(i)
-            param_data = paranames[current_param] + '=' + xsschecker + ''.join(new_param_data)
-            if WAF:
-                choice = raw_input('%s A WAF is active on the target. Would you like to delay requests to evade suspicion? [y/N] ' % que)
-                if choice == 'y':
-                    delay = 6
-                else:
-                    delay = 0
-                fuzzer(url, param_data, GET, POST) # Launches fuzzer aka Ninja
-                quit()
-            filter_checker(url, param_data, GET, POST) # Launches filter checker
-            locater(url, param_data, GET, POST) # Launches locater
-            inject(url, param_data, GET, POST) # Launches injector
-            del occur_number[:] # Clears the occur_number list
-            del occur_location[:] # Clears the occur_location list
-            current_param = current_param + 1
+        elif POST:
+            GET, POST = False, True
+            WAF_detector(url, '?'+paranames[0]+'='+xsschecker, GET, POST)
+            current_param = 0
+            for param_name in paranames:
+                print ('%s-%s' % (red, end)) * 50
+                print '%s Testing parameter %s%s%s' % (run, green, param_name, end)
+                paranames_combined = []
+                new_param_data = []
+                for param_name, param_value in izip(paranames, paravalues):
+                    paranames_combined.append('&' + param_name + '=' + param_value)
+                current = '&' + paranames[current_param] + '='
+                for i in paranames_combined:
+                    if current in i:
+                        pass
+                    else:
+                        new_param_data.append(i)
+                param_data = paranames[current_param] + '=' + xsschecker + ''.join(new_param_data)
+                if WAF:
+                    choice = raw_input('%s A WAF is active on the target. Would you like to delay requests to evade suspicion? [y/N] ' % que)
+                    if choice == 'y':
+                        delay = 6
+                    else:
+                        delay = 0
+                    fuzzer(url, param_data, GET, POST) # Launches fuzzer aka Ninja
+                    quit()
+                filter_checker(url, param_data, GET, POST) # Launches filter checker
+                locater(url, param_data, GET, POST) # Launches locater
+                inject(url, param_data, GET, POST) # Launches injector
+                del occur_number[:] # Clears the occur_number list
+                del occur_location[:] # Clears the occur_location list
+                current_param = current_param + 1
     
     if len(occur_number) == 0 and GET:
         choice = raw_input('%s Execute project HULK for blind XSS Detection? [Y/n] ' % que).lower()
@@ -752,9 +766,14 @@ def input():
         param_parser(target, param_data, GET, POST)
         initiator(url, GET, POST)
     else:
-        GET, POST = False, True
-        param_data = raw_input('%s Enter POST data: ' % que)
-        param_parser(target, param_data, GET, POST)
-        initiator(url, GET, POST)
+        choice = raw_input('%s Does it use POST method? [Y/n] ' % que).lower()
+        if choice == 'n':
+            GET, POST = True, False
+            initiator(target, GET, POST)
+        else:
+            GET, POST = False, True
+            param_data = raw_input('%s Enter POST data: ' % que)
+            param_parser(target, param_data, GET, POST)
+            initiator(url, GET, POST)
 
 input() #This is the true start of the program
