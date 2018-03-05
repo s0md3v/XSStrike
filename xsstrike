@@ -647,7 +647,7 @@ def initiator(url, GET, POST):
     else:
         if GET:
             GET, POST = True, False
-            WAF_detector(url, '?'+paranames[0]+'='+paravalues[0], GET, POST)
+            WAF_detector(url, '?'+paranames[0]+'='+xsschecker, GET, POST)
             current_param = 0
             for param_name in paranames:
                 print ('%s-%s' % (red, end)) * 50
