@@ -32,7 +32,7 @@ br.set_handle_referer(True) # Include referrer
 br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'),
 ('Accept-Encoding', 'deflate'), ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')]
 
-date = '04-03-2018x'
+date = '09-03-2018'
 
 def update():
     print '%s Checking for updates...' % run
@@ -151,7 +151,6 @@ def fuzzer(url, param_data, GET, POST):
                 'result' : '%sWorks%s' % (green, end),
                 'fuzz' : i})
             else: # if the fuzz string was not reflected in the response completely
-                webbrowser.open(url + param_data)
                 result.append({
                     'result' : '%sFiltered%s' % (yellow, end),
                     'fuzz' : i})
@@ -479,7 +478,7 @@ def inject(url, param_data, GET, POST):
             allowed.append('"')
         elif test_param_check('k"k', 'k&quot;k', OCCURENCE_NUM, url, param_data, GET, POST, action='nope'):
             print '%s Double Quotes (") are not allowed.' % bad
-            print '%s HTML Encoding detected i.e " --> &quote;' % bad
+            print '%s HTML Encoding detected i.e " --> &quot;' % bad
             HTML_encoding = True
         else:
             print '%s Double Quotes (") are not allowed.' % bad
@@ -598,8 +597,8 @@ def inject(url, param_data, GET, POST):
                 #     prefix = ['&apos;', '&apos;']
                 #     suffixes = ['&lt;&apos;', '&lt; attr=&apos;']
                 # elif quote == '"':
-                #     prefix = ['&quote;', '&quote;']
-                #     suffixes = ['&lt;&quote;', '&lt;br attr=&quote;']
+                #     prefix = ['&quot;', '&quot;']
+                #     suffixes = ['&lt;&quot;', '&lt;br attr=&quot;']
                 # for suffix in suffixes:
                 #     progress = 0
                 #     for tag in tags:
@@ -715,13 +714,12 @@ def initiator(url, GET, POST):
                 current_param = current_param + 1
     
     if len(occur_number) == 0 and GET:
-        choice = raw_input('%s Execute project HULK for blind XSS Detection? [Y/n] ' % que).lower()
-        if choice != 'n':
-            for payload in payloads:
-                param_data = param_data.replace(xsschecker, payload) # Replaces the xsschecker with payload
-                print '%s Payload: %s' % (info, payload)
-                webbrowser.open(url + param_data) # Opens the "injected" URL in browser
-                next = raw_input('%s Press enter to execute next payload' % que)
+        print '%s Executing project HULK for blind XSS Detection' % info
+        for payload in payloads:
+            param_data = param_data.replace(xsschecker, payload) # Replaces the xsschecker with payload
+            print '%s Payload: %s' % (info, payload)
+            webbrowser.open(url + param_data) # Opens the "injected" URL in browser
+            next = raw_input('%s Press enter to execute next payload' % que)
     
     elif len(occur_number) == 0 and POST:
         choice = raw_input('%s Would you like to generate some payloads for blind XSS? [Y/n] ' % que).lower()
