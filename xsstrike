@@ -440,7 +440,10 @@ def paramfinder(url, GET, POST):
     response = br.open(url).read()
     matches = re.findall(r'<input[^<]*name=\'[^<]*\'*>|<input[^<]*name="[^<]*"*>', response)
     for match in matches:
-        found_param = match.encode('utf-8').split('name=')[1].split(' ')[0].replace('\'', '').replace('"', '')
+        try:
+            found_param = match.encode('utf-8').split('name=')[1].split(' ')[0].replace('\'', '').replace('"', '')
+        except UnicodeDecodeError:
+            continue
         print '%s Heuristics found a potentially valid parameter: %s%s%s. Priortizing it.' % (good, green, found_param, end)
         blind_params.insert(0, found_param)
     progress = 0
