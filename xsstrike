@@ -677,7 +677,7 @@ def initiator(url, GET, POST):
                     fuzzer(url, param_data, GET, POST) #Launches fuzzer aka Ninja
                     quit()
                 filter_checker(url, param_data, GET, POST) # Launches filter checker
-                locater(url, param_data, GET, POST) # Launcher locater
+                locater(url, param_data, GET, POST) # Launches locater
                 inject(url, param_data, GET, POST) # Launches injector
                 del occur_number[:]
                 del occur_location[:]
