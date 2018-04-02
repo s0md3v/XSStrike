@@ -725,6 +725,8 @@ def initiator(url, GET, POST):
             print '%s Payload: %s' % (info, payload)
             webbrowser.open(url + param_data) # Opens the "injected" URL in browser
             next = raw_input('%s Press enter to execute next payload' % que)
+            #resetting payload
+            param_data = param_data.replace(payload, xsschecker)
     
     elif len(occur_number) == 0 and POST:
         choice = raw_input('%s Would you like to generate some payloads for blind XSS? [Y/n] ' % que).lower()
