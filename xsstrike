@@ -32,7 +32,7 @@ br.set_handle_referer(True) # Include referrer
 br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'),
 ('Accept-Encoding', 'deflate'), ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')]
 
-date = '06-04-2018'
+date = '20-04-2018'
 
 def update():
     print '%s Checking for updates...' % run
@@ -680,9 +680,18 @@ def initiator(url, GET, POST):
                     quit()
                 filter_checker(url, param_data, GET, POST) # Launces filter checker
                 locater(url, param_data, GET, POST) # Launcher locater
+                if len(occur_number) == 0:
+                    print '%s Executing project HULK for blind XSS Detection' % info
+                    for payload in payloads:
+                        param_data = param_data.replace(xsschecker, payload) # Replaces the xsschecker with payload
+                        print '%s Payload: %s' % (info, payload)
+                        webbrowser.open(url + param_data) # Opens the "injected" URL in browser
+                        next = raw_input('%s Press enter to execute next payload ' % que)
+                        #resetting payload
+                        param_data = param_data.replace(payload, xsschecker)
                 inject(url, param_data, GET, POST) # Launches injector
-                del occur_number[:]
-                del occur_location[:]
+                del occur_number[:] # Clears the occur_number list
+                del occur_location[:] # Clears the occur_location list
                 current_param = current_param + 1
 
         elif POST:
@@ -713,28 +722,21 @@ def initiator(url, GET, POST):
                     quit()
                 filter_checker(url, param_data, GET, POST) # Launches filter checker
                 locater(url, param_data, GET, POST) # Launches locater
+                if len(occur_number) == 0:
+                    choice = raw_input('%s Would you like to generate some payloads for blind XSS? [Y/n] ' % que).lower()
+                    if choice == 'n':
+                        quit()
+                    else:
+                        for payload in payloads: # We will print the payloads from the payloads list
+                            print '%s  %s' % (info, payload)
+                            inject(url, param_data, GET, POST) # Launches injector
+                            del occur_number[:]
+                            del occur_location[:]
+                            current_param = current_param + 1
                 inject(url, param_data, GET, POST) # Launches injector
                 del occur_number[:] # Clears the occur_number list
                 del occur_location[:] # Clears the occur_location list
                 current_param = current_param + 1
-    
-    if len(occur_number) == 0 and GET:
-        print '%s Executing project HULK for blind XSS Detection' % info
-        for payload in payloads:
-            param_data = param_data.replace(xsschecker, payload) # Replaces the xsschecker with payload
-            print '%s Payload: %s' % (info, payload)
-            webbrowser.open(url + param_data) # Opens the "injected" URL in browser
-            next = raw_input('%s Press enter to execute next payload' % que)
-            #resetting payload
-            param_data = param_data.replace(payload, xsschecker)
-    
-    elif len(occur_number) == 0 and POST:
-        choice = raw_input('%s Would you like to generate some payloads for blind XSS? [Y/n] ' % que).lower()
-        if choice == 'n':
-            quit()
-        else:
-            for payload in payloads: # We will print the payloads from the payloads list
-                print '%s  %s' % (info, payload)
 
 ##############
 #   Input
