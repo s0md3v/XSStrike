@@ -1,4 +1,3 @@
 fuzzywuzzy
 prettytable
 mechanize
-HTMLParser
