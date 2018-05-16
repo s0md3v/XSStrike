@@ -679,7 +679,9 @@ def initiator(url, GET, POST):
 
 def input():
     target = raw_input('%s Enter a url: ' % que)
-
+    cookie = raw_input('%s Enter cookie (if any): ' % que)
+    if cookie != '':
+        br.addheaders.append(('Cookie', cookie))
     if 'http' in target: # if the target has http in it, do nothing
         pass
     else:
@@ -697,10 +699,6 @@ def input():
         else:
             print '%s Unable to connect to the target.' % bad
             quit()
-
-    cookie = raw_input('%s Enter cookie (if any): ' % que)
-    if cookie != '':
-        br.addheaders.append(('Cookie', cookie))
     
     if '=' in target: # A url with GET request must have a = so...
         GET, POST = True, False
