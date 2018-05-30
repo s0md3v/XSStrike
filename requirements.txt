@@ -1,3 +1,4 @@
 fuzzywuzzy
 prettytable
 mechanize
+python-Levenshtein
