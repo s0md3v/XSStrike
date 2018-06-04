@@ -39,14 +39,10 @@ Now you can run XSStrike
 python xsstrike
 ```
 ### Screenshots
-![ss1](https://xsstrike.tk/images/1.png)
-![ss2](https://xsstrike.tk/images/2.png)
-![ss3](https://xsstrike.tk/images/4.png)
-![ss4](https://xsstrike.tk/images/5.png)
+![](https://ibb.co/jaQJTT)
+![](https://ibb.co/f1vwF8)
+![](https://ibb.co/hzyGF8)
+![](https://ibb.co/bTxAa8)
 
-#### Contribution, License & Sponsorship
-
-<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</br>
-Want to contribute? What are you waiting for? Fork it and hit up with a pull request.
-
-Want to sponsor? Mail me at s0md3v@gmail.com
+#### License
+XSStrike is licensed under MIT license.
