@@ -12,7 +12,7 @@
 - Fixed a bug that caused HULK to inject the same payload everytime
 - Added handmade HTML parser
 - Fixed JS context injector
-
+- Removed Python 2 support & added Python 3 support
 #### v2.0.0 (Pre-Beta)
 - Intitial Release
 - Resolved a bug that caused program to terminate in case of WAF
