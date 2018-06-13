@@ -1,4 +1,4 @@
-# XSStrike [![python](https://img.shields.io/badge/Python-2.7-green.svg?style=style=flat-square)](https://www.python.org/downloads/) [![version](https://img.shields.io/badge/Version-Beta-blue.svg?style=style=flat-square)](https://twitter.com/s0md3v) [![license](https://img.shields.io/badge/License-GPL_3-orange.svg?style=style=flat-square)](https://github.com/UltimateHacke/XSStrike/blob/master/license.txt)
+# XSStrike [![python](https://img.shields.io/badge/Python-3-green.svg?style=style=flat-square)](https://www.python.org/downloads/)  [![license](https://img.shields.io/badge/License-MIT-orange.svg?style=style=flat-square)](https://github.com/UltimateHacke/XSStrike/blob/master/license.txt) [![version](https://img.shields.io/badge/Version-Beta-blue.svg?style=style=flat-square)](https://twitter.com/s0md3v)
 
 ![banner](https://image.ibb.co/dSSbF8/68747470733a2f2f692e696d6775722e636f6d2f4a3237756f52492e706e67.png)
 
@@ -19,25 +19,6 @@ Made with ![heart](https://cloud.githubusercontent.com/assets/4301109/16754758/8
 
 To know more visit [xsstrike.tk](http://xsstrike.tk)
 
-### Installation
-XSStrike is compatible with all \*nix based operating systems running Python 2.7.
-Why not windows? My life, my rules. My code, my tools. Just kidding, it will run on windows as well but you will see some weird codes instead of color.
-First of all clone the repo by entering the following command in terminal
-``` bash
-git clone https://github.com/UltimateHackers/XSStrike
-```
-Now naviagte to XSStrike directory
-``` bash
-cd XSStrike
-```
-Now install the requirements with the following command
-``` bash
-pip install -r requirements.txt
-```
-Now you can run XSStrike
-``` bash
-python xsstrike
-```
 ### Screenshots
 
 ![ss1](https://image.ibb.co/hFAVa8/68747470733a2f2f7873737472696b652e746b2f696d616765732f312e706e67.png)
@@ -49,4 +30,4 @@ python xsstrike
 ![ss4](https://image.ibb.co/gmf7No/68747470733a2f2f7873737472696b652e746b2f696d616765732f352e706e67.png)
 
 #### License
-XSStrike is licensed under MIT license.
+XSStrike is licensed under [MIT license](https://github.com/s0md3v/XSStrike/blob/master/LICENSE).
