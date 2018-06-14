@@ -19,6 +19,9 @@ Made with ![heart](https://cloud.githubusercontent.com/assets/4301109/16754758/8
 
 To know more visit [xsstrike.tk](http://xsstrike.tk)
 
+**Note:** XSStrike isn't compatible with Python2 anymore, please use `python3 xsstrike` to run it.\
+[Changelog](https://github.com/s0md3v/XSStrike/blob/master/CHANGELOG.md) contains the changes made to XSStrike after the XSStrike v2.0 pre-beta release.
+
 ### Screenshots
 
 ![ss1](https://image.ibb.co/hFAVa8/68747470733a2f2f7873737472696b652e746b2f696d616765732f312e706e67.png)
