@@ -1,3 +1,12 @@
-fuzzywuzzy
-prettytable
-mechanize
+certifi==2018.4.16
+chardet==3.0.4
+fuzzywuzzy==0.16.0
+html5lib==1.0.1
+idna==2.7
+mechanize==0.3.6
+prettytable==0.7.2
+python-Levenshtein==0.12.0
+requests==2.19.0
+six==1.11.0
+urllib3==1.23
+webencodings==0.5.1
