@@ -11,10 +11,10 @@ from fuzzywuzzy import fuzz # Module for fuzzy matching
 from time import sleep # To pause the program for a specific time
 try:
     from builtins import zip # To iterate over multiple lists simultaneously
+    from urllib.parse import urlparse, parse_qs, quote_plus # For parsing URLs
 except:
     print ('\033[91m[-]\033[0m XSStrike isn\'t compatible with python3. Run it with python3 i.e. \033[7;92mpython3 xsstrike\033[0m')
     quit()
-from urllib.parse import urlparse, parse_qs, quote_plus
 
 #Colors and shit like that
 white = '\033[97m'
