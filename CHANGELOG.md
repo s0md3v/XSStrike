@@ -14,6 +14,8 @@
 - Fixed JS context injector
 - Removed Python 2 support & added Python 3 support
 - Added detection of new WAFs `Wordfence, Comodo, Sucuri, CodeIgniter, Cloudflare, Barracuda, AkamaiGhost`
+- Tried to implement a modular design
+- Improvements in WAF Handling
 
 #### v2.0.0 (Pre-Beta)
 - Intitial Release
