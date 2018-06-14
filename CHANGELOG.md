@@ -13,6 +13,8 @@
 - Added handmade HTML parser
 - Fixed JS context injector
 - Removed Python 2 support & added Python 3 support
+- Added detection of new WAFs `Wordfence, Comodo, Sucuri, CodeIgniter, Cloudflare, Barracuda, AkamaiGhost`
+
 #### v2.0.0 (Pre-Beta)
 - Intitial Release
 - Resolved a bug that caused program to terminate in case of WAF
