@@ -56,6 +56,7 @@ def fuzzer(url, param_data, method, delay):
                 print ('\n%s Pheww! Looks like sleeping for %s%i%s seconds worked!' % (good, green, (delay + 1) * 2), end)
             except:
                 print ('\n%s Looks like WAF has blocked our IP Address. Sorry!' % bad)
+                quit()
         if i in response: # if fuzz string is reflected in the response / source code
             result.append({
             'result' : '%sWorks%s' % (green, end),
