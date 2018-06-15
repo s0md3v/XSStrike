@@ -22,7 +22,7 @@ import random
 try:
     from core.injector import inject
 except:
-    print ('\033[91m[-]\033[0m XSStrike isn\'t compatible with python3. Run it with python3 i.e. \033[7;92mpython3 xsstrike\033[0m')
+    print ('\033[91m[-]\033[0m XSStrike isn\'t compatible with python2. Run it with python3 i.e. \033[7;92mpython3 xsstrike\033[0m')
     quit()
 from core.fuzzer import fuzzer
 from core.paramfinder import paramfinder
