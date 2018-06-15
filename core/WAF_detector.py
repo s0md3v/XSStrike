@@ -1,4 +1,5 @@
 import requests
+import re
 from urllib.parse import quote_plus
 
 bad = '\033[91m[-]\033[0m'
