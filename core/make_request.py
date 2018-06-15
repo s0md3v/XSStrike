@@ -3,6 +3,8 @@ import random
 from time import sleep
 from urllib.parse import urlparse as parsy
 
+bad = '\033[91m[-]\033[0m'
+
 user_agents = ['Mozilla/5.0 (X11; Linux i686; rv:60.0) Gecko/20100101 Firefox/60.0',
 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'
 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36 OPR/43.0.2442.991']
@@ -16,8 +18,7 @@ def make_request(url, param_data, method): #The main function which actually mak
     'Accept-Encoding' : 'deflate',
     'Connection' : 'close',
     'DNT' : '1',
-    'Connection' : 'close',
-    'Upgrade-Insecure-Requests' : '1'}
+    'Connection' : 'close'}
     try:
         if method == 'GET':
             resp = requests.get(url + param_data) #Makes request

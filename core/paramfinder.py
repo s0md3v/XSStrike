@@ -10,14 +10,12 @@ blind_params = ['redirect','redir','url','link','goto','debug','_debug','test','
 'tid','uid','vid','wid','xid','yid','zid','cal','country','x','y','topic','title','head','higher','lower','width',
 'height','add','result','log','demo','example','message']
 
-xsschecker = 'v3dm0s'
-
 good = '\033[32m[+]\033[0m'
 green = '\033[92m'
 end = '\033[0m'
 run = '\033[97m[~]\033[0m'
 
-def paramfinder(url, method, paranames, paravalues):
+def paramfinder(url, method, paranames, paravalues, xsschecker):
     response = make_request(url, '', method)
     matches = re.findall(r'<input[^<]*name=\'[^<]*\'*>|<input[^<]*name="[^<]*"*>', response)
     for match in matches:
