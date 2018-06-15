@@ -16,8 +16,11 @@
 - Added detection of new WAFs `Wordfence, Comodo, Sucuri, CodeIgniter, Cloudflare, Barracuda, AkamaiGhost`
 - Tried to implement a modular design
 - Improvements in WAF Handling
+- Temporarily removed HULK
+- Refactored `initiator` function for better performance
+- Removed `%0c` from fillings list
 
 #### v2.0.0 (Pre-Beta)
 - Intitial Release
-- Resolved a bug that caused program to terminate in case of WAF
+- Resolved a bug that caused XSStrike to terminate in case of an active WAF
 - Fixed cookie handling
