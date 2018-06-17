@@ -140,7 +140,7 @@ def param_parser(target, param_data, method):
 def initiator(url, method, proxy):
     choice = input('%s Would you like to look for hidden parameters? [y/N] ' % que)
     if choice == 'y':
-        paramfinder(url, method, paranames, paravalues, xsschecker)
+        paramfinder(url, method, paranames, paravalues, xsschecker, proxy)
     if len(paranames) == 0:
         print('%s No parameters to test.' % bad)
         quit()
@@ -181,7 +181,7 @@ def initiator(url, method, proxy):
                 current_param = current_param + 1
 
         elif method == 'POST':
-            WAF = WAF_detector(url, '?'+paranames[0]+'='+xsschecker, method, xsschecker)
+            WAF = WAF_detector(url, '?'+paranames[0]+'='+xsschecker, method, xsschecker, proxy)
             current_param = 0
             for param_name in paranames:
                 print(('%s-%s' % (red, end)) * 50)
@@ -203,7 +203,7 @@ def initiator(url, method, proxy):
                     if choice == 'y':
                         delay = 6
                     fuzzer(url, param_data, method, delay, xsschecker) # Launches fuzzer aka Ninja
-                if not locater(url, param_data, method): # Launcher locater
+                if not locater(url, param_data, method, proxy): # Launcher locater
                     print ('%s No reflection found.' % bad)
                 else:
                     filter_checker(url, param_data, method, delay, xsschecker, proxy) # Launches filter checker
