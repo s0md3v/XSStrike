@@ -224,6 +224,7 @@ def main():
     proxy_choice = input('%s Would you like to use a HTTP(S)/SOCKS5 proxy? [y/N] ' %que)
     if proxy_choice == 'y':
         proxy = input('%s Enter the proxy address <http(s)|socks5h://hostname:port>' %que)
+        proxy = proxy.strip()
         session.proxies['http'] = proxy
         session.proxies['https'] = proxy
     target = input('%s Enter a url: ' % que)
