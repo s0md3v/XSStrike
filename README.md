@@ -12,6 +12,7 @@ Made with ![heart](https://cloud.githubusercontent.com/assets/4301109/16754758/8
 - Intelligent payload generation
 - GET & POST method support
 - Cookie Support
+- SOCKS5 Proxy Support (Tor support via ```socks5://localhost:9050```)
 - WAF Fingerprinting
 - Hand crafted payloads for filter and WAF evasion
 - Hidden parameter discovery

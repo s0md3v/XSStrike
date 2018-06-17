@@ -32,6 +32,7 @@ date = '15x-06-2018'
 
 def update():
     print('%s Checking for updates...' % run)
+    # doesnt need a proxy
     xsstrike = requests.get('http://github.com/UltimateHackers/XSStrike/blob/master/xsstrike').text
     if date not in xsstrike:
         choice = input('%s A new version of XSStrike is available. Would you like to update? [Y/n] ' % que).lower()
@@ -104,9 +105,9 @@ def html_parser(response):
         occur_location.append(location)
         occur_number.append(number)
 
-def locater(url, param_data, method):
+def locater(url, param_data, method, proxy):
     sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
-    response = make_request(url, param_data, method) # Makes request to the target
+    response = make_request(url, param_data, method, proxy) # Makes request to the target
     if(xsschecker in response.lower()): # if the xsschecker is found in the response
         global NUM_REFLECTIONS # The number of reflections of xsschecker in the response
         NUM_REFLECTIONS = response.lower().count(xsschecker.lower()) # Counts number of time d3v got reflected in webpage
@@ -136,7 +137,7 @@ def param_parser(target, param_data, method):
 #   Initiator
 ##################
 
-def initiator(url, method):
+def initiator(url, method, proxy):
     choice = input('%s Would you like to look for hidden parameters? [y/N] ' % que)
     if choice == 'y':
         paramfinder(url, method, paranames, paravalues, xsschecker)
@@ -145,7 +146,7 @@ def initiator(url, method):
         quit()
     else:
         if method == 'GET':
-            WAF = WAF_detector(url, '?'+paranames[0]+'='+xsschecker, method, xsschecker)
+            WAF = WAF_detector(url, '?'+paranames[0]+'='+xsschecker, method, xsschecker, proxy)
             current_param = 0
             for param_name in paranames:
                 print(('%s-%s' % (red, end)) * 50)
@@ -170,11 +171,11 @@ def initiator(url, method):
                     if choice == 'y':
                         delay = 6
                     fuzzer(url, param_data, method, delay, xsschecker) #Launches fuzzer aka Ninja
-                if not locater(url, param_data, method): # Launcher locater
+                if not locater(url, param_data, method, proxy): # Launcher locater
                     print ('%s No reflection found.' % bad)
                 else:
-                    filter_checker(url, param_data, method, delay, xsschecker) # Launces filter checker
-                    inject(url, param_data, method, occur_number, occur_location) # Launches injector
+                    filter_checker(url, param_data, method, delay, xsschecker, proxy) # Launces filter checker
+                    inject(url, param_data, method, occur_number, occur_location, proxy) # Launches injector
                 del occur_number[:] # Clears the occur_number list
                 del occur_location[:] # Clears the occur_location list
                 current_param = current_param + 1
@@ -205,8 +206,8 @@ def initiator(url, method):
                 if not locater(url, param_data, method): # Launcher locater
                     print ('%s No reflection found.' % bad)
                 else:
-                    filter_checker(url, param_data, method, delay, xsschecker) # Launches filter checker
-                    inject(url, param_data, method, occur_number, occur_location) # Launches injector
+                    filter_checker(url, param_data, method, delay, xsschecker, proxy) # Launches filter checker
+                    inject(url, param_data, method, occur_number, occur_location, proxy) # Launches injector
                 del occur_number[:] # Clears the occur_number list
                 del occur_location[:] # Clears the occur_location list
                 current_param = current_param + 1
@@ -216,19 +217,28 @@ def initiator(url, method):
 ##############
 
 def main():
+    proxy = None
+
+    session = requests.session()
+
+    proxy_choice = input('%s Would you like to use a SOCKS5 proxy? [y/N] ' %que)
+    if proxy_choice == 'y':
+        proxy = input('%s Enter the proxy address <socks5h://hostname:port>' %que)
+        session.proxies['http'] = proxy
+        session.proxies['https'] = proxy
     target = input('%s Enter a url: ' % que)
     cookie = input('%s Enter cookie (if any): ' % que)
     if 'http' in target: # if the target has http in it, do nothing
         pass
     else:
         try:
-            requests.get('http://%s' % target) # Makes request to the target with http schema
+            session.get('http://%s' % target) # Makes request to the target with http schema
             target = 'http://%s' % target
         except: # if it fails, maybe the target uses https schema
             target = 'https://%s' % target
 
     try:
-        requests.get(target) # Makes request to the target
+        session.get(target) # Makes request to the target
     except Exception as e: # if it fails, the target is unreachable
         if 'ssl' in str(e).lower():
             target = 'http://%s' % target
@@ -240,16 +250,16 @@ def main():
         method = 'GET'
         param_data = ''
         param_parser(target, param_data, method)
-        initiator(url, method)
+        initiator(url, method, proxy)
     else:
         choice = input('%s Does it use POST method? [Y/n] ' % que).lower()
         if choice == 'n':
             method = 'GET'
-            initiator(target, method)
+            initiator(target, method, proxy)
         else:
             method = 'POST'
             param_data = input('%s Enter POST data: ' % que)
             param_parser(target, param_data, method)
-            initiator(url, method)
+            initiator(url, method, proxy)
 
 main() #This is the true start of the program

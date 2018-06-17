@@ -2,3 +2,4 @@ fuzzywuzzy
 python-Levenshtein
 prettytable
 requests
+pysocks
