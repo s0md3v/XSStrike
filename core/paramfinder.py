@@ -15,8 +15,8 @@ green = '\033[92m'
 end = '\033[0m'
 run = '\033[97m[~]\033[0m'
 
-def paramfinder(url, method, paranames, paravalues, xsschecker):
-    response = make_request(url, '', method)
+def paramfinder(url, method, paranames, paravalues, xsschecker, cookie):
+    response = make_request(url, '', method, cookie)
     matches = re.findall(r'<input[^<]*name=\'[^<]*\'*>|<input[^<]*name="[^<]*"*>', response)
     for match in matches:
         try:
@@ -34,9 +34,9 @@ def paramfinder(url, method, paranames, paravalues, xsschecker):
         sys.stdout.flush()
         if param not in paranames:
             if method == 'GET':
-                response = make_request(url, '?' + param + '=' + xsschecker, method)
+                response = make_request(url, '?' + param + '=' + xsschecker, method, cookie)
             else:
-                response = make_request(url, param + '=' + xsschecker, method)
+                response = make_request(url, param + '=' + xsschecker, method, cookie)
             if ('\'%s\'' % xsschecker or '"%s"' % xsschecker or ' %s ' % xsschecker) in response:
                 print('\n%s Valid parameter found : %s%s%s' % (good, green, param, end))
                 paranames.append(param)

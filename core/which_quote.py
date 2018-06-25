@@ -2,12 +2,12 @@ from core.make_request import make_request
 import re
 xsschecker = 'v3dm0s'
 
-def which_quote(OCCURENCE_NUM, url, param_data, method):
+def which_quote(OCCURENCE_NUM, url, param_data, method, cookie):
     check_string = 'ST4RTSSX' + xsschecker + '3NDSSX'
     compare_string = 'ST4RTSSX' + xsschecker + '3NDSSX'
     param_data_injected = param_data.replace(xsschecker, check_string)
     try:
-        check_response = make_request(url, param_data_injected, method)
+        check_response = make_request(url, param_data_injected, method, cookie)
     except:
         check_response = ''
     quote = ''
