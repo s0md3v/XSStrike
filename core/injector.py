@@ -48,11 +48,11 @@ def inject(url, param_data, method, occur_number, occur_location):
         print('\n%s Testing reflection no. %s ' % (run, OCCURENCE_NUM))
         allowed = []
         
-        if test_param_check('k"k', 'k"k', OCCURENCE_NUM, url, param_data, method, action='nope'):
+        if test_param_check('d3v"d3v', 'd3v"d3v', OCCURENCE_NUM, url, param_data, method, action='nope'):
             print('%s Double Quotes (") are allowed.' % good)
             double_allowed = True
             allowed.append('"')
-        elif test_param_check('k"k', 'k&quot;k', OCCURENCE_NUM, url, param_data, method, action='nope'):
+        elif test_param_check('d3v"d3v', 'd3v&quot;d3v', OCCURENCE_NUM, url, param_data, method, action='nope'):
             print('%s Double Quotes (") are not allowed.' % bad)
             print('%s HTML Encoding detected i.e " --> &quot;' % bad)
             HTML_encoding = True
@@ -60,7 +60,7 @@ def inject(url, param_data, method, occur_number, occur_location):
             print('%s Double Quotes (") are not allowed.' % bad)
             double_allowed = False
         
-        if test_param_check('k\'k', 'k\'k', OCCURENCE_NUM, url, param_data, method, action='nope'):
+        if test_param_check('d3v\'d3v', 'd3v\'d3v', OCCURENCE_NUM, url, param_data, method, action='nope'):
             print('%s Single Quotes (\') are allowed.' % good)
             single_allowed = True
             allowed.append('\'')
