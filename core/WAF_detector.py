@@ -16,23 +16,27 @@ def WAF_detector(url, param_data, method, xsschecker, cookie):
         response = requests.post(url, data=fuzz, cookies=cookie) # Opens the noise injected payload
     code = str(response.status_code)
     response_headers = str(response.headers)
+    response_text = response.text.lower()
     if code[:1] != '2':
         if '406' == code or '501' == code: # if the http response code is 406/501
             WAF_Name = 'Mod_Security'
             WAF = True
-        elif 'wordfence' in response.text.lower():
+        elif 'wordfence' in response_text:
             WAF_Name = 'Wordfence'
             WAF = True
         elif '999' == code: # if the http response code is 999
             WAF_Name = 'WebKnight'
             WAF = True
-        elif 'has disallowed characters' in response.text.lower():
+        elif 'has disallowed characters' in response_text:
             WAF_Name = 'CodeIgniter'
             WAF = True
-        elif 'comodo' in response.text.lower():
+        elif '<hr><center>nginx</center>' in response_text:
+            WAF_Name = 'nginx'
+            WAF = True
+        elif 'comodo' in response_text:
             WAF_Name = 'Comodo'
             WAF = True
-        elif 'sucuri' in response.text.lower():
+        elif 'sucuri' in response_text:
             WAF_Name = 'Sucuri'
             WAF = True
         elif '419' == code: # if the http response code is 419

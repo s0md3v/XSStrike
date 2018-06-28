@@ -9,14 +9,14 @@ good = '\033[32m[+]\033[0m'
 xsschecker = 'v3dm0s'
 
 def test_param_check(payload_to_check, payload_to_compare, OCCURENCE_NUM, url, param_data, method, action, cookie):
-    check_string = 'XSSSTART' + payload_to_check + 'XSSEND' # We are adding XSSSTART and XSSEND to make
-    compare_string = 'XSSSTART' + payload_to_compare + 'XSSEND' # the payload distinguishable in the response
+    check_string = 'st4r7' + payload_to_check + '3nds' # We are adding st4r7 and 3nds to make
+    compare_string = 'st4r7' + payload_to_compare + '3nds' # the payload distinguishable in the response
     param_data_injected = param_data.replace(xsschecker, check_string)
     check_response = make_request(url, param_data_injected, method, cookie)
     success = False
     occurence_counter = 0 # Variable to keep track of which reflection is going through the loop
     # Itretating over the reflections
-    for m in re.finditer('XSSSTART', check_response, re.IGNORECASE):
+    for m in re.finditer('st4r7', check_response, re.IGNORECASE):
         occurence_counter = occurence_counter + 1
         efficiency = fuzz.partial_ratio(check_response[m.start():m.start()+len(compare_string)].lower(), compare_string.lower())
         if efficiency == 100:

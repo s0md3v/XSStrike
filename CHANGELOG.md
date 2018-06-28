@@ -19,7 +19,6 @@
 - Temporarily removed HULK
 - Refactored `initiator` function for better performance
 - Removed `%0c` from fillings list
-- Added stable cookie support
 
 #### v2.0.0 (Pre-Beta)
 - Intitial Release
