@@ -19,6 +19,10 @@
 - Temporarily removed HULK
 - Refactored `initiator` function for better performance
 - Removed `%0c` from fillings list
+- Added cookies support
+- Better fuzz strings for fuzzing WAFs
+- Added detection of `nginx` WAF
+- Minor fixes
 
 #### v2.0.0 (Pre-Beta)
 - Intitial Release
