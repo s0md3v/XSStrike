@@ -136,7 +136,7 @@ def param_parser(target, param_data, method):
 #   Initiator
 ##################
 
-def initiator(url, method, cookie):
+def initiator(url, method, cookie=None):
     choice = input('%s Would you like to look for hidden parameters? [y/N] ' % que)
     if choice == 'y':
         paramfinder(url, method, paranames, paravalues, xsschecker, cookie)
