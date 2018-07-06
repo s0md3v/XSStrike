@@ -246,7 +246,7 @@ def main():
         choice = input('%s Does it use POST method? [Y/n] ' % que).lower()
         if choice == 'n':
             method = 'GET'
-            initiator(target, method)
+            initiator(target, method, cookie)
         else:
             method = 'POST'
             param_data = input('%s Enter POST data: ' % que)
