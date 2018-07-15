@@ -24,6 +24,7 @@
 - Added detection of `nginx` WAF
 - Minor fixes
 - Fixed a bug which caused XSStrike to crash after supplying a cookie to url with no params & GET method
+- Fixed Regex in `paramfinder` module
 
 #### v2.0.0 (Pre-Beta)
 - Intitial Release
