@@ -17,10 +17,10 @@ run = '\033[97m[~]\033[0m'
 
 def paramfinder(url, method, paranames, paravalues, xsschecker, cookie):
     response = make_request(url, '', method, cookie)
-    matches = re.findall(r'<input[^<]*name=\'[^<]*\'*>|<input[^<]*name="[^<]*"*>', response)
+    matches = re.findall(r'<input.*?name=\'(.*?)\'.*?>|<input.*?name="(.*?)".*?>', response)
     for match in matches:
         try:
-            found_param = match.split('name=')[1].split(' ')[0].replace('\'', '').replace('"', '')
+            found_param = match[1]
         except UnicodeDecodeError:
             continue
         print('%s Heuristics found a potentially valid parameter: %s%s%s. Priortizing it.' % (good, green, found_param, end))
