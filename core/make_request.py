@@ -20,10 +20,10 @@ def make_request(url, param_data, method, cookie): #The main function which actu
     'Connection' : 'close'}
     try:
         if method == 'GET':
-            resp = requests.get(url + param_data, cookies=cookie) #Makes request
+            resp = requests.get(url + param_data, cookies=cookie, headers=headers) #Makes request
             return resp.text #Reads the output
         elif method == 'POST':
-            resp = requests.post(url, data=param_data, cookies=cookie) #Makes request
+            resp = requests.post(url, data=param_data, cookies=cookie, headers=headers) #Makes request
             return resp.text #Reads the output
     except:
         print('\n%s Target isn\'t responding properly.' % bad)
