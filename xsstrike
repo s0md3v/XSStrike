@@ -28,7 +28,7 @@ from urllib.parse import parse_qs, quote_plus
 from urllib.parse import urlparse as parsy
 from time import sleep # To pause the program for a specific time
 
-date = '15-07-2018'
+date = '21-07-2018'
 
 def update():
     print('%s Checking for updates...' % run)
