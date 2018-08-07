@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 
-#Colors and shit like that
+import requests
+import os
+from xsstrike.core.injector import inject
+from xsstrike.core.WAF_detector import WAF_detector
+from xsstrike.core.fuzzer import fuzzer
+from xsstrike.core.filter_checker import filter_checker
+from xsstrike.core.paramfinder import paramfinder
+from xsstrike.core.make_request import make_request
+from urllib.parse import urlparse as parsy
+from time import sleep
+
+# Colors and shit like that
 white = '\033[97m'
 green = '\033[92m'
 red = '\033[91m'
@@ -12,21 +23,6 @@ que = '\033[94m[?]\033[0m'
 bad = '\033[91m[-]\033[0m'
 good = '\033[32m[+]\033[0m'
 run = '\033[97m[~]\033[0m'
-
-import requests
-import re # Module for RegEx
-import sys # Standard system library
-import os # Standard module for system related operations
-import webbrowser # To open pages in "real" browers
-from core.injector import inject
-from core.WAF_detector import WAF_detector
-from core.fuzzer import fuzzer
-from core.filter_checker import filter_checker
-from core.paramfinder import paramfinder
-from core.make_request import make_request
-from urllib.parse import parse_qs, quote_plus
-from urllib.parse import urlparse as parsy
-from time import sleep # To pause the program for a specific time
 
 date = '21-07-2018'
 

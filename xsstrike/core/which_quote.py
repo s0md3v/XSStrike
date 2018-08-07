@@ -1,4 +1,4 @@
-from core.make_request import make_request
+from xsstrike.core.make_request import make_request
 import re
 xsschecker = 'v3dm0s'
 
