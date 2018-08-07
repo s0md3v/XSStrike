@@ -2,7 +2,7 @@ import sys
 import requests
 from prettytable import PrettyTable # Module for print table of results
 from urllib.parse import quote_plus
-from core.make_request import make_request
+from xsstrike.core.make_request import make_request
 from time import sleep
 
 green = '\033[92m'

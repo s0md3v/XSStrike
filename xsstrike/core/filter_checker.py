@@ -1,4 +1,4 @@
-from core.make_request import make_request
+from xsstrike.core.make_request import make_request
 from urllib.parse import quote_plus
 from time import sleep
 import webbrowser

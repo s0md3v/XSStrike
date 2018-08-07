@@ -1,6 +1,6 @@
 import re
 import webbrowser
-from core.make_request import make_request
+from xsstrike.core.make_request import make_request
 from fuzzywuzzy import fuzz # Module for fuzzy matching
 
 que = '\033[94m[?]\033[0m'

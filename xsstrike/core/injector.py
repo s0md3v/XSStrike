@@ -5,8 +5,8 @@ try:
 except:
     print ('\033[91m[-]\033[0m XSStrike isn\'t compatible with python2. Run it with python3 i.e. \033[7;92mpython3 xsstrike\033[0m')
     quit()
-from core.which_quote import which_quote
-from core.test_param_check import test_param_check
+from xsstrike.core.which_quote import which_quote
+from xsstrike.core.test_param_check import test_param_check
 
 tags = ['sVg', 'iMg', 'bOdY', 'd3v', 'deTails'] # HTML Tags
 

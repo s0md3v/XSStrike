@@ -1,6 +1,6 @@
 import re
 import sys
-from core.make_request import make_request
+from xsstrike.core.make_request import make_request
 
 blind_params = ['redirect','redir','url','link','goto','debug','_debug','test','get','index','src','source','file',
 'frame','config','new','old','var','rurl','return_to','_return','returl','last','text','load','email',

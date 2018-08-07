@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[dev-packages]
+
+[packages]
+fuzzywuzzy = "*"
+requests = "*"
+python-Levenshtein = "*"
+PrettyTable = "*"
+
+[requires]
+python_version = "3.6"
