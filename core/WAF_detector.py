@@ -36,6 +36,9 @@ def WAF_detector(url, param_data, method, xsschecker, cookie):
         elif 'comodo' in response_text:
             WAF_Name = 'Comodo'
             WAF = True
+        elif 'Shadow Daemon' in response_text:
+            WAF_Name = 'Shadow Daemon'
+            WAF = True
         elif 'sucuri' in response_text:
             WAF_Name = 'Sucuri'
             WAF = True

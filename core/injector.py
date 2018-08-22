@@ -18,6 +18,7 @@ event_handlers = { # Event handlers and the name of tags which can be used with 
 'oNsTart': ['maRQuee'],
 'oNfoCus': ['d3v', 'bOdY'],
 'oNCliCk': ['d3v', 'bOdY']
+'oNCoPy':['d3v', 'iMg']
 }
 
 functions = [ # JavaScript functions to get a popup
