@@ -1,7 +1,7 @@
 import requests
 import random
 from time import sleep
-from urllib.parse import urlparse as parsy
+from urllib.parse import urlparse as parsy, parse_qs
 
 bad = '\033[91m[-]\033[0m'
 
@@ -23,7 +23,7 @@ def make_request(url, param_data, method, cookie): #The main function which actu
             resp = requests.get(url + param_data, cookies=cookie, headers=headers) #Makes request
             return resp.text #Reads the output
         elif method == 'POST':
-            resp = requests.post(url, data=param_data, cookies=cookie, headers=headers) #Makes request
+            resp = requests.post(url, data=dict(parse_qs(param_data)), cookies=cookie, headers=headers) #Makes request
             return resp.text #Reads the output
     except:
         print('\n%s Target isn\'t responding properly.' % bad)
