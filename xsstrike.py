@@ -197,6 +197,8 @@ else:
                     url = scheme + '://' + url[2:]
                 elif url.startswith('/'):
                     url = scheme + '://' + host + url
+                elif re.match(r'\w', url[0]):
+                    url = scheme + '://' + host + '/' + url
                 method = each['method']
                 if method == 'get':
                     GET = True
