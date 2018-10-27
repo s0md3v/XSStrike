@@ -1,10 +1,7 @@
 # Let's import what we need
-import tld
-import sys
-import json
 from re import findall
 import concurrent.futures
-from urllib.parse import urlparse # for python3
+from urllib.parse import urlparse
 
 from core.colors import run
 from core.zetanize import zetanize
