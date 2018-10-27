@@ -1,4 +1,0 @@
-fuzzywuzzy
-python-Levenshtein
-prettytable
-requests
