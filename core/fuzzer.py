@@ -1,4 +1,5 @@
 import copy
+import requests
 from time import sleep
 from random import randint
 from core.utils import replacer
@@ -36,7 +37,7 @@ def fuzzer(url, params, headers, GET, delay, WAF):
                 limit -= 1
                 sleep(1)
             try:
-                requests.get(url, timeout=5, cookies=cookie)
+                requests.get(url, timeout=5, headers=headers)
                 print ('\n%s Pheww! Looks like sleeping for %s%i%s seconds worked!' % (good, green, (delay + 1) * 2), end)
             except:
                 print ('\n%s Looks like WAF has blocked our IP Address. Sorry!' % bad)
