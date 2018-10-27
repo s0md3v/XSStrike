@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000px" height="1000px" viewBox="0 0 1000 1000" zoomAndPan="disable">
+    <style type="text/css"><![CDATA[
+		line
+		{
+			stroke: rgba(255,255,255,0.1);
+			stroke-width: 0.85px;
+		}
+    ]]></style>
+	<line x1="-180" y1="0" x2="820" y2="1000" />
+	<line x1="-380" y1="0" x2="620" y2="1000" />
+	<line x1="-530" y1="0" x2="470" y2="1000" />
+	<line x1="-655" y1="0" x2="345" y2="1000" />
+	<line x1="-755" y1="0" x2="245" y2="1000" />
+	<line x1="-830" y1="0" x2="170" y2="1000" />
+	<line x1="-880" y1="0" x2="120" y2="1000" />
+	<line x1="-920" y1="0" x2="80" y2="1000" />
+	<line x1="-950" y1="0" x2="50" y2="1000" />
+	<line x1="-970" y1="0" x2="30" y2="1000" />
+	<line x1="-985" y1="0" x2="15" y2="1000" />
+	<line x1="-995" y1="0" x2="5" y2="1000" />
+</svg>
