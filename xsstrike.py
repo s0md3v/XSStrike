@@ -110,7 +110,7 @@ def singleTarget(target, paramData):
     params = getParams(target, paramData, GET)
     if args.find:
         params = arjun(url, GET, headers, delay)
-    if not params and not find:
+    if not params:
         quit()
     WAF = wafDetector(url, {list(params.keys())[0] : xsschecker}, headers, GET, delay)
     if WAF:
