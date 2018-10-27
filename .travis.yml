@@ -1,0 +1,16 @@
+language: python
+os:
+  - linux
+python:
+  - 3.6
+install:
+  - pip install -r requirements.txt
+  - pip install flake8
+before_script:
+  # stop the build if there are Python syntax errors or undefined names
+  - flake8 . --count --select=E901,E999,F821,F822,F823 --show-source --statistics
+  # exit-zero treats all errors as warnings.  The GitHub editor is 127 chars wide
+  - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+script:
+  - python xsstrike.py -u "https://public-firing-range.appspot.com/reflected/index.html" --crawl
+  - python xsstrike.py -u "https://brutelogic.com.br/multi/double-html.php?p=1" --skip-poc
