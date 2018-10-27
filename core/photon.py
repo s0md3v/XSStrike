@@ -31,8 +31,6 @@ def photon(main_url, url, headers):
         elif link[:2] == '//':
             if link.split('/')[2].startswith(host):
                 urls.add(schema + link)
-            else:
-                external.add(link)
         elif link[:1] == '/':
             urls.add(main_url + link)
         else:
