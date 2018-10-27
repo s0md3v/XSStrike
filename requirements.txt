@@ -1,0 +1,2 @@
+fuzzywuzzy
+requests
