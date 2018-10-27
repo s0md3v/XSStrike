@@ -13,4 +13,3 @@ before_script:
   - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 script:
   - python xsstrike.py -u "https://public-firing-range.appspot.com/reflected/index.html" --crawl
-  - python xsstrike.py -u "https://brutelogic.com.br/multi/double-html.php?p=1" --skip-poc
