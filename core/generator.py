@@ -21,6 +21,9 @@ def generator(occurences, response):
             lessBracketEfficiency = occurences[i]['score']['<']
             greatBracketEfficiency = occurences[i]['score']['>']
             breakerEfficiency = occurences[i]['score'][breaker]
+            if breaker == '\'' or breaker == '"':
+                breaker = ''
+                breakerEfficiency = 100
             ends = ['//']
             if greatBracketEfficiency == 100:
                 ends.append('>')
