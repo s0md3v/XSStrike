@@ -6,7 +6,7 @@ from core.requester import requester
 def filterChecker(url, params, headers, GET, delay, occurences):
     environments = set(['<', '>'])
     sortedEfficiencies = {}
-    for i in range(len(occurences.values())):
+    for i in range(len(occurences) + 10):
         sortedEfficiencies[i] = {}
     for occurence in occurences.values():
         environments.add(occurence['context'][1])
