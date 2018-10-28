@@ -2,6 +2,20 @@ import re
 import random
 from core.config import xsschecker
 
+def stripper(string, substring, direction='right'):
+    done = False
+    strippedString = ''
+    if direction == 'right':
+        string = string[::-1]
+    for char in string:
+        if char == substring and not done:
+            done = True
+        else:
+            strippedString += char
+    if direction == 'right':
+        strippedString = strippedString[::-1]
+    return strippedString
+
 def extractHeaders(headers):
     sorted_headers = {}
     matches = re.findall(r'(.*):\s(.*)', headers)
