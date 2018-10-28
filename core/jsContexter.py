@@ -1,24 +1,31 @@
 import re
+from core.utils import stripper
 from core.config import xsschecker
 
 def jsContexter(script):
     broken = script.split(xsschecker)
     pre = broken[0]
     pre = re.sub(r'(?s)\{.*?\}|(?s)\(.*?\)|(?s)".*?"|(?s)\'.*?\'', '', pre)
-    breaker = []
+    breaker = ''
     num = 0
     for char in pre:
         if char == '{':
-            breaker.append('}')
+            breaker += '}'
         elif char == '(':
-            breaker.append(');')
+            breaker += ';)'
         elif char == '[':
-            breaker.append(']')
+            breaker += ']'
         elif char == '/':
             try:
                 if pre[num + 1] == '*':
-                    breaker.append('*/')
+                    breaker += '/*'
             except IndexError:
                 pass
+        elif char == '}':
+            breaker = stripper(breaker, '}')
+        elif char == ')':
+            breaker = stripper(breaker, ')')
+        elif breaker == ']':
+            breaker = stripper(breaker, ']')
         num += 1
-    return ''.join(breaker[::-1])
+    return breaker[::-1]
