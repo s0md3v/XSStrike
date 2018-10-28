@@ -14,7 +14,7 @@ def photon(seedUrl, headers, level):
     storage = set() # urls that belong to the target i.e. in-scope
     schema = urlparse(seedUrl).scheme
     host = urlparse(seedUrl).netloc
-    main_url = scheme + '://' + host
+    main_url = schema + '://' + host
     storage.add(seedUrl)
     def rec(target):
         processed.add(target)
