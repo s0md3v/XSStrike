@@ -44,13 +44,13 @@ from core.utils import getUrl, getParams, flattenParams, extractHeaders
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--url', help='url', dest='target')
 parser.add_argument('--data', help='post data', dest='data')
-parser.add_argument('-c', '--cookie', help='cookie', dest='cookie')
 parser.add_argument('-t', '--threads', help='number of threads', dest='threads')
 parser.add_argument('--fuzzer', help='fuzzer', dest='fuzz', action='store_true')
 parser.add_argument('--update', help='update', dest='update', action='store_true')
 parser.add_argument('--timeout', help='timeout', dest='timeout', action='store_true')
 parser.add_argument('--params', help='find params', dest='find', action='store_true')
 parser.add_argument('--crawl', help='crawl', dest='recursive', action='store_true')
+parser.add_argument('-l', '--level', help='level of crawling', dest='level', type=int)
 parser.add_argument('--skip-poc', help='skip poc generation', dest='skipPOC', action='store_true')
 parser.add_argument('--skip-dom', help='skip dom checking', dest='skipDOM', action='store_true')
 parser.add_argument('--headers', help='add headers', dest='headers', action='store_true')
@@ -65,10 +65,10 @@ else:
 find = args.find
 fuzz = args.fuzz
 target = args.target
-cookie = args.cookie
 paramData = args.data
 skipDOM = args.skipDOM
 skipPOC = args.skipPOC
+level = args.level or 2
 delay = args.delay or core.config.delay
 threadCount = args.threads or core.config.threadCount
 timeout = args.timeout or core.config.timeout
@@ -185,7 +185,7 @@ else:
     scheme = urlparse(target).scheme
     host = urlparse(target).netloc
     main_url = scheme + '://' + host
-    forms = photon(main_url, target, headers)
+    forms = photon(target, headers, level)
     signatures = set()
     for form in forms:
         for each in form.values():
