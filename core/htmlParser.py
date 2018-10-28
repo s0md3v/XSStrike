@@ -19,11 +19,14 @@ def htmlParser(response):
         elif deep[0][-2:] == '--':
             location = 'comment'
         else:
-            location = 'script'
-            for char in part:
-                if char == '<':
-                    location = 'attribute'
-                    break
+            if '<script' in response:
+                location = 'script'
+                for char in part:
+                    if char == '<':
+                        location = 'attribute'
+                        break
+            else:
+                location = 'html'
         locations.append(location) # add location to locations list
     num = 0 # dummy value to keep record of occurence being processed
     for occ in re.finditer(xsschecker, response, re.IGNORECASE): # find xsschecker in response and return matches
@@ -43,8 +46,11 @@ def htmlParser(response):
                                 break
                 try:
                     tag = re.search(r'\w+', goodTokens[num]).group() # finds the tag "inside" which input is refelcted
-                except:
-                    tag = re.search(r'\w+', goodTokens[num - 1]).group() # finds the tag "inside" which input is refelcted
+                except IndexError:
+                    try:
+                        tag = re.search(r'\w+', goodTokens[num - 1]).group() # finds the tag "inside" which input is refelcted
+                    except IndexError:
+                        tag = 'null'
                 tags.append(tag) # add the tag to the tags
                 break
             elif toLook[loc] == '<':
