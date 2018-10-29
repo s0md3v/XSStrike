@@ -23,6 +23,7 @@ import copy
 import argparse
 import requests
 import webbrowser
+import concurrent.futures
 
 import core.config
 from core.dom import dom
@@ -178,6 +179,55 @@ def singleTarget(target, paramData):
                     print ('%s Efficiency: %i' % (info, bestEfficiency))
                     print ('%s Cofidence: %i' % (info, confidence))
 
+def multiTargets(scheme, host, main_url, form):
+    signatures = set()
+    for each in form.values():
+        url = each['action']
+        if url:
+            if url.startswith(main_url):
+                pass
+            elif url.startswith('//') and url[2:].startswith(host):
+                url = scheme + '://' + url[2:]
+            elif url.startswith('/'):
+                url = scheme + '://' + host + url
+            elif re.match(r'\w', url[0]):
+                url = scheme + '://' + host + '/' + url
+            method = each['method']
+            if method == 'get':
+                GET = True
+            else:
+                GET = False
+            inputs = each['inputs']
+            paramData = {}
+            for one in inputs:
+                paramData[one['name']] = one['value']
+                if target not in ''.join(signatures) and not skipDOM:
+                    response = requests.get(target).text
+                    if dom(response, silent=True):
+                        print ('%s Potentially vulnerable objects found' % good)
+                for paramName in paramData.keys():
+                    signature = url + paramName
+                    if signature not in signatures:
+                        signatures.add(signature)
+                        print ('%s Scanning %s%s%s, %s' % (run, green, url, end, paramName))
+                        paramsCopy = copy.deepcopy(paramData)
+                        paramsCopy[paramName] = xsschecker
+                        response = requester(url, paramsCopy, headers, GET, delay).text
+                        try:
+                            occurences = htmlParser(response)
+                            efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences)
+                            vectors = generator(occurences, response)
+                            if vectors:
+                                for confidence, vects in vectors.items():
+                                    try:
+                                        print ('%s Vector for %s: %s' % (good, paramName, list(vects)[0]))
+                                        break
+                                    except IndexError:
+                                        pass
+                        except Exception as e:
+                            print ('%s Error: %s' % (bad, e))
+
+
 if not args.recursive:
     singleTarget(target, paramData)
 else:
@@ -186,50 +236,7 @@ else:
     host = urlparse(target).netloc
     main_url = scheme + '://' + host
     forms = photon(target, headers, level)
-    signatures = set()
-    for form in forms:
-        for each in form.values():
-            url = each['action']
-            if url:
-                if url.startswith(main_url):
-                    pass
-                elif url.startswith('//') and url[2:].startswith(host):
-                    url = scheme + '://' + url[2:]
-                elif url.startswith('/'):
-                    url = scheme + '://' + host + url
-                elif re.match(r'\w', url[0]):
-                    url = scheme + '://' + host + '/' + url
-                method = each['method']
-                if method == 'get':
-                    GET = True
-                else:
-                    GET = False
-                inputs = each['inputs']
-                paramData = {}
-                for one in inputs:
-                    paramData[one['name']] = one['value']
-                    if target not in ''.join(signatures) and not skipDOM:
-                        response = requests.get(target).text
-                        if dom(response, silent=True):
-                            print ('%s Potentially vulnerable objects found' % good)
-                    for paramName in paramData.keys():
-                        signature = url + paramName
-                        if signature not in signatures:
-                            signatures.add(signature)
-                            print ('%s Scanning %s%s%s, %s' % (run, green, url, end, paramName))
-                            paramsCopy = copy.deepcopy(paramData)
-                            paramsCopy[paramName] = xsschecker
-                            response = requester(url, paramsCopy, headers, GET, delay).text
-                            try:
-                                occurences = htmlParser(response)
-                                efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences)
-                                vectors = generator(occurences, response)
-                                if vectors:
-                                    for confidence, vects in vectors.items():
-                                        try:
-                                            print ('%s Vector for %s: %s' % (good, paramName, list(vects)[0]))
-                                            break
-                                        except IndexError:
-                                            pass
-                            except Exception as e:
-                                print ('%s Error: %s' % (bad, e))
+    threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=10)
+    futures = (threadpool.submit(multiTargets, scheme, host, main_url, form) for form in forms)
+    for i, _ in enumerate(concurrent.futures.as_completed(futures)):
+        pass
