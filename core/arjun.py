@@ -23,7 +23,7 @@ def arjun(url, GET, headers, delay):
         print('%s Heuristics found a potentially valid parameter: %s%s%s. Priortizing it.' % (good, green, foundParam, end))
         if foundParam in blindParams:
             blindParams.remove(foundParam)
-        blindParams.insert(0, foundParam)
+            blindParams.insert(0, foundParam)
     threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
     futures = (threadpool.submit(checky, param, paraNames, url, headers, GET, delay) for param in blindParams)
     for i, _ in enumerate(concurrent.futures.as_completed(futures)):
