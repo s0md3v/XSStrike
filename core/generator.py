@@ -83,11 +83,13 @@ def generator(occurences, response):
                 suffix = '//\\'
                 if not breaker:
                     closer = closer[1:]
+                if breakerEfficiency <= 83:
+                    breaker = ''
                 for filling in jFillings:
                     for function in functions:
                         vector = breaker + closer + filling + function + suffix
                         vectors[7].add(vector)
-            elif breakerEfficiency >= 83:
+            elif breakerEfficiency > 83:
                 suffix = '//'
                 for filling in jFillings:
                     for function in functions:
