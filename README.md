@@ -29,7 +29,6 @@
   <a href="https://github.com/s0md3v/XSStrike#gallery">Gallery</a>
 </p>
 
-### Why XSStrike?
 XSStrike is a Cross Site Scripting detection suite equipped with four hand written parsers, an intelligent payload generator, a powerful fuzzing engine and an incredibly fast crawler.
 
 Instead of injecting payloads and checking it works like all the other tools do, XSStrike  analyses the response with multiple parsers and then crafts payloads that are guaranteed to work with context analysis integrated with a fuzzing engine.
@@ -44,10 +43,10 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 
 ### Main Features
 - Reflected and DOM XSS Scanning
-- Multithreaded crawling
+- Multi-threaded crawling
 - Context analysis
 - Configurable Core
-- Highly Researched Workflow
+- Highly Researched Work-flow
 - WAF detection & evasion
 - Handmade HTML & JavaScript parser
 - Powerful fuzzing engine
@@ -59,7 +58,7 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 
 ### Documentation
 - [Usage](https://github.com/s0md3v/XSStrike/wiki/Usage)
-- [Compatibilty & Dependencies](https://github.com/s0md3v/XSStrike/wiki/Compatibility-&-Dependencies)
+- [Compatibility & Dependencies](https://github.com/s0md3v/XSStrike/wiki/Compatibility-&-Dependencies)
 
 ### Gallery
 #### DOM XSS
