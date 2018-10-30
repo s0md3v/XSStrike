@@ -15,5 +15,7 @@ def checker(url, params, headers, GET, delay, payload):
     for m in re.finditer('st4r7', response):
         reflected = response[m.start():m.start()+len(checkString)]
         efficiency = fuzz.partial_ratio(reflected, checkString.lower())
+        if reflected[-1] == '\\':
+            efficiency += 1
         efficiencies.append(efficiency)
     return efficiencies
