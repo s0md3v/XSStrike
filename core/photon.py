@@ -8,7 +8,7 @@ from core.zetanize import zetanize
 from core.requester import requester
 from core.utils import getUrl, getParams
 
-def photon(seedUrl, headers, level):
+def photon(seedUrl, headers, level, threadCount):
     forms = [] # web forms
     processed = set() # urls that have been crawled
     storage = set() # urls that belong to the target i.e. in-scope
@@ -43,7 +43,6 @@ def photon(seedUrl, headers, level):
                 storage.add(main_url + '/' + link)
     for x in range(level):
         urls = storage - processed
-        from core.config import threadCount
         threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
         futures = (threadpool.submit(rec, url) for url in urls)
         for i, _ in enumerate(concurrent.futures.as_completed(futures)):
