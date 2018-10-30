@@ -132,7 +132,9 @@ def singleTarget(target, paramData):
         print ('%s Testing parameter: %s' % (info, paramName))
         paramsCopy[paramName] = xsschecker
         response = requester(url, paramsCopy, headers, GET, delay).text
-        occurences = htmlParser(response)
+        parsedResponse = htmlParser(response)
+        occurences = parsedResponse[0]
+        positions = parsedResponse[1]
         if not occurences:
             print ('%s No reflection found' % bad)
             continue
@@ -156,7 +158,7 @@ def singleTarget(target, paramData):
                 print ('%s Payloads tried [%i/%i]' % (run, progress, total), end='\r')
                 if not GET:
                     vect = unquote(vect)
-                efficiencies = checker(url, paramsCopy, headers, GET, delay, vect)
+                efficiencies = checker(url, paramsCopy, headers, GET, delay, vect, positions)
                 if not efficiencies:
                     for i in range(len(occurences)):
                         efficiencies.append(0)
@@ -213,7 +215,9 @@ def multiTargets(scheme, host, main_url, form):
                         paramsCopy[paramName] = xsschecker
                         response = requester(url, paramsCopy, headers, GET, delay).text
                         try:
-                            occurences = htmlParser(response)
+                            parsedResponse = htmlParser(response)
+                            occurences = parsedResponse[0]
+                            positions = parsedResponse[1]
                             efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences)
                             vectors = generator(occurences, response)
                             if vectors:

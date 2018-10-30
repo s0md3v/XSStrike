@@ -4,13 +4,15 @@ from core.config import xsschecker
 from core.requester import requester
 
 def filterChecker(url, params, headers, GET, delay, occurences):
+    positions = {}
     environments = set(['<', '>'])
     sortedEfficiencies = {}
     for i in range(len(occurences) + 10):
         sortedEfficiencies[i] = {}
-    for occurence in occurences.values():
+    for i, occurence in zip(range(len(occurences)), occurences.values()):
         environments.add(occurence['context'][1])
         location = occurence['context'][0]
+        positions[str(i)] = occurence['position']
         if location == 'comment':
             environments.add('-->')
         elif location == 'script':
@@ -19,9 +21,9 @@ def filterChecker(url, params, headers, GET, delay, occurences):
         if environment == '':
             efficiencies = [100 for i in range(len(occurences))]
         else:
-            efficiencies = checker(url, params, headers, GET, delay, environment)
-            if not efficiencies:
-                for i in range(len(occurences)):
+            efficiencies = checker(url, params, headers, GET, delay, environment, positions)
+            if len(efficiencies) < len(occurences):
+                for i in range(len(occurences) - len(efficiencies)):
                     efficiencies.append(0)
         for i, efficiency in zip(range(len(efficiencies)), efficiencies):
             sortedEfficiencies[i][environment] = efficiency

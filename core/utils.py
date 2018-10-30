@@ -2,6 +2,25 @@ import re
 import random
 from core.config import xsschecker
 
+def closest(number, numbers):
+    difference = [abs(list(numbers.values())[0]), {}]
+    for index, i in numbers.items():
+        diff = abs(number - i)
+        if diff < difference[0]:
+            difference = [diff, {index : i}]
+    return difference[1]
+
+def fillHoles(original, new):
+    filler = 0
+    filled = []
+    for x, y in zip(original, new):
+        if int(x) == (y + filler):
+            filled.append(y)
+        else:
+            filled.extend([0, y])
+            filler += (int(x) - y)
+    return filled
+
 def stripper(string, substring, direction='right'):
     done = False
     strippedString = ''

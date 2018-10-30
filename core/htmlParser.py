@@ -7,6 +7,9 @@ def htmlParser(response):
     locations = [] # contexts in which the input is reflected
     attributes = [] # attribute names
     environments = [] # strings needed to break out of the context
+    positions = []
+    for match in re.finditer(xsschecker, response):
+        positions.append(match.start())
     parts = response.split(xsschecker)
     parts.remove(parts[0]) # remove first element since it doesn't contain xsschecker
     parts = [xsschecker + s for s in parts] # add xsschecker in front of all elements
@@ -66,9 +69,10 @@ def htmlParser(response):
             loc += 1
         num += 1
     occurences = {}
-    for i, loc, env, tag, attr in zip(range(len(locations)), locations, environments, tags, attributes):
+    for i, loc, env, tag, attr, position in zip(range(len(locations)), locations, environments, tags, attributes, positions):
         occurences[i] = {}
         if loc == 'comment':
             value = '-->'
+        occurences[i]['position'] = position
         occurences[i]['context'] = [loc, env, tag, attr]
-    return occurences
+    return [occurences, positions]
