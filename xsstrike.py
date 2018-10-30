@@ -45,17 +45,17 @@ from core.utils import getUrl, getParams, flattenParams, extractHeaders
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--url', help='url', dest='target')
 parser.add_argument('--data', help='post data', dest='data')
-parser.add_argument('-t', '--threads', help='number of threads', dest='threads')
 parser.add_argument('--fuzzer', help='fuzzer', dest='fuzz', action='store_true')
 parser.add_argument('--update', help='update', dest='update', action='store_true')
 parser.add_argument('--timeout', help='timeout', dest='timeout', action='store_true')
 parser.add_argument('--params', help='find params', dest='find', action='store_true')
 parser.add_argument('--crawl', help='crawl', dest='recursive', action='store_true')
 parser.add_argument('-l', '--level', help='level of crawling', dest='level', type=int)
+parser.add_argument('--headers', help='add headers', dest='headers', action='store_true')
+parser.add_argument('-t', '--threads', help='number of threads', dest='threads', type=int)
+parser.add_argument('-d', '--delay', help='delay between requests', dest='delay', type=int)
 parser.add_argument('--skip-poc', help='skip poc generation', dest='skipPOC', action='store_true')
 parser.add_argument('--skip-dom', help='skip dom checking', dest='skipDOM', action='store_true')
-parser.add_argument('--headers', help='add headers', dest='headers', action='store_true')
-parser.add_argument('-d', '--delay', help='delay between requests', dest='delay', type=int)
 args = parser.parse_args()
 
 if args.headers:
@@ -209,7 +209,6 @@ def multiTargets(scheme, host, main_url, form):
                     signature = url + paramName
                     if signature not in signatures:
                         signatures.add(signature)
-                        print ('%s Scanning %s%s%s, %s' % (run, green, url, end, paramName))
                         paramsCopy = copy.deepcopy(paramData)
                         paramsCopy[paramName] = xsschecker
                         response = requester(url, paramsCopy, headers, GET, delay).text
@@ -220,7 +219,9 @@ def multiTargets(scheme, host, main_url, form):
                             if vectors:
                                 for confidence, vects in vectors.items():
                                     try:
-                                        print ('%s Vector for %s: %s' % (good, paramName, list(vects)[0]))
+                                        payload = list(vects)[0]
+                                        print ('%s Vulnerable webpage: %s%s%s' % (good, green, url, end))
+                                        print ('%s Vector for %s%s%s: %s' % (good, green, paramName, end, payload))
                                         break
                                     except IndexError:
                                         pass
@@ -235,8 +236,10 @@ else:
     scheme = urlparse(target).scheme
     host = urlparse(target).netloc
     main_url = scheme + '://' + host
-    forms = photon(target, headers, level)
-    threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=10)
+    forms = photon(target, headers, level, threadCount)
+    threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
     futures = (threadpool.submit(multiTargets, scheme, host, main_url, form) for form in forms)
     for i, _ in enumerate(concurrent.futures.as_completed(futures)):
-        pass
+        if i + 1 == len(forms) or (i + 1) % threadCount == 0:
+            print('%s Progress: %i/%i' % (info, i + 1, len(forms)), end='\r')
+    print ('')
