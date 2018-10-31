@@ -23,8 +23,9 @@ def dom(response, silent=False):
         num += 1
     if highlighted and not silent:
         print (red + ('-' * 60) + end)
-        result = True
         for line in highlighted:
             print (line)
         print (red + ('-' * 60) + end)
+    if highlighted:
+        result = True
     return result

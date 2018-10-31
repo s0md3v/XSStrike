@@ -47,4 +47,4 @@ def photon(seedUrl, headers, level, threadCount):
         futures = (threadpool.submit(rec, url) for url in urls)
         for i, _ in enumerate(concurrent.futures.as_completed(futures)):
             pass
-    return forms
+    return [forms, processed]

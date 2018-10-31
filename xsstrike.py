@@ -181,56 +181,57 @@ def singleTarget(target, paramData):
                     print ('%s Efficiency: %i' % (info, bestEfficiency))
                     print ('%s Cofidence: %i' % (info, confidence))
 
-def multiTargets(scheme, host, main_url, form):
+def multiTargets(scheme, host, main_url, form, domURL):
     signatures = set()
-    for each in form.values():
-        url = each['action']
-        if url:
-            if url.startswith(main_url):
-                pass
-            elif url.startswith('//') and url[2:].startswith(host):
-                url = scheme + '://' + url[2:]
-            elif url.startswith('/'):
-                url = scheme + '://' + host + url
-            elif re.match(r'\w', url[0]):
-                url = scheme + '://' + host + '/' + url
-            method = each['method']
-            if method == 'get':
-                GET = True
-            else:
-                GET = False
-            inputs = each['inputs']
-            paramData = {}
-            for one in inputs:
-                paramData[one['name']] = one['value']
-                if target not in ''.join(signatures) and not skipDOM:
-                    response = requests.get(target).text
-                    if dom(response, silent=True):
-                        print ('%s Potentially vulnerable objects found' % good)
-                for paramName in paramData.keys():
-                    signature = url + paramName
-                    if signature not in signatures:
-                        signatures.add(signature)
-                        paramsCopy = copy.deepcopy(paramData)
-                        paramsCopy[paramName] = xsschecker
-                        response = requester(url, paramsCopy, headers, GET, delay).text
-                        try:
-                            parsedResponse = htmlParser(response)
-                            occurences = parsedResponse[0]
-                            positions = parsedResponse[1]
-                            efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences)
-                            vectors = generator(occurences, response)
-                            if vectors:
-                                for confidence, vects in vectors.items():
-                                    try:
-                                        payload = list(vects)[0]
-                                        print ('%s Vulnerable webpage: %s%s%s' % (good, green, url, end))
-                                        print ('%s Vector for %s%s%s: %s' % (good, green, paramName, end, payload))
-                                        break
-                                    except IndexError:
-                                        pass
-                        except Exception as e:
-                            print ('%s Error: %s' % (bad, e))
+    if url and not skipDOMl:
+        response = requests.get(domURL).text
+        if dom(response, silent=True):
+            print ('%s Potentially vulnerable objects found at %s' % (good, domURL))
+    if form:
+        for each in form.values():
+            url = each['action']
+            if url:
+                if url.startswith(main_url):
+                    pass
+                elif url.startswith('//') and url[2:].startswith(host):
+                    url = scheme + '://' + url[2:]
+                elif url.startswith('/'):
+                    url = scheme + '://' + host + url
+                elif re.match(r'\w', url[0]):
+                    url = scheme + '://' + host + '/' + url
+                method = each['method']
+                if method == 'get':
+                    GET = True
+                else:
+                    GET = False
+                inputs = each['inputs']
+                paramData = {}
+                for one in inputs:
+                    paramData[one['name']] = one['value']
+                    for paramName in paramData.keys():
+                        signature = url + paramName
+                        if signature not in signatures:
+                            signatures.add(signature)
+                            paramsCopy = copy.deepcopy(paramData)
+                            paramsCopy[paramName] = xsschecker
+                            response = requester(url, paramsCopy, headers, GET, delay).text
+                            try:
+                                parsedResponse = htmlParser(response)
+                                occurences = parsedResponse[0]
+                                positions = parsedResponse[1]
+                                efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences)
+                                vectors = generator(occurences, response)
+                                if vectors:
+                                    for confidence, vects in vectors.items():
+                                        try:
+                                            payload = list(vects)[0]
+                                            print ('%s Vulnerable webpage: %s%s%s' % (good, green, url, end))
+                                            print ('%s Vector for %s%s%s: %s' % (good, green, paramName, end, payload))
+                                            break
+                                        except IndexError:
+                                            pass
+                            except Exception as e:
+                                print ('%s Error: %s' % (bad, e))
 
 
 if not args.recursive:
@@ -240,9 +241,18 @@ else:
     scheme = urlparse(target).scheme
     host = urlparse(target).netloc
     main_url = scheme + '://' + host
-    forms = photon(target, headers, level, threadCount)
+    crawlingResult = photon(target, headers, level, threadCount)
+    forms = crawlingResult[0]
+    domURLs = list(crawlingResult[1])
+    difference = abs(len(domURLs) - len(forms))
+    if len(domURLs) > len(forms):
+        for i in range(difference):
+            forms.append(0)
+    elif len(forms) > len(domURLs):
+        for i in range(difference):
+            domURLs.append(0)
     threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-    futures = (threadpool.submit(multiTargets, scheme, host, main_url, form) for form in forms)
+    futures = (threadpool.submit(multiTargets, scheme, host, main_url, form, domURL) for form, domURL in zip(forms, domURLs))
     for i, _ in enumerate(concurrent.futures.as_completed(futures)):
         if i + 1 == len(forms) or (i + 1) % threadCount == 0:
             print('%s Progress: %i/%i' % (info, i + 1, len(forms)), end='\r')
