@@ -183,7 +183,7 @@ def singleTarget(target, paramData):
 
 def multiTargets(scheme, host, main_url, form, domURL):
     signatures = set()
-    if url and not skipDOMl:
+    if domURL and not skipDOMl:
         response = requests.get(domURL).text
         if dom(response, silent=True):
             print ('%s Potentially vulnerable objects found at %s' % (good, domURL))
