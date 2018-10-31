@@ -25,6 +25,7 @@
 <p align="center">
   <a href="https://github.com/s0md3v/XSStrike/wiki">XSStrike Wiki</a> •
   <a href="https://github.com/s0md3v/XSStrike/wiki/Usage">Usage</a> •
+  <a href="https://github.com/s0md3v/XSStrike/wiki/FAQ">FAQ</a> •
   <a href="https://github.com/s0md3v/XSStrike/wiki/Compatibility-&-Dependencies">Compatibility</a> •
   <a href="https://github.com/s0md3v/XSStrike#gallery">Gallery</a>
 </p>
@@ -59,6 +60,15 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 ### Documentation
 - [Usage](https://github.com/s0md3v/XSStrike/wiki/Usage)
 - [Compatibility & Dependencies](https://github.com/s0md3v/XSStrike/wiki/Compatibility-&-Dependencies)
+
+### FAQ
+- [Why XSStrike boasts that it is the most advanced XSS detection suite?](https://github.com/s0md3v/XSStrike/wiki/FAQ#why-xsstrike-boasts-that-it-is-the-most-advanced-xss-detection-suite)
+- [How does XSStrike decide if the injection was successful without a browser engine?](https://github.com/s0md3v/XSStrike/wiki/FAQ#how-does-xsstrike-decide-if-the-injection-was-successful-without-a-browser-engine)
+- [Does that mean it doesn't have false negatives or false positives?](https://github.com/s0md3v/XSStrike/wiki/FAQ#does-that-mean-it-doesnt-have-false-negatives-or-false-positives)
+- [Tool xyz works against the target, while XSStrike doesn't!](https://github.com/s0md3v/XSStrike/wiki/FAQ#tool-xyz-works-against-the-target-while-xsstrike-doesnt)
+- [Can I copy it's code?](https://github.com/s0md3v/XSStrike/wiki/FAQ#can-i-copy-its-code)
+- [But I will give you credits, is that okay?](https://github.com/s0md3v/XSStrike/wiki/FAQ#but-i-will-give-you-credits-is-that-okay)
+- [What if I want to embed it into a proprietary software?](https://github.com/s0md3v/XSStrike/wiki/FAQ#what-if-i-want-to-embed-it-into-a-proprietary-software)
 
 ### Gallery
 #### DOM XSS
