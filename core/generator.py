@@ -5,7 +5,7 @@ from core.config import badTags, fillings, eFillings, lFillings, jFillings, even
 def generator(occurences, response):
     scripts = extractScripts(response)
     index = 0
-    vectors = {11 : set(), 10 : set(), 9 : set(), 8 : set(), 7 : set(), 6 : set(), 5 : set(), 4 : set(), 3 : set(), 2 : set(), 1 : set()}
+    vectors = {10 : set(), 9 : set(), 8 : set(), 7 : set(), 6 : set(), 5 : set(), 4 : set(), 3 : set(), 2 : set(), 1 : set()}
     for i in occurences:
         context = occurences[i]['context'][0]
         breaker = occurences[i]['context'][1]
