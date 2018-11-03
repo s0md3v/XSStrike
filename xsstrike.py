@@ -10,7 +10,7 @@ print('''%s
 %s''' % (red, white, end))
 
 try:
-    from urllib.parse import unquote, urlparse
+    from urllib.parse import quote_plus, unquote, urlparse
 except ImportError: # throws error in python2
     print ('%s XSStrike isn\'t compatible with python2.' % bad)
     quit()
@@ -131,7 +131,7 @@ def singleTarget(target, paramData):
         paramsCopy = copy.deepcopy(params)
         print ('%s Testing parameter: %s' % (info, paramName))
         paramsCopy[paramName] = xsschecker
-        response = requester(url, paramsCopy, headers, GET, delay).text
+        response = requester(url, paramsCopy, headers, GET, delay)
         parsedResponse = htmlParser(response)
         occurences = parsedResponse[0]
         positions = parsedResponse[1]
@@ -143,7 +143,7 @@ def singleTarget(target, paramData):
         print ('%s Analysing reflections' % run)
         efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences)
         print ('%s Generating payloads' % run)
-        vectors = generator(occurences, response)
+        vectors = generator(occurences, response.text)
         total = 0
         for v in vectors.values():
             total += len(v)
@@ -168,13 +168,12 @@ def singleTarget(target, paramData):
                     print ('%s Payload: %s' % (good, vect))
                     print ('%s Efficiency: %i' % (info, bestEfficiency))
                     print ('%s Cofidence: %i' % (info, confidence))
-                    if GET:
-                        flatParams = flattenParams(paramName, paramsCopy, vect)
-                        if '"' not in flatParams and '}' not in flatParams and not skipPOC:
-                            webbrowser.open(url + flatParams)
-                    choice = input('%s Would you like to continue scanning? [y/N] ' % que).lower()
-                    if choice != 'y':
-                        quit()
+                    if GET and not skipPOC:
+                        flatParams = flattenParams(paramName, paramsCopy, quote_plus(vect))
+                        webbrowser.open(url + flatParams)
+                        choice = input('%s Would you like to continue scanning? [y/N] ' % que).lower()
+                        if choice != 'y':
+                            quit()
                 elif bestEfficiency > minEfficiency:
                     print (('%s-%s' % (red, end)) * 60)
                     print ('%s Payload: %s' % (good, vect))
@@ -209,29 +208,23 @@ def multiTargets(scheme, host, main_url, form, domURL):
                 for one in inputs:
                     paramData[one['name']] = one['value']
                     for paramName in paramData.keys():
-                        signature = url + paramName
-                        if signature not in signatures:
-                            signatures.add(signature)
-                            paramsCopy = copy.deepcopy(paramData)
-                            paramsCopy[paramName] = xsschecker
-                            response = requester(url, paramsCopy, headers, GET, delay).text
-                            try:
-                                parsedResponse = htmlParser(response)
-                                occurences = parsedResponse[0]
-                                positions = parsedResponse[1]
-                                efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences)
-                                vectors = generator(occurences, response)
-                                if vectors:
-                                    for confidence, vects in vectors.items():
-                                        try:
-                                            payload = list(vects)[0]
-                                            print ('%s Vulnerable webpage: %s%s%s' % (good, green, url, end))
-                                            print ('%s Vector for %s%s%s: %s' % (good, green, paramName, end, payload))
-                                            break
-                                        except IndexError:
-                                            pass
-                            except Exception as e:
-                                print ('%s Error: %s' % (bad, e))
+                        paramsCopy = copy.deepcopy(paramData)
+                        paramsCopy[paramName] = xsschecker
+                        response = requester(url, paramsCopy, headers, GET, delay)
+                        parsedResponse = htmlParser(response)
+                        occurences = parsedResponse[0]
+                        positions = parsedResponse[1]
+                        efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences)
+                        vectors = generator(occurences, response.text)
+                        if vectors:
+                            for confidence, vects in vectors.items():
+                                try:
+                                    payload = list(vects)[0]
+                                    print ('%s Vulnerable webpage: %s%s%s' % (good, green, url, end))
+                                    print ('%s Vector for %s%s%s: %s' % (good, green, paramName, end, payload))
+                                    break
+                                except IndexError:
+                                    pass
 
 
 if not args.recursive:
