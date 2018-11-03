@@ -3,6 +3,8 @@ from core.config import badTags
 from core.config import xsschecker
 
 def htmlParser(response):
+    rawResponse = response
+    response = response.text
     tags = [] # tags in which the input is reflected
     locations = [] # contexts in which the input is reflected
     attributes = [] # attribute names
@@ -19,16 +21,19 @@ def htmlParser(response):
             location = 'script'
         elif '</' in deep[0]:
             location = 'html'
-        elif deep[0][-2:] == '--':
-            location = 'comment'
         else:
-            if '<script' in response:
+            for i in deep:
+                if i[-2:] == '--':
+                    location = 'comment'
+                    break
+                    continue
                 location = 'script'
                 for char in part:
                     if char == '<':
                         location = 'attribute'
                         break
-            else:
+        if '<' not in response:
+            if rawResponse['Content-Type'] == 'text/html':
                 location = 'html'
         locations.append(location) # add location to locations list
     num = 0 # dummy value to keep record of occurence being processed
