@@ -6,6 +6,8 @@ delay = 0
 threadCount = 10
 timeout = 7
 
+specialAttributes = ['srcdoc', 'src']
+
 badTags = ('iframe', 'title', 'textarea', 'noembed', 'style', 'template', 'noscript')
 
 tags = ('html', 'd3v', 'a', 'details') # HTML Tags
