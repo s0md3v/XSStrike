@@ -5,18 +5,18 @@ from core.config import badTags, fillings, eFillings, lFillings, jFillings, even
 def generator(occurences, response):
     scripts = extractScripts(response)
     index = 0
-    vectors = {10 : set(), 9 : set(), 8 : set(), 7 : set(), 6 : set(), 5 : set(), 4 : set(), 3 : set(), 2 : set(), 1 : set()}
+    vectors = {11 : set(), 10 : set(), 9 : set(), 8 : set(), 7 : set(), 6 : set(), 5 : set(), 4 : set(), 3 : set(), 2 : set(), 1 : set()}
     for i in occurences:
         context = occurences[i]['context'][0]
         breaker = occurences[i]['context'][1]
         special = occurences[i]['context'][2]
+        attribute = occurences[i]['context'][3]
         if special not in badTags:
             special = ''
         elif context == 'attribute':
             special = '</' + special + '/>'
         else:
             special = ''
-        attribute = occurences[i]['context'][3]
         if context == 'html':
             lessBracketEfficiency = occurences[i]['score']['<']
             greatBracketEfficiency = occurences[i]['score']['>']
@@ -50,6 +50,14 @@ def generator(occurences, response):
                     for function in functions:
                         vector = breaker + filling + 'auTOfOcuS' + filling + 'OnFoCUs' + '=' + breaker + function
                         vectors[6].add(vector)
+            if attribute == 'srcdoc':
+                if occurences[i]['score']['&lt;']:
+                    if occurences[i]['score']['&gt;']:
+                        del ends[:]
+                        ends.append('&t;')
+                    payloads = genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, '', '')
+                    for payload in payloads:
+                        vectors[10].add(payload.replace('<', '&lt;'))
         elif context == 'comment':
             lessBracketEfficiency = occurences[i]['score']['<']
             greatBracketEfficiency = occurences[i]['score']['>']
@@ -65,7 +73,10 @@ def generator(occurences, response):
             try:
                 script = scripts[index]
             except IndexError:
-                script = scripts[0]
+                try:
+                    script = scripts[0]
+                except:
+                    continue
             closer = jsContexter(script)
             validBreakers = ['\'', '"', '`']
             scriptEfficiency = occurences[i]['score']['</scRipT/>']
