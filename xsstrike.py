@@ -47,7 +47,7 @@ parser.add_argument('-u', '--url', help='url', dest='target')
 parser.add_argument('--data', help='post data', dest='data')
 parser.add_argument('--fuzzer', help='fuzzer', dest='fuzz', action='store_true')
 parser.add_argument('--update', help='update', dest='update', action='store_true')
-parser.add_argument('--timeout', help='timeout', dest='timeout', type=int)
+# parser.add_argument('--timeout', help='timeout', dest='timeout', type=int)
 parser.add_argument('--params', help='find params', dest='find', action='store_true')
 parser.add_argument('--crawl', help='crawl', dest='recursive', action='store_true')
 parser.add_argument('-l', '--level', help='level of crawling', dest='level', type=int)
@@ -72,7 +72,7 @@ skipPOC = args.skipPOC
 level = args.level or 2
 delay = args.delay or core.config.delay
 threadCount = args.threads or core.config.threadCount
-timeout = args.timeout or core.config.timeout
+timeout = core.config.timeout # or args.timeout
 
 if args.update: # if the user has supplied --update argument
     updater()
