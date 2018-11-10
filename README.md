@@ -55,8 +55,6 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 - Complete HTTP Support
 - Powered by [Photon](https://github.com/s0md3v/Photon), [Zetanize](https://github.com/s0md3v/zetanize) and [Arjun](https://github.com/s0md3v/Arjun)
 
-> **Note:** This is a beta release and hence prone to bugs. If you find a bug please create an issue.
-
 ### Documentation
 - [Usage](https://github.com/s0md3v/XSStrike/wiki/Usage)
 - [Compatibility & Dependencies](https://github.com/s0md3v/XSStrike/wiki/Compatibility-&-Dependencies)
