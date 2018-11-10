@@ -11,7 +11,7 @@ def checky(param, paraNames, url, headers, GET, delay):
             paraNames[param] = ''
             print('%s Valid parameter found : %s%s%s' % (good, green, param, end))
 
-def arjun(url, GET, headers, delay):
+def arjun(url, GET, headers, delay, timeout):
     paraNames = {}
     response = requester(url, {}, headers, GET, delay).text
     matches = re.findall(r'<input.*?name=\'(.*?)\'.*?>|<input.*?name="(.*?)".*?>', response)
