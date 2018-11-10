@@ -8,7 +8,7 @@ from core.zetanize import zetanize
 from core.requester import requester
 from core.utils import getUrl, getParams
 
-def photon(seedUrl, headers, level, threadCount):
+def photon(seedUrl, headers, level, threadCount, delay, timeout):
     forms = [] # web forms
     processed = set() # urls that have been crawled
     storage = set() # urls that belong to the target i.e. in-scope
@@ -26,7 +26,7 @@ def photon(seedUrl, headers, level, threadCount):
             for name, value in params.items():
                 inps.append({'name': name, 'value': value})
             forms.append({0: {'action': url, 'method': 'get', 'inputs': inps}})
-        response = requester(url, params, headers, True, 0).text
+        response = requester(url, params, headers, True, delay, timeout).text
         forms.append(zetanize(response))
         matches = findall(r'<[aA].*href=["\']{0,1}(.*?)["\']', response)
         for link in matches: # iterate over the matches

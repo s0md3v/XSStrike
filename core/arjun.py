@@ -6,7 +6,7 @@ from core.config import blindParams, xsschecker, threadCount
 
 def checky(param, paraNames, url, headers, GET, delay):
     if param not in paraNames:
-        response = requester(url, {param : xsschecker}, headers, GET, delay).text
+        response = requester(url, {param : xsschecker}, headers, GET, delay, timeout).text
         if '\'%s\'' % xsschecker in response or '"%s"' % xsschecker in response or ' %s ' % xsschecker in response:
             paraNames[param] = ''
             print('%s Valid parameter found : %s%s%s' % (good, green, param, end))

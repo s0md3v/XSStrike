@@ -1,10 +1,10 @@
 import re
 from core.requester import requester
 
-def wafDetector(url, params, headers, GET, delay):
-    noise = '<script>alert(1)</script>' #a payload which is noisy enough to provoke the WAF
+def wafDetector(url, params, headers, GET, delay, timeout):
+    noise = '<script>alert("XSS")</script>' #a payload which is noisy enough to provoke the WAF
     params['xss'] = noise
-    response = requester(url, params, headers, GET, delay) # Opens the noise injected payload
+    response = requester(url, params, headers, GET, delay, timeout) # Opens the noise injected payload
     code = str(response.status_code)
     response_headers = str(response.headers)
     response_text = response.text.lower()

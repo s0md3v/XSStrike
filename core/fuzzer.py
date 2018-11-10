@@ -16,7 +16,7 @@ def counter(string):
             count += 1
     return count
 
-def fuzzer(url, params, headers, GET, delay, WAF):
+def fuzzer(url, params, headers, GET, delay, timeout, WAF):
     for fuzz in fuzzes:
         if delay == 0:
             delay = 6
@@ -24,7 +24,7 @@ def fuzzer(url, params, headers, GET, delay, WAF):
         sleep(t)
         paramsCopy = copy.deepcopy(params)
         try:
-            response = requester(url, replacer(paramsCopy, xsschecker, fuzz), headers, GET, delay/2)
+            response = requester(url, replacer(paramsCopy, xsschecker, fuzz), headers, GET, delay/2, timeout)
         except:
             print ('\n%s WAF is dropping suspicious requests.' % bad)
             if delay == 0:

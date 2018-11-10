@@ -4,7 +4,7 @@ minEfficiency = 90
 
 delay = 0
 threadCount = 10
-timeout = 7
+timeout = 10
 
 specialAttributes = ['srcdoc', 'src']
 

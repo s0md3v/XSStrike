@@ -9,6 +9,8 @@ print('''%s
 \tXSStrike %sv3.0-beta
 %s''' % (red, white, end))
 
+changes = '''stable release'''
+
 try:
     from urllib.parse import quote_plus, unquote, urlparse
 except ImportError: # throws error in python2
@@ -47,7 +49,7 @@ parser.add_argument('-u', '--url', help='url', dest='target')
 parser.add_argument('--data', help='post data', dest='data')
 parser.add_argument('--fuzzer', help='fuzzer', dest='fuzz', action='store_true')
 parser.add_argument('--update', help='update', dest='update', action='store_true')
-parser.add_argument('--timeout', help='timeout', dest='timeout', action='store_true')
+parser.add_argument('--timeout', help='timeout', dest='timeout', type=int)
 parser.add_argument('--params', help='find params', dest='find', action='store_true')
 parser.add_argument('--crawl', help='crawl', dest='recursive', action='store_true')
 parser.add_argument('-l', '--level', help='level of crawling', dest='level', type=int)
@@ -71,8 +73,8 @@ skipDOM = args.skipDOM
 skipPOC = args.skipPOC
 level = args.level or 2
 delay = args.delay or core.config.delay
-threadCount = args.threads or core.config.threadCount
 timeout = args.timeout or core.config.timeout
+threadCount = args.threads or core.config.threadCount
 
 if args.update: # if the user has supplied --update argument
     updater()
@@ -110,10 +112,10 @@ def singleTarget(target, paramData):
     url = getUrl(target, paramData, GET)
     params = getParams(target, paramData, GET)
     if args.find:
-        params = arjun(url, GET, headers, delay)
+        params = arjun(url, GET, headers, delay, timeout)
     if not params:
         quit()
-    WAF = wafDetector(url, {list(params.keys())[0] : xsschecker}, headers, GET, delay)
+    WAF = wafDetector(url, {list(params.keys())[0] : xsschecker}, headers, GET, delay, timeout)
     if WAF:
         print ('%s WAF detected: %s%s%s' % (bad, green, WAF, end))
     else:
@@ -124,14 +126,14 @@ def singleTarget(target, paramData):
             print ('%s Fuzzing parameter: %s' % (info, paramName))
             paramsCopy = copy.deepcopy(params)
             paramsCopy[paramName] = xsschecker
-            fuzzer(url, paramsCopy, headers, GET, delay, WAF)
+            fuzzer(url, paramsCopy, headers, GET, delay, timeout, WAF)
         quit()
 
     for paramName in params.keys():
         paramsCopy = copy.deepcopy(params)
         print ('%s Testing parameter: %s' % (info, paramName))
         paramsCopy[paramName] = xsschecker
-        response = requester(url, paramsCopy, headers, GET, delay)
+        response = requester(url, paramsCopy, headers, GET, delay, timeout)
         parsedResponse = htmlParser(response)
         occurences = parsedResponse[0]
         positions = parsedResponse[1]
@@ -141,7 +143,7 @@ def singleTarget(target, paramData):
         else:
             print ('%s Reflections found: %s' % (info, len(occurences)))
         print ('%s Analysing reflections' % run)
-        efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences)
+        efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences, timeout)
         print ('%s Generating payloads' % run)
         vectors = generator(occurences, response.text)
         total = 0
@@ -158,7 +160,7 @@ def singleTarget(target, paramData):
                 print ('%s Payloads tried [%i/%i]' % (run, progress, total), end='\r')
                 if not GET:
                     vect = unquote(vect)
-                efficiencies = checker(url, paramsCopy, headers, GET, delay, vect, positions)
+                efficiencies = checker(url, paramsCopy, headers, GET, delay, vect, positions, timeout)
                 if not efficiencies:
                     for i in range(len(occurences)):
                         efficiencies.append(0)
@@ -210,11 +212,11 @@ def multiTargets(scheme, host, main_url, form, domURL):
                     for paramName in paramData.keys():
                         paramsCopy = copy.deepcopy(paramData)
                         paramsCopy[paramName] = xsschecker
-                        response = requester(url, paramsCopy, headers, GET, delay)
+                        response = requester(url, paramsCopy, headers, GET, delay, timeout)
                         parsedResponse = htmlParser(response)
                         occurences = parsedResponse[0]
                         positions = parsedResponse[1]
-                        efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences)
+                        efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences, timeout)
                         vectors = generator(occurences, response.text)
                         if vectors:
                             for confidence, vects in vectors.items():
@@ -234,7 +236,7 @@ else:
     scheme = urlparse(target).scheme
     host = urlparse(target).netloc
     main_url = scheme + '://' + host
-    crawlingResult = photon(target, headers, level, threadCount)
+    crawlingResult = photon(target, headers, level, threadCount, delay, timeout)
     forms = crawlingResult[0]
     domURLs = list(crawlingResult[1])
     difference = abs(len(domURLs) - len(forms))
