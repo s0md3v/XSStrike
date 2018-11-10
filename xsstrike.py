@@ -171,7 +171,7 @@ def singleTarget(target, paramData):
                     print ('%s Efficiency: %i' % (info, bestEfficiency))
                     print ('%s Cofidence: %i' % (info, confidence))
                     if GET and not skipPOC:
-                        flatParams = flattenParams(paramName, paramsCopy, quote_plus(vect))
+                        flatParams = flattenParams(paramName, paramsCopy, vect)
                         webbrowser.open(url + flatParams)
                         choice = input('%s Would you like to continue scanning? [y/N] ' % que).lower()
                         if choice != 'y':
