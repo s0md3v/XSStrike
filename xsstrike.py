@@ -6,7 +6,7 @@ from core.colors import end, red, white, green, yellow, run, bad, good, info, qu
 
 # Just a fancy ass banner
 print('''%s
-\tXSStrike %sv3.0-beta
+\tXSStrike %sv3.0
 %s''' % (red, white, end))
 
 changes = '''stable release'''
