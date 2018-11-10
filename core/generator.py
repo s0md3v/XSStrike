@@ -94,7 +94,7 @@ def generator(occurences, response):
                 suffix = '//\\'
                 if not breaker:
                     closer = closer[1:]
-                if breakerEfficiency <= 83:
+                if breakerEfficiency != 100:
                     breaker = ''
                 for filling in jFillings:
                     for function in functions:
