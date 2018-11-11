@@ -26,6 +26,7 @@
   <a href="https://github.com/s0md3v/XSStrike/wiki">XSStrike Wiki</a> •
   <a href="https://github.com/s0md3v/XSStrike/wiki/Usage">Usage</a> •
   <a href="https://github.com/s0md3v/XSStrike/wiki/FAQ">FAQ</a> •
+  <a href="https://github.com/s0md3v/XSStrike/wiki/For-Developers">For Developers</a> •
   <a href="https://github.com/s0md3v/XSStrike/wiki/Compatibility-&-Dependencies">Compatibility</a> •
   <a href="https://github.com/s0md3v/XSStrike#gallery">Gallery</a>
 </p>
