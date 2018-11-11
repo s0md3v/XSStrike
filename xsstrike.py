@@ -9,8 +9,6 @@ print('''%s
 \tXSStrike %sv3.0
 %s''' % (red, white, end))
 
-changes = '''critical bug fixes'''
-
 try:
     from urllib.parse import quote_plus, unquote, urlparse
 except ImportError: # throws error in python2

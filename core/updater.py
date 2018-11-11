@@ -1,12 +1,12 @@
 import re
 import os
 from requests import get
+from core.config import changes
 from core.colors import run, que, good, info, red, end, green
 
 def updater():
     print('%s Checking for updates' % run)
-    changes = '''''' # Changes must be seperated by ;
-    latestCommit = get('https://raw.githubusercontent.com/s0md3v/XSStrike/master/xsstrike').text
+    latestCommit = get('https://raw.githubusercontent.com/s0md3v/XSStrike/master/core/config.py').text
 
     if changes not in latestCommit: # just a hack to see if a new version is available
         changelog = re.search(r"changes = '''(.*?)'''", latestCommit)
