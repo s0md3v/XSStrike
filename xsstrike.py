@@ -9,7 +9,7 @@ print('''%s
 \tXSStrike %sv3.0
 %s''' % (red, white, end))
 
-changes = '''stable release'''
+changes = '''critical bug fixes'''
 
 try:
     from urllib.parse import quote_plus, unquote, urlparse
