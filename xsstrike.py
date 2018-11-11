@@ -56,6 +56,7 @@ parser.add_argument('-t', '--threads', help='number of threads', dest='threads',
 parser.add_argument('-d', '--delay', help='delay between requests', dest='delay', type=int)
 parser.add_argument('--skip-poc', help='skip poc generation', dest='skipPOC', action='store_true')
 parser.add_argument('--skip-dom', help='skip dom checking', dest='skipDOM', action='store_true')
+parser.add_argument('--skip', help='don\'t ask to continue', dest='skip', action='store_true')
 args = parser.parse_args()
 
 if args.headers:
@@ -168,12 +169,13 @@ def singleTarget(target, paramData):
                     print ('%s Payload: %s' % (good, vect))
                     print ('%s Efficiency: %i' % (info, bestEfficiency))
                     print ('%s Cofidence: %i' % (info, confidence))
-                    if GET and not skipPOC:
-                        flatParams = flattenParams(paramName, paramsCopy, vect)
-                        webbrowser.open(url + flatParams)
-                    choice = input('%s Would you like to continue scanning? [y/N] ' % que).lower()
-                    if choice != 'y':
-                        quit()
+                    if not args.skip:
+                        if GET and not skipPOC:
+                            flatParams = flattenParams(paramName, paramsCopy, vect)
+                            webbrowser.open(url + flatParams)
+                        choice = input('%s Would you like to continue scanning? [y/N] ' % que).lower()
+                        if choice != 'y':
+                            quit()
                 elif bestEfficiency > minEfficiency:
                     print (('%s-%s' % (red, end)) * 60)
                     print ('%s Payload: %s' % (good, vect))
