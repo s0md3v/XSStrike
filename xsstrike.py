@@ -173,9 +173,9 @@ def singleTarget(target, paramData):
                     if GET and not skipPOC:
                         flatParams = flattenParams(paramName, paramsCopy, vect)
                         webbrowser.open(url + flatParams)
-                        choice = input('%s Would you like to continue scanning? [y/N] ' % que).lower()
-                        if choice != 'y':
-                            quit()
+                    choice = input('%s Would you like to continue scanning? [y/N] ' % que).lower()
+                    if choice != 'y':
+                        quit()
                 elif bestEfficiency > minEfficiency:
                     print (('%s-%s' % (red, end)) * 60)
                     print ('%s Payload: %s' % (good, vect))

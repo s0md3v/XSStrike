@@ -24,9 +24,10 @@ def htmlParser(response):
         else:
             for i in deep:
                 if i[-2:] == '--':
-                    location = 'comment'
-                    break
-                    continue
+                    if '<!--' not in i:
+                        location = 'comment'
+                        break
+                        continue
                 location = 'script'
                 for char in part:
                     if char == '<':

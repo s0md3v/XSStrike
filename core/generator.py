@@ -50,6 +50,11 @@ def generator(occurences, response):
                     for function in functions:
                         vector = breaker + filling + 'auTOfOcuS' + filling + 'OnFoCUs' + '=' + breaker + function
                         vectors[6].add(vector)
+            if breakerEfficiency == 90:
+                for filling in fillings:
+                    for function in functions:
+                        vector = '\\' + breaker + filling + 'auTOfOcuS' + filling + 'OnFoCUs' + '=' + '\\' + breaker + function
+                        vectors[6].add(vector)
             if attribute == 'srcdoc':
                 if occurences[i]['score']['&lt;']:
                     if occurences[i]['score']['&gt;']:
