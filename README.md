@@ -85,4 +85,4 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 ### Contribution & License
 Useful issues and pull requests are appreciated.
 
-I haven't decided a license yet.
+Licensed under the GNU GPLv3, see [LICENSE](LICENSE) for more information.
