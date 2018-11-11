@@ -66,7 +66,6 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 - [Does that mean it doesn't have false negatives or false positives?](https://github.com/s0md3v/XSStrike/wiki/FAQ#does-that-mean-it-doesnt-have-false-negatives-or-false-positives)
 - [Tool xyz works against the target, while XSStrike doesn't!](https://github.com/s0md3v/XSStrike/wiki/FAQ#tool-xyz-works-against-the-target-while-xsstrike-doesnt)
 - [Can I copy it's code?](https://github.com/s0md3v/XSStrike/wiki/FAQ#can-i-copy-its-code)
-- [But I will give you credits, is that okay?](https://github.com/s0md3v/XSStrike/wiki/FAQ#but-i-will-give-you-credits-is-that-okay)
 - [What if I want to embed it into a proprietary software?](https://github.com/s0md3v/XSStrike/wiki/FAQ#what-if-i-want-to-embed-it-into-a-proprietary-software)
 
 ### Gallery
