@@ -7,7 +7,7 @@ def filterChecker(url, params, headers, GET, delay, occurences, timeout):
     positions = {}
     environments = set(['<', '>'])
     sortedEfficiencies = {}
-    for i in range(len(occurences) + 10):
+    for i in range(len(occurences)):
         sortedEfficiencies[i] = {}
     for i, occurence in zip(range(len(occurences)), occurences.values()):
         environments.add(occurence['context'][1])
@@ -30,7 +30,11 @@ def filterChecker(url, params, headers, GET, delay, occurences, timeout):
                 for i in range(len(occurences) - len(efficiencies)):
                     efficiencies.append(0)
         for i, efficiency in zip(range(len(efficiencies)), efficiencies):
-            sortedEfficiencies[i][environment] = efficiency
+            try:
+                sortedEfficiencies[i][environment] = efficiency
+            except:
+                sortedEfficiencies[i] = {}
+                sortedEfficiencies[i][environment] = efficiency
     for efficiency, occurence in zip(sortedEfficiencies.values(), occurences.values()):
         occurence['score'] = efficiency
     return occurences
