@@ -78,8 +78,12 @@ if args.timeout:
     core.config.timeout = args.timeout
 if args.proxy:
     core.config.proxy = args.proxy
+else:
+    core.config.proxy = None
 if args.proxy_auth:
     core.config.proxy_cred = args.proxy_auth
+else:
+    core.config.proxy_cred = None
 threadCount = args.threads or core.config.threadCount
 
 if args.update: # if the user has supplied --update argument
