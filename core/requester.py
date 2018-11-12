@@ -16,7 +16,6 @@ def requester(url, data, headers, GET, delay):
     elif headers['User-Agent'] == '$':
         headers['User-Agent'] = random.choice(user_agents)
     proxies = parseProxy()
-    print(url)
     if GET:
         response = requests.get(url, params=data, headers=headers, timeout=timeout, proxies=proxies, verify=False)
     else:
@@ -24,14 +23,17 @@ def requester(url, data, headers, GET, delay):
     return response
 
 def parseProxy():
-    if proxy_cred:
-        if proxy.endswith('443') or proxy.endswith('1080'):
-            parsedproxy = {'https': 'http://'+proxy_cred+'@'+proxy.split('//')[1]} # HTTPS Proxy
+    if proxy:
+        if proxy_cred:
+            if proxy.endswith('443') or proxy.endswith('1080'):
+                parsedproxy = {'https': 'http://'+proxy_cred+'@'+proxy.split('//')[1]} # HTTPS Proxy
+            else:
+                parsedproxy = {'http': 'http://'+proxy_cred+'@'+proxy.split('//')[1]} # HTTP Proxy
         else:
-            parsedproxy = {'http': 'http://'+proxy_cred+'@'+proxy.split('//')[1]} # HTTP Proxy
+            if proxy.endswith('443') or proxy.endswith('1080'):
+                parsedproxy = {'https': proxy if 'http' in proxy else 'http://'+proxy} # HTTPS Proxy
+            else:
+                parsedproxy = {'http': proxy if 'http' in proxy else 'http://'+proxy} # HTTP Proxy
+        return parsedproxy
     else:
-        if proxy.endswith('443') or proxy.endswith('1080'):
-            parsedproxy = {'https': proxy if 'http' in proxy else 'http://'+proxy} # HTTPS Proxy
-        else:
-            parsedproxy = {'http': proxy if 'http' in proxy else 'http://'+proxy} # HTTP Proxy
-    return parsedproxy
+        return None
