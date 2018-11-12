@@ -1,8 +1,9 @@
 import os
 import tempfile
+from core.config import defaultEditor
 
 def prompt(default=None):
-    editor = os.environ.get("EDITOR", "nano")
+    editor = os.environ.get('EDITOR', defaultEditor)
     with tempfile.NamedTemporaryFile(mode='r+') as tmpfile:
         if default:
             tmpfile.write(default)
