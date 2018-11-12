@@ -1,119 +1,125 @@
+from collections import defaultdict
+
 from core.jsContexter import jsContexter
 from core.utils import randomUpper as r, genGen, extractScripts
 from core.config import badTags, fillings, eFillings, lFillings, jFillings, eventHandlers, tags, functions
 
-def generator(occurences, response):
+def handle_html_context(occurrence, breaker, special, vector):
+    lessBracketEfficiency = occurrence['score']['<']
+    greatBracketEfficiency = occurrence['score']['>']
+    breakerEfficiency = occurrence['score'][breaker]
+    if breaker in ('\'', '"'):
+        breaker = ''
+        breakerEfficiency = 100
+    ends = ['//']
+    if greatBracketEfficiency == 100:
+        ends.append('>')
+    if lessBracketEfficiency == breakerEfficiency == 100:
+        payloads = genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special)
+        for payload in payloads:
+            vector.add(payload)
+
+def handle_attribute_context(occurrence, breaker, attribute, vector_a, vector_b):
+    breakerEfficiency = occurrence['score'][breaker]
+    greatBracketEfficiency = occurrence['score']['>']
+    ends = ['//']
+    if greatBracketEfficiency == 100:
+        ends.append('>')
+    if greatBracketEfficiency == 100 and breakerEfficiency == 100:
+        payloads = genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special)
+        for payload in payloads:
+            if breaker:
+                payload = payload.replace(breaker, breaker + '>')
+            else:
+                payload = '>' + payload
+            vectors_b.add(payload)
+    if breakerEfficiency == 100:
+        for filling in fillings:
+            for function in functions:
+                vector = breaker + filling + 'auTOfOcuS' + filling + 'OnFoCUs' + '=' + breaker + function
+                vector_a.add(vector)
+    if breakerEfficiency == 90:
+        for filling in fillings:
+            for function in functions:
+                vector = '\\' + breaker + filling + 'auTOfOcuS' + filling + 'OnFoCUs' + '=' + function + filling + '\\' + breaker
+                vector_a.add(vector)
+    if attribute == 'srcdoc':
+        if occurrence['score']['&lt;']:
+            if occurrence['score']['&gt;']:
+                ends = []
+                ends.append('&t;')
+            payloads = genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, '', '')
+            for payload in payloads:
+                vector_b.add(payload.replace('<', '&lt;'))
+                
+def handle_comment_context(occurrence, breaker, special, vector):
+    lessBracketEfficiency = occurrence['score']['<']
+    greatBracketEfficiency = occurrence['score']['>']
+    breakerEfficiency = occurrence['score'][breaker]
+    ends = ['//']
+    if greatBracketEfficiency == 100:
+        ends.append('>')
+    if lessBracketEfficiency == breakerEfficiency == 100:
+        payloads = genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special)
+        for payload in payloads:
+            vector.add(payload)
+
+def handle_script_context(script, breaker, vector_a, vector_b, vector_c):
+    closer = jsContexter(script)
+    validBreakers = ['\'', '"', '`']
+    scriptEfficiency = occurrence['score']['</scRipT/>']
+    greatBracketEfficiency = occurrence['score']['>']
+    breakerEfficiency = occurrence['score'][breaker]
+    ends = ['//']
+    if greatBracketEfficiency == 100:
+        ends.append('>')
+    if scriptEfficiency == 100:
+        breaker = r('</script/>')
+        payloads = genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special)
+        for payload in payloads:
+            vector_a.add(payload)
+    if closer:
+        suffix = '//\\'
+        if not breaker:
+            closer = closer[1:]
+        if breakerEfficiency != 100:
+            breaker = ''
+        for filling in jFillings:
+            for function in functions:
+                vector = breaker + closer + filling + function + suffix
+                vector_b.add(vector)
+    elif breakerEfficiency > 83:
+        suffix = '//'
+        for filling in jFillings:
+            for function in functions:
+                if '=' in function:
+                    function = '(' + function + ')'
+                if breaker == '':
+                    filling = ''
+                vector = '\\' + breaker + closer + filling + function + suffix
+                vector_c.add(vector)
+            
+def generator(occurrences, response):
     scripts = extractScripts(response)
     index = 0
-    vectors = {11 : set(), 10 : set(), 9 : set(), 8 : set(), 7 : set(), 6 : set(), 5 : set(), 4 : set(), 3 : set(), 2 : set(), 1 : set()}
-    for i in occurences:
-        context = occurences[i]['context'][0]
-        breaker = occurences[i]['context'][1]
-        special = occurences[i]['context'][2]
-        attribute = occurences[i]['context'][3]
-        if special not in badTags:
-            special = ''
-        elif context == 'attribute':
+    vectors = defaultdict(set)
+    for occurrence in occurrences:
+        context = occurrence['context'][0]
+        breaker = occurrence['context'][1]
+        special = occurrence['context'][2]
+        attribute = occurrence['context'][3]
+        if special in badTags and context == 'attribute':
             special = '</' + special + '/>'
         else:
             special = ''
         if context == 'html':
-            lessBracketEfficiency = occurences[i]['score']['<']
-            greatBracketEfficiency = occurences[i]['score']['>']
-            breakerEfficiency = occurences[i]['score'][breaker]
-            if breaker == '\'' or breaker == '"':
-                breaker = ''
-                breakerEfficiency = 100
-            ends = ['//']
-            if greatBracketEfficiency == 100:
-                ends.append('>')
-            if lessBracketEfficiency == breakerEfficiency == 100:
-                payloads = genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special)
-                for payload in payloads:
-                    vectors[10].add(payload)
+            handle_html_context(occurrence, breaker, special, vectors[10])
         elif context == 'attribute':
-            breakerEfficiency = occurences[i]['score'][breaker]
-            greatBracketEfficiency = occurences[i]['score']['>']
-            ends = ['//']
-            if greatBracketEfficiency == 100:
-                ends.append('>')
-            if greatBracketEfficiency == 100 and breakerEfficiency == 100:
-                payloads = genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special)
-                for payload in payloads:
-                    if breaker:
-                        payload = payload.replace(breaker, breaker + '>')
-                    else:
-                        payload = '>' + payload
-                    vectors[10].add(payload)
-            if breakerEfficiency == 100:
-                for filling in fillings:
-                    for function in functions:
-                        vector = breaker + filling + 'auTOfOcuS' + filling + 'OnFoCUs' + '=' + breaker + function
-                        vectors[6].add(vector)
-            if breakerEfficiency == 90:
-                for filling in fillings:
-                    for function in functions:
-                        vector = '\\' + breaker + filling + 'auTOfOcuS' + filling + 'OnFoCUs' + '=' + function + filling + '\\' + breaker
-                        vectors[6].add(vector)
-            if attribute == 'srcdoc':
-                if occurences[i]['score']['&lt;']:
-                    if occurences[i]['score']['&gt;']:
-                        del ends[:]
-                        ends.append('&t;')
-                    payloads = genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, '', '')
-                    for payload in payloads:
-                        vectors[10].add(payload.replace('<', '&lt;'))
+            handle_attribute_context(occurrence, breaker, attribute, vectors[6], vectors[10])
         elif context == 'comment':
-            lessBracketEfficiency = occurences[i]['score']['<']
-            greatBracketEfficiency = occurences[i]['score']['>']
-            breakerEfficiency = occurences[i]['score'][breaker]
-            ends = ['//']
-            if greatBracketEfficiency == 100:
-                ends.append('>')
-            if lessBracketEfficiency == breakerEfficiency == 100:
-                payloads = genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special)
-                for payload in payloads:
-                    vectors[10].add(payload)
-        elif context == 'script':
-            try:
-                script = scripts[index]
-            except IndexError:
-                try:
-                    script = scripts[0]
-                except:
-                    continue
-            closer = jsContexter(script)
-            validBreakers = ['\'', '"', '`']
-            scriptEfficiency = occurences[i]['score']['</scRipT/>']
-            greatBracketEfficiency = occurences[i]['score']['>']
-            breakerEfficiency = occurences[i]['score'][breaker]
-            ends = ['//']
-            if greatBracketEfficiency == 100:
-                ends.append('>')
-            if scriptEfficiency == 100:
-                breaker = r('</script/>')
-                payloads = genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special)
-                for payload in payloads:
-                    vectors[10].add(payload)
-            if closer:
-                suffix = '//\\'
-                if not breaker:
-                    closer = closer[1:]
-                if breakerEfficiency != 100:
-                    breaker = ''
-                for filling in jFillings:
-                    for function in functions:
-                        vector = breaker + closer + filling + function + suffix
-                        vectors[7].add(vector)
-            elif breakerEfficiency > 83:
-                suffix = '//'
-                for filling in jFillings:
-                    for function in functions:
-                        if '=' in function:
-                            function = '(' + function + ')'
-                        if breaker == '':
-                            filling = ''
-                        vector = '\\' + breaker + closer + filling + function + suffix
-                        vectors[6].add(vector)
+            handle_comment_context(occurrence, breaker, special, vectors[10])
+        elif context == 'script' and scripts:
+            script = index < len(scripts) scripts[index] else scripts[0]
+            handle_script_context(scripts, breaker, vectors[10], vectors[7], vectors[6])
             index += 1
     return vectors
