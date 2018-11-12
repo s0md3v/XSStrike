@@ -101,8 +101,13 @@ def singleTarget(target, paramData):
         response = requester(target, {}, headers, GET, delay, timeout).text
         if not skipDOM:
             print ('%s Checking for DOM vulnerabilities' % run)
-            if dom(response):
-                print ('%s Potentially vulnerable objects found' % good)
+            highlighted = dom(response)
+            if highlighted:
+                print ('%s Potentially vulnerable objects found at %s' % (good, domURL))
+                print (red + ('-' * 60) + end)
+                for line in highlighted:
+                    print (line)
+                print (red + ('-' * 60) + end)
     except Exception as e:
         print ('%s Unable to connect to the target' % bad)
         print ('%s Error: %s' % (bad, e))
@@ -186,8 +191,13 @@ def multiTargets(scheme, host, main_url, form, domURL):
     signatures = set()
     if domURL and not skipDOM:
         response = requests.get(domURL).text
-        if dom(response, silent=True):
+        highlighted = dom(response)
+        if highlighted:
             print ('%s Potentially vulnerable objects found at %s' % (good, domURL))
+            print (red + ('-' * 60) + end)
+            for line in highlighted:
+                print (line)
+            print (red + ('-' * 60) + end)
     if form:
         for each in form.values():
             url = each['action']
