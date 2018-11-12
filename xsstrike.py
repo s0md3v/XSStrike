@@ -93,12 +93,12 @@ def singleTarget(target, paramData):
         target = target
     else:
         try:
-            response = requests.get('https://' + target)
+            response = requester('https://' + target)
             target = 'https://' + target
         except:
             target = 'http://' + target
     try:
-        response = requests.get(target).text
+        response = requester(target).text
         if not skipDOM:
             print ('%s Checking for DOM vulnerabilities' % run)
             if dom(response):
