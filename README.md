@@ -61,6 +61,7 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 - [Compatibility & Dependencies](https://github.com/s0md3v/XSStrike/wiki/Compatibility-&-Dependencies)
 
 ### FAQ
+- [It says fuzzywuzzy isn't installed but it is.](https://github.com/s0md3v/XSStrike/wiki/FAQ#it-says-fuzzywuzzy-is-not-installed-but-its)
 - [Why XSStrike boasts that it is the most advanced XSS detection suite?](https://github.com/s0md3v/XSStrike/wiki/FAQ#why-xsstrike-boasts-that-it-is-the-most-advanced-xss-detection-suite)
 - [I like the project, what enhancements and features I can expect in future?](https://github.com/s0md3v/XSStrike/wiki/FAQ#i-like-the-project-what-enhancements-and-features-i-can-expect-in-future)
 - [How does XSStrike decide if the injection was successful without a browser engine?](https://github.com/s0md3v/XSStrike/wiki/FAQ#how-does-xsstrike-decide-if-the-injection-was-successful-without-a-browser-engine)
