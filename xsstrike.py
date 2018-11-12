@@ -168,7 +168,7 @@ def singleTarget(target, paramData):
                     print (('%s-%s' % (red, end)) * 60)
                     print ('%s Payload: %s' % (good, vect))
                     print ('%s Efficiency: %i' % (info, bestEfficiency))
-                    print ('%s Cofidence: %i' % (info, confidence))
+                    print ('%s Confidence: %i' % (info, confidence))
                     if not args.skip:
                         if GET and not skipPOC:
                             flatParams = flattenParams(paramName, paramsCopy, vect)
@@ -180,7 +180,7 @@ def singleTarget(target, paramData):
                     print (('%s-%s' % (red, end)) * 60)
                     print ('%s Payload: %s' % (good, vect))
                     print ('%s Efficiency: %i' % (info, bestEfficiency))
-                    print ('%s Cofidence: %i' % (info, confidence))
+                    print ('%s Confidence: %i' % (info, confidence))
 
 def multiTargets(scheme, host, main_url, form, domURL):
     signatures = set()
