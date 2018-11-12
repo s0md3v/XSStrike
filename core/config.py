@@ -1,5 +1,6 @@
 changes = '''critical bug fixes'''
 
+defaultEditor = 'nano'
 xsschecker = 'v3dm0s' # A non malicious string to check for reflections and stuff
 
 minEfficiency = 90
