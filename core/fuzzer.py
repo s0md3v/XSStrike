@@ -24,7 +24,7 @@ def fuzzer(url, params, headers, GET, delay, WAF):
         sleep(t)
         paramsCopy = copy.deepcopy(params)
         try:
-            response = requester(url, replacer(paramsCopy, xsschecker, fuzz), headers, GET, delay/2, timeout)
+            response = requester(url, replacer(paramsCopy, xsschecker, fuzz), headers, GET, delay/2)
         except:
             print ('\n%s WAF is dropping suspicious requests.' % bad)
             if delay == 0:
