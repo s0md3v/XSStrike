@@ -1,8 +1,7 @@
 import re
 from core.colors import red, end, yellow
 
-def dom(response, silent=False):
-    result = False
+def dom(response):
     highlighted = []
     response = response.split('\n')
     sources = r"""location\.|\.([.\[]\s*["']?\s*arguments|dialogArguments|innerHTML|write|open|showModalDialog|cookie|URL|documentURI|baseURI|referrer|name|opener|parent|top|content|self|frames)[^\w\-]|(localStorage|sessionStorage|Database)[^\w\-]"""
@@ -21,11 +20,4 @@ def dom(response, silent=False):
         if line != newLine:
             highlighted.append('%-3s %s' % (str(num), line.lstrip(' ')))
         num += 1
-    if highlighted and not silent:
-        print (red + ('-' * 60) + end)
-        for line in highlighted:
-            print (line)
-        print (red + ('-' * 60) + end)
-    if highlighted:
-        result = True
-    return result
+    return highlighted
