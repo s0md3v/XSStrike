@@ -2,7 +2,7 @@ import os
 import tempfile
 
 def prompt(default=None):
-    editor = 'nano'
+    editor = os.environ.get("EDITOR", "nano")
     with tempfile.NamedTemporaryFile(mode='r+') as tmpfile:
         if default:
             tmpfile.write(default)
