@@ -50,6 +50,7 @@ parser.add_argument('--update', help='update', dest='update', action='store_true
 parser.add_argument('--timeout', help='timeout', dest='timeout', type=int)
 parser.add_argument('--params', help='find params', dest='find', action='store_true')
 parser.add_argument('--crawl', help='crawl', dest='recursive', action='store_true')
+parser.add_argument('-f', '--file', help='load payloads from a file', dest='file')
 parser.add_argument('-l', '--level', help='level of crawling', dest='level', type=int)
 parser.add_argument('--headers', help='add headers', dest='headers', action='store_true')
 parser.add_argument('-t', '--threads', help='number of threads', dest='threads', type=int)
@@ -74,6 +75,15 @@ level = args.level or 2
 delay = args.delay or core.config.delay
 timeout = args.timeout or core.config.timeout
 threadCount = args.threads or core.config.threadCount
+
+if args.file:
+    if args.file == 'default':
+        payloadList = core.config.payloads
+    else:
+        payloadList = []
+        with open(args.file, 'r') as f:
+            for line in f:
+                payloadList.append(line.rstrip('\n'))
 
 if args.update: # if the user has supplied --update argument
     updater()
@@ -239,8 +249,27 @@ def multiTargets(scheme, host, main_url, form, domURL):
                                     pass
 
 
+def brute(target, paramData, payloadList):
+    if paramData:
+        GET, POST = False, True
+    else:
+        GET, POST = True, False
+    host = urlparse(target).netloc # Extracts host out of the url
+    url = getUrl(target, paramData, GET)
+    params = getParams(target, paramData, GET)
+    for paramName in params.keys():
+        paramsCopy = copy.deepcopy(params)
+        for payload in payloadList:
+            paramsCopy[paramName] = payload
+            response = requester(url, paramsCopy, headers, GET, delay, timeout).text
+            if payload in response:
+                print ('%s %s' % (good, payload))
+
 if not args.recursive:
-    singleTarget(target, paramData)
+    if args.file:
+        brute(target, paramData, payloadList)
+    else:
+        singleTarget(target, paramData)
 else:
     print ('%s Crawling the target' % run)
     scheme = urlparse(target).scheme
