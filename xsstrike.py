@@ -103,7 +103,7 @@ def singleTarget(target, paramData):
             print ('%s Checking for DOM vulnerabilities' % run)
             highlighted = dom(response)
             if highlighted:
-                print ('%s Potentially vulnerable objects found at %s' % (good, domURL))
+                print ('%s Potentially vulnerable objects found' % good)
                 print (red + ('-' * 60) + end)
                 for line in highlighted:
                     print (line)
