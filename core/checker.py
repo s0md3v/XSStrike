@@ -6,10 +6,10 @@ from urllib.parse import quote_plus
 from core.requester import requester
 from core.utils import replacer, fillHoles
 
-def checker(url, params, headers, GET, delay, payload, positions, timeout):
+def checker(url, params, headers, GET, delay, payload, positions):
     checkString = 'st4r7s' + payload + '3nd'
     paramsCopy = copy.deepcopy(params)
-    response = requester(url, replacer(paramsCopy, xsschecker, checkString), headers, GET, delay, timeout).text.lower()
+    response = requester(url, replacer(paramsCopy, xsschecker, checkString), headers, GET, delay).text.lower()
     reflectedPositions = []
     for match in re.finditer('st4r7s', response):
         reflectedPositions.append(match.start())

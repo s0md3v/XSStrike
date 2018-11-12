@@ -8,6 +8,8 @@ minEfficiency = 90
 delay = 0
 threadCount = 10
 timeout = 10
+proxy = '' # Proxy through which requests are to be routed
+proxy_cred = '' # Proxy credentials (Optional)
 
 specialAttributes = ['srcdoc', 'src']
 

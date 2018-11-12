@@ -16,7 +16,7 @@ def counter(string):
             count += 1
     return count
 
-def fuzzer(url, params, headers, GET, delay, timeout, WAF):
+def fuzzer(url, params, headers, GET, delay, WAF):
     for fuzz in fuzzes:
         if delay == 0:
             delay = 6
