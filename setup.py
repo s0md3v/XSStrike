@@ -8,5 +8,6 @@ setup(
     license='GPLv3',
     author='s0md3v',
     author_email='s0md3v@gmail.com',
-    description='Most advanced XSS detection suite.'
+    description='Most advanced XSS detection suite.',
+    scripts=['xsstrike.py'],
 )
