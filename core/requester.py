@@ -16,7 +16,6 @@ def requester(url, data, headers, GET, delay):
     elif headers['User-Agent'] == '$':
         headers['User-Agent'] = random.choice(user_agents)
     proxies = parseProxy()
-    print('proxy value assigned')
     print(url)
     if GET:
         response = requests.get(url, params=data, headers=headers, timeout=timeout, proxies=proxies, verify=False)

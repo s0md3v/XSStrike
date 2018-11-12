@@ -115,7 +115,7 @@ def singleTarget(target, paramData):
                 for line in highlighted:
                     print (line)
                 print (red + ('-' * 60) + end)
-    except KeyboardInterrupt as e:
+    except Exception as e:
         print ('%s Unable to connect to the target' % bad)
         print ('%s Error: %s' % (bad, e))
         quit()
