@@ -4,7 +4,7 @@ from core.jsContexter import jsContexter
 from core.utils import randomUpper as r, genGen, extractScripts
 from core.config import badTags, fillings, eFillings, lFillings, jFillings, eventHandlers, tags, functions
 
-def handle_html_context(occurrence, breaker, special, vector):
+def htmlContext(occurrence, breaker, special, vector):
     lessBracketEfficiency = occurrence['score']['<']
     greatBracketEfficiency = occurrence['score']['>']
     breakerEfficiency = occurrence['score'][breaker]
@@ -19,7 +19,7 @@ def handle_html_context(occurrence, breaker, special, vector):
         for payload in payloads:
             vector.add(payload)
 
-def handle_attribute_context(occurrence, breaker, attribute, vector_a, vector_b):
+def attributeContext(occurrence, breaker, attribute, vector_a, vector_b):
     breakerEfficiency = occurrence['score'][breaker]
     greatBracketEfficiency = occurrence['score']['>']
     ends = ['//']
@@ -52,7 +52,7 @@ def handle_attribute_context(occurrence, breaker, attribute, vector_a, vector_b)
             for payload in payloads:
                 vector_b.add(payload.replace('<', '&lt;'))
                 
-def handle_comment_context(occurrence, breaker, special, vector):
+def commentContext(occurrence, breaker, special, vector):
     lessBracketEfficiency = occurrence['score']['<']
     greatBracketEfficiency = occurrence['score']['>']
     breakerEfficiency = occurrence['score'][breaker]
@@ -64,7 +64,7 @@ def handle_comment_context(occurrence, breaker, special, vector):
         for payload in payloads:
             vector.add(payload)
 
-def handle_script_context(script, breaker, vector_a, vector_b, vector_c):
+def scriptContext(script, breaker, vector_a, vector_b, vector_c):
     closer = jsContexter(script)
     validBreakers = ['\'', '"', '`']
     scriptEfficiency = occurrence['score']['</scRipT/>']
@@ -119,7 +119,7 @@ def generator(occurrences, response):
         elif context == 'comment':
             handle_comment_context(occurrence, breaker, special, vectors[10])
         elif context == 'script' and scripts:
-            script = index < len(scripts) scripts[index] else scripts[0]
+            script = scripts[index] if index < len(scripts) else scripts[0]
             handle_script_context(scripts, breaker, vectors[10], vectors[7], vectors[6])
             index += 1
     return vectors
