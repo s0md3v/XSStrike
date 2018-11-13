@@ -1,7 +1,7 @@
 import re
 from core.requester import requester
 
-def wafDetector(url, params, headers, GET, delay, timeout):
+def wafDetectorWithPayload(url, params, headers, GET, delay, timeout):
     noise = '<script>alert("XSS")</script>' #a payload which is noisy enough to provoke the WAF
     params['xss'] = noise
     response = requester(url, params, headers, GET, delay, timeout) # Opens the noise injected payload
@@ -34,4 +34,20 @@ def wafDetector(url, params, headers, GET, delay, timeout):
             WAF_Name = 'AkamaiGhost'
         elif code == '403': # if the http response code is 403
             WAF_Name = 'Unknown'
+    return WAF_Name
+
+def wafDetectorWithoutPayload(url, params, headers, GET, delay, timeout):
+    response = requester(url, params, headers, GET, delay, timeout) # Normal request to investigate some headers and cookies
+    response_cookies = str(response.cookies)
+    code = str(response.status_code)
+    WAF_Name = ''
+    if 'cookiesession1' in response_cookies or 'FORTIWAFSID' in response_cookies: # if the http cookies include cookiesession1 and FORTIWAFSID
+        WAF_Name = 'Fortiweb'
+    elif '__cfduid' in response_cookies:
+        WAF_Name = 'Cloudflare'
+    elif 'barra_counter_session' in response_cookies or 'barracuda_' in response_cookies:
+        WAF_Name = 'Barracuda'
+    elif 'visid_incap' in response_cookies or 'incap_ses' in response_cookies:
+        WAF_Name = 'Incapsula'
+    # to be continued
     return WAF_Name

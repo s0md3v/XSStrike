@@ -36,7 +36,8 @@ from core.encoders import base64
 from core.generator import generator
 from core.requester import requester
 from core.htmlParser import htmlParser
-from core.wafDetector import wafDetector
+from core.wafDetector import wafDetectorWithPayload
+from core.wafDetector import wafDetectorWithoutPayload
 from core.filterChecker import filterChecker
 from core.config import xsschecker, minEfficiency, blindPayload
 from core.utils import getUrl, getParams, flattenParams, extractHeaders, verboseOutput
@@ -136,11 +137,16 @@ def singleTarget(target, paramData, verbose, encoding):
         params = arjun(url, GET, headers, delay, timeout)
     if not params:
         quit()
-    WAF = wafDetector(url, {list(params.keys())[0] : xsschecker}, headers, GET, delay, timeout)
+    
+    WAF = wafDetectorWithoutPayload(url, {list(params.keys())[0] : xsschecker}, headers, GET, delay, timeout)
     if WAF:
         print ('%s WAF detected: %s%s%s' % (bad, green, WAF, end))
     else:
-        print ('%s WAF Status: %sOffline%s' % (good, green, end))
+        WAF = wafDetectorWithPayload(url, {list(params.keys())[0] : xsschecker}, headers, GET, delay, timeout)
+        if WAF:
+            print ('%s WAF detected: %s%s%s' % (bad, green, WAF, end))
+        else:
+            print ('%s WAF Status: %sOffline%s' % (good, green, end))
 
     if fuzz:
         for paramName in params.keys():
