@@ -113,13 +113,13 @@ def generator(occurrences, response):
         else:
             special = ''
         if context == 'html':
-            handle_html_context(occurrence, breaker, special, vectors[10])
+            htmlCcontext(occurrence, breaker, special, vectors[10])
         elif context == 'attribute':
-            handle_attribute_context(occurrence, breaker, attribute, vectors[6], vectors[10])
+            attributeContext(occurrence, breaker, attribute, vectors[6], vectors[10])
         elif context == 'comment':
-            handle_comment_context(occurrence, breaker, special, vectors[10])
+            commentContext(occurrence, breaker, special, vectors[10])
         elif context == 'script' and scripts:
             script = scripts[index] if index < len(scripts) else scripts[0]
-            handle_script_context(scripts, breaker, vectors[10], vectors[7], vectors[6])
+            scriptContext(scripts, breaker, vectors[10], vectors[7], vectors[6])
             index += 1
     return vectors
