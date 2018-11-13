@@ -1,4 +1,4 @@
-changes = '''multiple bug fixes;verbose dom xss output'''
+changes = '''verbose toggle;bruteforcer from a file;bug fixes;payload encoding'''
 
 defaultEditor = 'nano'
 xsschecker = 'v3dm0s' # A non malicious string to check for reflections and stuff
