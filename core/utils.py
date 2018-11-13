@@ -1,6 +1,19 @@
 import re
+import json
 import random
 from core.config import xsschecker
+from core.colors import info, red, end
+
+def verboseOutput(data, name, verbose):
+    if verbose:
+        print ('%s %s %s%s%s' % (info, name, red, ('-' * 50), end))
+        if str(type(data)) == '<class \'dict\'>':
+            try:
+                print (json.dumps(data, indent=2))
+            except TypeError:
+                print (data)
+        print (data)
+        print ('%s%s%s' % (red, ('-' * 60), end))
 
 def closest(number, numbers):
     difference = [abs(list(numbers.values())[0]), {}]
@@ -55,7 +68,7 @@ def replacer(dic, toReplace, replaceWith):
             dic[key] = replaceWith
     return dic
 
-def getUrl(url, data, GET):
+def getUrl(url, GET):
     if GET:
         return url.split('?')[0]
     else:

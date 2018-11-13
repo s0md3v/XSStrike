@@ -22,7 +22,6 @@ import sys
 import copy
 import argparse
 import requests
-import webbrowser
 import concurrent.futures
 
 import core.config
@@ -39,7 +38,7 @@ from core.htmlParser import htmlParser
 from core.wafDetector import wafDetector
 from core.filterChecker import filterChecker
 from core.config import xsschecker, minEfficiency
-from core.utils import getUrl, getParams, flattenParams, extractHeaders
+from core.utils import getUrl, getParams, flattenParams, extractHeaders, verboseOutput
 
 # Processing command line arguments
 parser = argparse.ArgumentParser()
@@ -55,9 +54,9 @@ parser.add_argument('-l', '--level', help='level of crawling', dest='level', typ
 parser.add_argument('--headers', help='add headers', dest='headers', action='store_true')
 parser.add_argument('-t', '--threads', help='number of threads', dest='threads', type=int)
 parser.add_argument('-d', '--delay', help='delay between requests', dest='delay', type=int)
-parser.add_argument('--skip-poc', help='skip poc generation', dest='skipPOC', action='store_true')
-parser.add_argument('--skip-dom', help='skip dom checking', dest='skipDOM', action='store_true')
 parser.add_argument('--skip', help='don\'t ask to continue', dest='skip', action='store_true')
+parser.add_argument('--skip-dom', help='skip dom checking', dest='skipDOM', action='store_true')
+parser.add_argument('-v', '--vectors', help='verbose output', dest='verbose', action='store_true')
 args = parser.parse_args()
 
 if args.headers:
@@ -69,8 +68,8 @@ find = args.find
 fuzz = args.fuzz
 target = args.target
 paramData = args.data
+verbose = args.verbose
 skipDOM = args.skipDOM
-skipPOC = args.skipPOC
 level = args.level or 2
 delay = args.delay or core.config.delay
 timeout = args.timeout or core.config.timeout
@@ -93,7 +92,7 @@ if not target: # if the user hasn't supplied a url
     print('\n' + parser.format_help().lower())
     quit()
 
-def singleTarget(target, paramData):
+def singleTarget(target, paramData, verbose):
     if paramData:
         GET, POST = False, True
     else:
@@ -107,24 +106,22 @@ def singleTarget(target, paramData):
             target = 'https://' + target
         except:
             target = 'http://' + target
-    try:
-        response = requester(target, {}, headers, GET, delay, timeout).text
-        if not skipDOM:
-            print ('%s Checking for DOM vulnerabilities' % run)
-            highlighted = dom(response)
-            if highlighted:
-                print ('%s Potentially vulnerable objects found' % good)
-                print (red + ('-' * 60) + end)
-                for line in highlighted:
-                    print (line)
-                print (red + ('-' * 60) + end)
-    except Exception as e:
-        print ('%s Unable to connect to the target' % bad)
-        print ('%s Error: %s' % (bad, e))
-        quit()
+    response = requester(target, {}, headers, GET, delay, timeout).text
+    if not skipDOM:
+        print ('%s Checking for DOM vulnerabilities' % run)
+        highlighted = dom(response)
+        if highlighted:
+            print ('%s Potentially vulnerable objects found' % good)
+            print (red + ('-' * 60) + end)
+            for line in highlighted:
+                print (line)
+            print (red + ('-' * 60) + end)
     host = urlparse(target).netloc # Extracts host out of the url
-    url = getUrl(target, paramData, GET)
+    verboseOutput(host, 'host', verbose)
+    url = getUrl(target, GET)
+    verboseOutput(url, 'url', verbose)
     params = getParams(target, paramData, GET)
+    verboseOutput(params, 'params', verbose)
     if args.find:
         params = arjun(url, GET, headers, delay, timeout)
     if not params:
@@ -150,7 +147,9 @@ def singleTarget(target, paramData):
         response = requester(url, paramsCopy, headers, GET, delay, timeout)
         parsedResponse = htmlParser(response)
         occurences = parsedResponse[0]
+        verboseOutput(occurences, 'occurences', verbose)
         positions = parsedResponse[1]
+        verboseOutput(positions, 'positions', verbose)
         if not occurences:
             print ('%s No reflection found' % bad)
             continue
@@ -158,8 +157,10 @@ def singleTarget(target, paramData):
             print ('%s Reflections found: %s' % (info, len(occurences)))
         print ('%s Analysing reflections' % run)
         efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences, timeout)
+        verboseOutput(efficiencies, 'efficiencies', verbose)
         print ('%s Generating payloads' % run)
         vectors = generator(occurences, response.text)
+        verboseOutput(vectors, 'vectors', verbose)
         total = 0
         for v in vectors.values():
             total += len(v)
@@ -185,9 +186,6 @@ def singleTarget(target, paramData):
                     print ('%s Efficiency: %i' % (info, bestEfficiency))
                     print ('%s Confidence: %i' % (info, confidence))
                     if not args.skip:
-                        if GET and not skipPOC:
-                            flatParams = flattenParams(paramName, paramsCopy, vect)
-                            webbrowser.open(url + flatParams)
                         choice = input('%s Would you like to continue scanning? [y/N] ' % que).lower()
                         if choice != 'y':
                             quit()
@@ -197,7 +195,7 @@ def singleTarget(target, paramData):
                     print ('%s Efficiency: %i' % (info, bestEfficiency))
                     print ('%s Confidence: %i' % (info, confidence))
 
-def multiTargets(scheme, host, main_url, form, domURL):
+def multiTargets(scheme, host, main_url, form, domURL, verbose):
     signatures = set()
     if domURL and not skipDOM:
         response = requests.get(domURL).text
@@ -249,14 +247,17 @@ def multiTargets(scheme, host, main_url, form, domURL):
                                     pass
 
 
-def brute(target, paramData, payloadList):
+def brute(target, paramData, payloadList, verbose):
     if paramData:
         GET, POST = False, True
     else:
         GET, POST = True, False
     host = urlparse(target).netloc # Extracts host out of the url
+    verboseOutput(host, 'host', verbose)
     url = getUrl(target, paramData, GET)
+    verboseOutput(url, 'url', verbose)
     params = getParams(target, paramData, GET)
+    verboseOutput(params, 'params', verbose)
     for paramName in params.keys():
         paramsCopy = copy.deepcopy(params)
         for payload in payloadList:
@@ -267,12 +268,13 @@ def brute(target, paramData, payloadList):
 
 if not args.recursive:
     if args.file:
-        brute(target, paramData, payloadList)
+        brute(target, paramData, payloadList, verbose)
     else:
-        singleTarget(target, paramData)
+        singleTarget(target, paramData, verbose)
 else:
     print ('%s Crawling the target' % run)
     scheme = urlparse(target).scheme
+    verboseOutput(scheme, 'scheme', verbose)
     host = urlparse(target).netloc
     main_url = scheme + '://' + host
     crawlingResult = photon(target, headers, level, threadCount, delay, timeout)
@@ -286,7 +288,7 @@ else:
         for i in range(difference):
             domURLs.append(0)
     threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-    futures = (threadpool.submit(multiTargets, scheme, host, main_url, form, domURL) for form, domURL in zip(forms, domURLs))
+    futures = (threadpool.submit(multiTargets, scheme, host, main_url, form, domURL, verbose) for form, domURL in zip(forms, domURLs))
     for i, _ in enumerate(concurrent.futures.as_completed(futures)):
         if i + 1 == len(forms) or (i + 1) % threadCount == 0:
             print('%s Progress: %i/%i' % (info, i + 1, len(forms)), end='\r')

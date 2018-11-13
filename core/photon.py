@@ -19,7 +19,7 @@ def photon(seedUrl, headers, level, threadCount, delay, timeout):
     def rec(target):
         processed.add(target)
         print ('%s Parsing %s' % (run, target))
-        url = getUrl(target, '', True)
+        url = getUrl(target, True)
         params = getParams(target, '', True)
         if '=' in target:
             inps = []
