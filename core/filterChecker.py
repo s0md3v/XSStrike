@@ -3,7 +3,7 @@ from core.checker import checker
 from core.config import xsschecker
 from core.requester import requester
 
-def filterChecker(url, params, headers, GET, delay, occurences, timeout):
+def filterChecker(url, params, headers, GET, delay, occurences, timeout, encoding):
     positions = {}
     environments = set(['<', '>'])
     sortedEfficiencies = {}
@@ -25,7 +25,7 @@ def filterChecker(url, params, headers, GET, delay, occurences, timeout):
         if environment == '':
             efficiencies = [100 for i in range(len(occurences))]
         else:
-            efficiencies = checker(url, params, headers, GET, delay, environment, positions, timeout)
+            efficiencies = checker(url, params, headers, GET, delay, environment, positions, timeout, encoding)
             if len(efficiencies) < len(occurences):
                 for i in range(len(occurences) - len(efficiencies)):
                     efficiencies.append(0)

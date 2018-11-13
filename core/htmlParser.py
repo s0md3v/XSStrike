@@ -1,10 +1,13 @@
 import re
 from core.config import badTags
+from core.encoders import base64
 from core.config import xsschecker
 
-def htmlParser(response):
+def htmlParser(response, encoding):
     rawResponse = response
     response = response.text
+    if encoding:
+        response = response.replace(encoding(xsschecker), xsschecker)
     tags = [] # tags in which the input is reflected
     locations = [] # contexts in which the input is reflected
     attributes = [] # attribute names
