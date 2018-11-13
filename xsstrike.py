@@ -12,7 +12,7 @@ print('''%s
 try:
     from urllib.parse import quote_plus, unquote, urlparse
 except ImportError: # throws error in python2
-    print ('%s XSStrike isn\'t compatible with python2.' % bad)
+    print ('%s XSStrike isn\'t compatible with python2.\n Use python > 3.4 to run XSStrike.' % bad)
     quit()
 
 # Let's import whatever we need
@@ -38,7 +38,7 @@ from core.requester import requester
 from core.htmlParser import htmlParser
 from core.wafDetector import wafDetector
 from core.filterChecker import filterChecker
-from core.config import xsschecker, minEfficiency
+from core.config import xsschecker, minEfficiency, blindPayload
 from core.utils import getUrl, getParams, flattenParams, extractHeaders, verboseOutput
 
 # Processing command line arguments
@@ -59,6 +59,7 @@ parser.add_argument('-d', '--delay', help='delay between requests', dest='delay'
 parser.add_argument('--skip', help='don\'t ask to continue', dest='skip', action='store_true')
 parser.add_argument('--skip-dom', help='skip dom checking', dest='skipDOM', action='store_true')
 parser.add_argument('-v', '--vectors', help='verbose output', dest='verbose', action='store_true')
+parser.add_argument('--blind', help='inject blind XSS payload while crawling', dest='blindXSS', action='store_true')
 args = parser.parse_args()
 
 if args.headers:
@@ -74,6 +75,7 @@ paramData = args.data
 verbose = args.verbose
 skipDOM = args.skipDOM
 level = args.level or 2
+blindXSS = args.blindXSS
 delay = args.delay or core.config.delay
 timeout = args.timeout or core.config.timeout
 threadCount = args.threads or core.config.threadCount
@@ -206,7 +208,7 @@ def singleTarget(target, paramData, verbose, encoding):
                     print ('%s Efficiency: %i' % (info, bestEfficiency))
                     print ('%s Confidence: %i' % (info, confidence))
 
-def multiTargets(scheme, host, main_url, form, domURL, verbose):
+def multiTargets(scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload):
     signatures = set()
     if domURL and not skipDOM:
         response = requests.get(domURL).text
@@ -256,6 +258,9 @@ def multiTargets(scheme, host, main_url, form, domURL, verbose):
                                     break
                                 except IndexError:
                                     pass
+                        if blindXSS and blindPayload:
+                            paramsCopy[paramName] = blindPayload
+                            requester(url, paramsCopy, headers, GET, delay, timeout)
 
 
 def bruteforcer(target, paramData, payloadList, verbose, encoding):
@@ -303,7 +308,7 @@ else:
         for i in range(difference):
             domURLs.append(0)
     threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-    futures = (threadpool.submit(multiTargets, scheme, host, main_url, form, domURL, verbose) for form, domURL in zip(forms, domURLs))
+    futures = (threadpool.submit(multiTargets, scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload) for form, domURL in zip(forms, domURLs))
     for i, _ in enumerate(concurrent.futures.as_completed(futures)):
         if i + 1 == len(forms) or (i + 1) % threadCount == 0:
             print('%s Progress: %i/%i' % (info, i + 1, len(forms)), end='\r')
