@@ -32,6 +32,7 @@ from core.prompt import prompt
 from core.fuzzer import fuzzer
 from core.updater import updater
 from core.checker import checker
+from core.encoders import base64
 from core.generator import generator
 from core.requester import requester
 from core.htmlParser import htmlParser
@@ -44,6 +45,7 @@ from core.utils import getUrl, getParams, flattenParams, extractHeaders, verbose
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--url', help='url', dest='target')
 parser.add_argument('--data', help='post data', dest='data')
+parser.add_argument('-e', '--encode', help='encode payloads', dest='encode')
 parser.add_argument('--fuzzer', help='fuzzer', dest='fuzz', action='store_true')
 parser.add_argument('--update', help='update', dest='update', action='store_true')
 parser.add_argument('--timeout', help='timeout', dest='timeout', type=int)
@@ -66,6 +68,7 @@ else:
 
 find = args.find
 fuzz = args.fuzz
+encode = args.encode
 target = args.target
 paramData = args.data
 verbose = args.verbose
@@ -84,6 +87,11 @@ if args.file:
             for line in f:
                 payloadList.append(line.rstrip('\n'))
 
+encoding = False
+if encode:
+    if encode == 'base64':
+        encoding = base64
+
 if args.update: # if the user has supplied --update argument
     updater()
     quit() # quitting because files have been changed
@@ -92,7 +100,7 @@ if not target: # if the user hasn't supplied a url
     print('\n' + parser.format_help().lower())
     quit()
 
-def singleTarget(target, paramData, verbose):
+def singleTarget(target, paramData, verbose, encoding):
     if paramData:
         GET, POST = False, True
     else:
@@ -137,15 +145,18 @@ def singleTarget(target, paramData, verbose):
             print ('%s Fuzzing parameter: %s' % (info, paramName))
             paramsCopy = copy.deepcopy(params)
             paramsCopy[paramName] = xsschecker
-            fuzzer(url, paramsCopy, headers, GET, delay, timeout, WAF)
+            fuzzer(url, paramsCopy, headers, GET, delay, timeout, WAF, encoding)
         quit()
 
     for paramName in params.keys():
         paramsCopy = copy.deepcopy(params)
         print ('%s Testing parameter: %s' % (info, paramName))
-        paramsCopy[paramName] = xsschecker
+        if encoding:
+            paramsCopy[paramName] = encoding(xsschecker)
+        else:
+            paramsCopy[paramName] = xsschecker
         response = requester(url, paramsCopy, headers, GET, delay, timeout)
-        parsedResponse = htmlParser(response)
+        parsedResponse = htmlParser(response, encoding)
         occurences = parsedResponse[0]
         verboseOutput(occurences, 'occurences', verbose)
         positions = parsedResponse[1]
@@ -156,7 +167,7 @@ def singleTarget(target, paramData, verbose):
         else:
             print ('%s Reflections found: %s' % (info, len(occurences)))
         print ('%s Analysing reflections' % run)
-        efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences, timeout)
+        efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences, timeout, encoding)
         verboseOutput(efficiencies, 'efficiencies', verbose)
         print ('%s Generating payloads' % run)
         vectors = generator(occurences, response.text)
@@ -175,7 +186,7 @@ def singleTarget(target, paramData, verbose):
                 print ('%s Payloads tried [%i/%i]' % (run, progress, total), end='\r')
                 if not GET:
                     vect = unquote(vect)
-                efficiencies = checker(url, paramsCopy, headers, GET, delay, vect, positions, timeout)
+                efficiencies = checker(url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
                 if not efficiencies:
                     for i in range(len(occurences)):
                         efficiencies.append(0)
@@ -231,10 +242,10 @@ def multiTargets(scheme, host, main_url, form, domURL, verbose):
                         paramsCopy = copy.deepcopy(paramData)
                         paramsCopy[paramName] = xsschecker
                         response = requester(url, paramsCopy, headers, GET, delay, timeout)
-                        parsedResponse = htmlParser(response)
+                        parsedResponse = htmlParser(response, encoding)
                         occurences = parsedResponse[0]
                         positions = parsedResponse[1]
-                        efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences, timeout)
+                        efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences, timeout, encoding)
                         vectors = generator(occurences, response.text)
                         if vectors:
                             for confidence, vects in vectors.items():
@@ -247,30 +258,34 @@ def multiTargets(scheme, host, main_url, form, domURL, verbose):
                                     pass
 
 
-def brute(target, paramData, payloadList, verbose):
+def brute(target, paramData, payloadList, verbose, encoding):
     if paramData:
         GET, POST = False, True
     else:
         GET, POST = True, False
     host = urlparse(target).netloc # Extracts host out of the url
     verboseOutput(host, 'host', verbose)
-    url = getUrl(target, paramData, GET)
+    url = getUrl(target, GET)
     verboseOutput(url, 'url', verbose)
     params = getParams(target, paramData, GET)
     verboseOutput(params, 'params', verbose)
     for paramName in params.keys():
         paramsCopy = copy.deepcopy(params)
         for payload in payloadList:
+            if encoding:
+                payload = encoding(unquote(payload))
             paramsCopy[paramName] = payload
             response = requester(url, paramsCopy, headers, GET, delay, timeout).text
+            if encoding:
+                payload = encoding(payload)
             if payload in response:
                 print ('%s %s' % (good, payload))
 
 if not args.recursive:
     if args.file:
-        brute(target, paramData, payloadList, verbose)
+        brute(target, paramData, payloadList, verbose, encoding)
     else:
-        singleTarget(target, paramData, verbose)
+        singleTarget(target, paramData, verbose, encoding)
 else:
     print ('%s Crawling the target' % run)
     scheme = urlparse(target).scheme
