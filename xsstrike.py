@@ -6,7 +6,7 @@ from core.colors import end, red, white, green, yellow, run, bad, good, info, qu
 
 # Just a fancy ass banner
 print('''%s
-\tXSStrike %sv3.0.1
+\tXSStrike %sv3.0.2
 %s''' % (red, white, end))
 
 try:
@@ -258,7 +258,7 @@ def multiTargets(scheme, host, main_url, form, domURL, verbose):
                                     pass
 
 
-def brute(target, paramData, payloadList, verbose, encoding):
+def bruteforcer(target, paramData, payloadList, verbose, encoding):
     if paramData:
         GET, POST = False, True
     else:
@@ -283,7 +283,7 @@ def brute(target, paramData, payloadList, verbose, encoding):
 
 if not args.recursive:
     if args.file:
-        brute(target, paramData, payloadList, verbose, encoding)
+        bruteforcer(target, paramData, payloadList, verbose, encoding)
     else:
         singleTarget(target, paramData, verbose, encoding)
 else:
