@@ -113,7 +113,7 @@ def generator(occurrences, response):
         else:
             special = ''
         if context == 'html':
-            htmlCcontext(occurrence, breaker, special, vectors[10])
+            htmlContext(occurrence, breaker, special, vectors[10])
         elif context == 'attribute':
             attributeContext(occurrence, breaker, attribute, vectors[6], vectors[10])
         elif context == 'comment':
