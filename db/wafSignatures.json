@@ -1,0 +1,332 @@
+{
+	"360 Web Application Firewall (360)" : {
+		"code" : "493",
+		"page" : "/wzws-waf-cgi/",
+		"headers" : "X-Powered-By-360wzb"
+	},
+	"aeSecure" : {
+		"code" : "",
+		"page" : "aesecure_denied.png",
+		"headers" : "aeSecure-code"
+	},
+	"Airlock (Phion/Ergon)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "AL[_-]?(SESS|LB)"
+	},
+	"Anquanbao Web Application Firewall (Anquanbao)" : {
+		"code" : "405",
+		"page" : "/aqb_cc/error/|hidden_intercept_time",
+		"headers" : "X-Powered-By-Anquanbao"
+	},
+	"Armor Protection (Armor Defense)" : {
+		"code" : "",
+		"page" : "This request has been blocked by website protection from Armor",
+		"headers" : ""
+	},
+	"Application Security Manager (F5 Networks)" : {
+		"code" : "",
+		"page" : "The requested URL was rejected\\. Please consult with your administrator\\.",
+		"headers" : ""
+	},
+	"Amazon Web Services Web Application Firewall (Amazon)" : {
+		"code" : "403",
+		"page" : "",
+		"headers" : "\\bAWS"
+	},
+	"Yunjiasu Web Application Firewall (Baidu)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "yunjiasu-nginx"
+	},
+	"Barracuda Web Application Firewall (Barracuda Networks)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "barra_counter_session=|(|\\b)barracuda_"
+	},
+	"BIG-IP Application Security Manager (F5 Networks)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "BigIP|F5\\Z|\\bTS[0-9a-f]+=|X-WA-Info:|X-Cnection:"
+	},
+	"BinarySEC Web Application Firewall (BinarySEC)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "binarysec"
+	},
+	"BlockDoS" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "BlockDos\\.net"
+	},
+	"ChinaCache (ChinaCache Networks)" : {
+		"code" : "400",
+		"page" : "",
+		"headers" : "Powered-By-ChinaCache"
+	},
+	"Cisco ACE XML Gateway (Cisco Systems)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "ACE XML Gateway"
+	},
+	"Cloudbric Web Application Firewall (Cloudbric)" : {
+		"code" : "",
+		"page" : "Cloudbric|Malicious Code Detected",
+		"headers" : ""
+	},
+	"CloudFlare Web Application Firewall (CloudFlare)" : {
+		"code" : "",
+		"page" : "Attention Required! \\| Cloudflare|CloudFlare Ray ID:|var CloudFlare=|CLOUDFLARE_ERROR_500S_BOX",
+		"headers" : "cloudflare|__cfduid=|cf-ray"
+	},
+	"CloudFront (Amazon)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "Error from cloudfront"
+	},
+	"Comodo Web Application Firewall (Comodo)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "Protected by COMODO WAF"
+	},
+	"CrawlProtect (Jean-Denis Brun)" : {
+		"code" : "",
+		"page" : "This site is protected by CrawlProtect",
+		"headers" : ""
+	},
+	"IBM WebSphere DataPower (IBM)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "X-Backside-Transport.*?(OK|FAIL)"
+	},
+	"Deny All Web Application Firewall (DenyAll)" : {
+		"code" : "",
+		"page" : "Condition Intercepted",
+		"headers" : "sessioncookie"
+	},
+	"Distil Web Application Firewall Security (Distil Networks)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "x-distil-cs"
+	},
+	"DOSarrest (DOSarrest Internet Security)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "DOSarrest|X-DIS-Request-ID"
+	},
+	"dotDefender (Applicure Technologies)" : {
+		"code" : "",
+		"page" : "dotDefender Blocked Your Request|<meta name=\\.description\\. content=\\.Applicure is the leading provider of web application security|Please contact the site administrator, and provide the following Reference ID:EdgeCast Web Application Firewall (Verizon)",
+		"headers" : "X-dotDefender-denied"
+	},
+	"EdgeCast Web Application Firewall (Verizon)" : {
+		"code" : "400",
+		"page" : "",
+		"headers" : "SERVER.*?ECDF"
+	},
+	"ExpressionEngine (EllisLab)" : {
+		"code" : "",
+		"page" : "Invalid (GET|POST) Data",
+		"headers" : ""
+	},
+	"FortiWeb Web Application Firewall (Fortinet)" : {
+		"code" : "",
+		"page" : "\\.fgd_icon|\\.blocked|\\.authenticate",
+		"headers" : "FORTIWAFSID="
+	},
+	"Hyperguard Web Application Firewall (art of defence)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "ODSESSION="
+	},
+	"Incapsula Web Application Firewall (Incapsula/Imperva)" : {
+		"code" : "",
+		"page" : "Incapsula incident ID|_Incapsula_Resource|subject=WAF Block Page|If you feel you have been blocked in error, please contact Customer Support",
+		"headers" : "X-Iinfo|incap_ses|visid_incap"
+	},
+	"ISA Server (Microsoft)" : {
+		"code" : "",
+		"page" : "The server denied the specified Uniform Resource Locator (URL)\\. Contact the server administrator\\.",
+		"headers" : ""
+	},
+	"Jiasule Web Application Firewall (Jiasule)" : {
+		"code" : "403",
+		"page" : "static\\.jiasule\\.com/static/js/http_error\\.js|notice-jiasule",
+		"headers" : "jiasule-WAF|__jsluid=|jsl_tracking"
+	},
+	"KS-WAF (Knownsec)" : {
+		"code" : "",
+		"page" : "ks-waf-error\\.png'",
+		"headers" : ""
+	},
+	"KONA Security Solutions (Akamai Technologies)" : {
+		"code" : "400|403|501",
+		"page" : "",
+		"headers" : "AkamaiGHost"
+	},
+	"ModSecurity: Open Source Web Application Firewall (Trustwave)" : {
+		"code" : "",
+		"page" : "This error was generated by Mod_Security|One or more things in your request were suspicious|rules of the mod_security module",
+		"headers" : "Mod_Security|NOYB"
+	},
+	"NAXSI (NBS System)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "naxsi/waf"
+	},
+	"NetContinuum Web Application Firewall (NetContinuum/Barracuda Networks)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "NCI__SessionId="
+	},
+	"NetScaler (Citrix Systems)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "ns_af=|citrix_ns_id|NSC_|NS-CACHE"
+	},
+	"Newdefend Web Application Firewall (Newdefend)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "newdefend"
+	},
+	"NSFOCUS Web Application Firewall (NSFOCUS)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "NSFocus"
+	},
+	"Palo Alto Firewall (Palo Alto Networks)" : {
+		"code" : "",
+		"page" : "has been blocked in accordance with company policy",
+		"headers" : ""
+	},
+	"Profense Web Application Firewall (Armorlogic)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "PLBSID=|Profense"
+	},
+	"AppWall (Radware)" : {
+		"code" : "",
+		"page" : "Unauthorized Activity Has Been Detected.*?Case Number:",
+		"headers" : "X-SL-CompState"
+	},
+	"Reblaze Web Application Firewall (Reblaze)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "rbzid=|Reblaze Secure Web Gateway"
+	},
+	"ASP.NET RequestValidationMode (Microsoft)" : {
+		"code" : "500",
+		"page" : "ASP\\.NET has detected data in the request that is potentially dangerous|Request Validation has detected a potentially dangerous client input value|HttpRequestValidationException",
+		"headers" : ""
+	},
+	"Safe3 Web Application Firewall" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "Safe3"
+	},
+	"Safedog Web Application Firewall (Safedog)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "WAF/2\\.0|safedog"
+	},
+	"SecureIIS Web Server Security (BeyondTrust)" : {
+		"code" : "",
+		"page" : "SecureIIS.*?Web Server Protection|http://www\\.eeye\\.com/SecureIIS/|\\?subject=[^>]*SecureIIS Error",
+		"headers" : ""
+	},
+	"SEnginx (Neusoft Corporation)" : {
+		"code" : "",
+		"page" : "SENGINX-ROBOT-MITIGATION",
+		"headers" : ""
+	},
+	"TrueShield Web Application Firewall (SiteLock)" : {
+		"code" : "",
+		"page" : "SiteLock Incident ID|sitelock-site-verification|sitelock_shield_logo",
+		"headers" : ""
+	},
+	"SonicWALL (Dell)" : {
+		"code" : "",
+		"page" : "This request is blocked by the SonicWALL|#shd|#nsa_banner|Web Site Blocked.*?\\bnsa_banner",
+		"headers" : "SonicWALL"
+	},
+	"UTM Web Protection (Sophos)" : {
+		"code" : "",
+		"page" : "Powered by UTM Web Protection",
+		"headers" : ""
+	},
+	"Stingray Application Firewall (Riverbed / Brocade)" : {
+		"code" : "403|500",
+		"page" : "",
+		"headers" : "X-Mapping-"
+	},
+	"CloudProxy WebSite Firewall (Sucuri)" : {
+		"code" : "403",
+		"page" : "Access Denied.*?Sucuri Website Firewall|Sucuri WebSite Firewall.*?Access Denied|Questions\\?.*?cloudproxy@sucuri\\.net",
+		"headers" : "Sucuri/Cloudproxy|X-Sucuri"
+	},
+	"Tencent Cloud Web Application Firewall (Tencent Cloud Computing)" : {
+		"code" : "405",
+		"page" : "waf\\.tencent-cloud\\.com",
+		"headers" : ""
+	},
+	"Teros/Citrix Application Firewall Enterprise (Teros/Citrix Systems)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "st8(id|_wat|_wlf)"
+	},
+	"TrafficShield (F5 Networks)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "F5-TrafficShield|ASINFO="
+	},
+	"UrlScan (Microsoft)" : {
+		"code" : "",
+		"page" : "Rejected-By-UrlScan",
+		"headers" : "Rejected-By-UrlScan"
+	},
+	"USP Secure Entry Server (United Security Providers)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "Secure Entry Server"
+	},
+	"Varnish FireWall (OWASP)" : {
+		"code" : "404",
+		"page" : "Request rejected by xVarnish-WAF|\\bXID: \\d+",
+		"headers" : ""
+	},
+	"Wallarm Web Application Firewall (Wallarm)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "nginx-wallarm"
+	},
+	"WatchGuard (WatchGuard Technologies)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "WatchGuard"
+	},
+	"WebKnight Application Firewall (AQTRONIX)" : {
+		"code" : "999",
+		"page" : "WebKnight Application Firewall Alert|AQTRONIX WebKnight",
+		"headers" : "WebKnight"
+	},
+	"Wordfence (Feedjit)" : {
+		"code" : "",
+		"page" : "This response was generated by Wordfence|Your access to this site has been limited",
+		"headers" : ""
+	},
+	"Zenedge Web Application Firewall (Zenedge)" : {
+		"code" : "",
+		"page" : "zenedge/assets/",
+		"headers" : "ZENEDGE"
+	},
+	"Yundun Web Application Firewall (Yundun)" : {
+		"code" : "",
+		"page" : "",
+		"headers" : "YUNDUN"
+	},
+	"Yunsuo Web Application Firewall (Yunsuo)" : {
+		"code" : "",
+		"page" : "<img class=.yunsuologo.",
+		"headers" : "yunsuo_session"
+	}
+}

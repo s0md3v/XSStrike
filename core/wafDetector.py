@@ -1,37 +1,38 @@
 import re
+import json
 from core.requester import requester
 
 def wafDetector(url, params, headers, GET, delay, timeout):
+    with open('./db/wafSignatures.json', 'r') as file:
+        wafSignatures = json.load(file)
     noise = '<script>alert("XSS")</script>' #a payload which is noisy enough to provoke the WAF
     params['xss'] = noise
     response = requester(url, params, headers, GET, delay, timeout) # Opens the noise injected payload
+    page = response.text
     code = str(response.status_code)
-    response_headers = str(response.headers)
-    response_text = response.text.lower()
-    WAF_Name = ''
-    if code[:1] != '2':
-        if code == '406' or code == '501': # if the http response code is 406/501
-            WAF_Name = 'Mod_Security'
-        elif 'wordfence' in response_text:
-            WAF_Name = 'Wordfence'
-        elif code == '999': # if the http response code is 999
-            WAF_Name = 'WebKnight'
-        elif 'has disallowed characters' in response_text:
-            WAF_Name = 'CodeIgniter'
-        elif '<hr><center>nginx</center>' in response_text:
-            WAF_Name = 'nginx'
-        elif 'comodo' in response_text:
-            WAF_Name = 'Comodo'
-        elif 'sucuri' in response_text:
-            WAF_Name = 'Sucuri'
-        elif code == '419': # if the http response code is 419
-            WAF_Name = 'F5 BIG IP'
-        elif 'barra' in response_headers:
-            WAF_Name = 'Barracuda'
-        elif re.search(r'cf[-|_]ray', response_headers):
-            WAF_Name = 'Cloudflare'
-        elif 'AkamaiGHost' in response_headers:
-            WAF_Name = 'AkamaiGhost'
-        elif code == '403': # if the http response code is 403
-            WAF_Name = 'Unknown'
-    return WAF_Name
+    headers = str(response.headers)
+    if int(code) >= 400:
+        bestMatch = [0, None]
+        for wafName, wafSignature in wafSignatures.items():
+            score = 0
+            pageSign = wafSignature['page']
+            codeSign = wafSignature['code']
+            headersSign = wafSignature['headers']
+            if pageSign:
+                if re.search(pageSign, page, re.I):
+                    score += 1
+            if codeSign:
+                if re.search(codeSign, code, re.I):
+                    score += 0.5
+            if headersSign:
+                if re.search(headersSign, headers, re.I):
+                    score += 1
+            if score > bestMatch[0]:
+                del bestMatch[:]
+                bestMatch.extend([score, wafName])
+        if bestMatch[0] != 0:
+            return bestMatch[1]
+        else:
+            return None
+    else:
+        return None
