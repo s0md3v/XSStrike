@@ -1,8 +1,11 @@
-changes = '''blind xss support'''
+changes = '''proxy support'''
 
 defaultEditor = 'nano'
 blindPayload = '' # your blind XSS payload
 xsschecker = 'v3dm0s' # A non malicious string to check for reflections and stuff
+
+# More information on adding proxies: http://docs.python-requests.org/en/master/user/advanced/#proxies
+proxies = {'http' : 'http://0.0.0.0:8080', 'https' : 'http://0.0.0.0:8080'}
 
 minEfficiency = 90
 
