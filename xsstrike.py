@@ -7,10 +7,6 @@ import argparse
 import concurrent.futures
 import copy
 import re
-import sys
-
-# ... thirdparty libs
-import requests
 
 # ... and from core lib
 import core.config
@@ -71,7 +67,25 @@ else:
     from core.config import headers
 
 # Pull all parameter values of dict from argparse namespace into local variables of name == key
-locals().update(vars(args))
+# The following works, but the static checkers are too static ;-) locals().update(vars(args))
+target = args.target
+paramData = args.paramData
+encode = args.encode
+fuzz = args.fuzz
+update = args.update
+timeout = args.timeout
+proxy = args.proxy
+find = args.find
+recursive = args.recursive
+args_file = args.args_file
+level = args.level
+add_headers = args.add_headers
+threadCount = args.threadCount
+delay = args.delay
+skip = args.skip
+skipDOM = args.skipDOM
+verbose = args.verbose
+blindXSS = args.blindXSS
 
 if args_file:
     if args_file == 'default':
