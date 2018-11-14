@@ -49,6 +49,7 @@ parser.add_argument('-e', '--encode', help='encode payloads', dest='encode')
 parser.add_argument('--fuzzer', help='fuzzer', dest='fuzz', action='store_true')
 parser.add_argument('--update', help='update', dest='update', action='store_true')
 parser.add_argument('--timeout', help='timeout', dest='timeout', type=int)
+parser.add_argument('--proxy', help='use prox(y|ies)', dest='proxy', action='store_true')
 parser.add_argument('--params', help='find params', dest='find', action='store_true')
 parser.add_argument('--crawl', help='crawl', dest='recursive', action='store_true')
 parser.add_argument('-f', '--file', help='load payloads from a file', dest='file')
@@ -93,6 +94,9 @@ encoding = False
 if encode:
     if encode == 'base64':
         encoding = base64
+
+if not args.proxy:
+    core.config.proxies = {}
 
 if args.update: # if the user has supplied --update argument
     updater()

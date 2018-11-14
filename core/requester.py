@@ -2,6 +2,7 @@ import time
 import random
 import warnings
 import requests
+import core.config
 
 warnings.filterwarnings('ignore') # Disable SSL related warnings
 
@@ -15,7 +16,7 @@ def requester(url, data, headers, GET, delay, timeout):
     elif headers['User-Agent'] == '$':
         headers['User-Agent'] = random.choice(user_agents)
     if GET:
-        response = requests.get(url, params=data, headers=headers, timeout=timeout, verify=False)
+        response = requests.get(url, params=data, headers=headers, timeout=timeout, verify=False, proxies=core.config.proxies)
     else:
-        response = requests.post(url, data=data, headers=headers, timeout=timeout, verify=False)
+        response = requests.post(url, data=data, headers=headers, timeout=timeout, verify=False, proxies=core.config.proxies)
     return response
