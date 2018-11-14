@@ -90,7 +90,16 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 #### Hidden Parameter Discovery
 ![arjun](https://image.ibb.co/bOAD5q/Screenshot-2018-10-27-18-16-37.png)
 
-### Contribution & License
-Useful issues and pull requests are appreciated.
+### Contribution, Credits & License
+Ways to contribute
+- Suggest a feature
+- Report a bug
+- Fix something and open a pull request
+- Create a browser extension
+- Create a burp suite/zaproxy plugin
+- Help me document the code
+- Spread the word
 
 Licensed under the GNU GPLv3, see [LICENSE](LICENSE) for more information.
+
+The WAF signatures in `/db/wafSignatures.json` are taken & modified from [sqlmap](https://github.com/sqlmapproject/sqlmap). I extracted them from sqlmap's waf detection modules which can found [here](https://github.com/sqlmapproject/sqlmap/blob/master/waf/) and converted them to JSON.
