@@ -139,6 +139,7 @@ def singleTarget(target, paramData, verbose, encoding):
     if args.find:
         params = arjun(url, GET, headers, delay, timeout)
     if not params:
+        print ('%s No parameters to test.' % bad)
         quit()
     WAF = wafDetector(url, {list(params.keys())[0] : xsschecker}, headers, GET, delay, timeout)
     if WAF:
@@ -277,6 +278,9 @@ def bruteforcer(target, paramData, payloadList, verbose, encoding):
     url = getUrl(target, GET)
     verboseOutput(url, 'url', verbose)
     params = getParams(target, paramData, GET)
+    if not params:
+        print ('%s No parameters to test.' % bad)
+        quit()
     verboseOutput(params, 'params', verbose)
     for paramName in params.keys():
         paramsCopy = copy.deepcopy(params)
