@@ -40,7 +40,7 @@ def fuzzer(url, params, headers, GET, delay, timeout, WAF, encoding):
                 limit -= 1
                 sleep(1)
             try:
-                requests.get(url, timeout=5, headers=headers)
+                requester(url, params, headers, GET, 0, 10)
                 print ('\n%s Pheww! Looks like sleeping for %s%i%s seconds worked!' % (good, green, (delay + 1) * 2), end)
             except:
                 print ('\n%s Looks like WAF has blocked our IP Address. Sorry!' % bad)

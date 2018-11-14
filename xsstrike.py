@@ -6,7 +6,7 @@ from core.colors import end, red, white, green, yellow, run, bad, good, info, qu
 
 # Just a fancy ass banner
 print('''%s
-\tXSStrike %sv3.0.2
+\tXSStrike %sv3.0.3
 %s''' % (red, white, end))
 
 try:
@@ -213,10 +213,10 @@ def singleTarget(target, paramData, verbose, encoding):
                     print ('%s Efficiency: %i' % (info, bestEfficiency))
                     print ('%s Confidence: %i' % (info, confidence))
 
-def multiTargets(scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload):
+def multiTargets(scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload, headers, delay, timeout):
     signatures = set()
     if domURL and not skipDOM:
-        response = requests.get(domURL).text
+        response = requester(domURL, {}, headers, True, delay, timeout).text
         highlighted = dom(response)
         if highlighted:
             print ('%s Potentially vulnerable objects found at %s' % (good, domURL))
@@ -316,7 +316,7 @@ else:
         for i in range(difference):
             domURLs.append(0)
     threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-    futures = (threadpool.submit(multiTargets, scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload) for form, domURL in zip(forms, domURLs))
+    futures = (threadpool.submit(multiTargets, scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload, headers, delay, timeout) for form, domURL in zip(forms, domURLs))
     for i, _ in enumerate(concurrent.futures.as_completed(futures)):
         if i + 1 == len(forms) or (i + 1) % threadCount == 0:
             print('%s Progress: %i/%i' % (info, i + 1, len(forms)), end='\r')

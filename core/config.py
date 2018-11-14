@@ -1,4 +1,4 @@
-changes = '''detection of up to 66 WAFs'''
+changes = '''bug fixes;detection of up to 66 WAFs'''
 
 defaultEditor = 'nano'
 blindPayload = '' # your blind XSS payload
