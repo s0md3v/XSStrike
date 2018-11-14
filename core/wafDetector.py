@@ -36,3 +36,4 @@ def wafDetector(url, params, headers, GET, delay, timeout):
             return None
     else:
         return None
+ 
