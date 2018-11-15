@@ -88,7 +88,7 @@ if args.file:
         payloadList = []
         with open(args.file, 'r') as f:
             for line in f:
-                payloadList.append(line.rstrip('\n'))
+                payloadList.append(line.rstrip('\n').encode('utf-8').decode('utf-8'))
 
 encoding = False
 if encode:
