@@ -1,3 +1,11 @@
+### 3.0.4
+
+- Fixed a bug in bruteforcer
+- Fixed a major bug in HTML Parser
+- Added progress bar for bruteforcer
+- Code refactor
+- Updated signature for Fortiweb WAF
+
 ### 3.0.3
 
 - Minor bug fixes
