@@ -1,4 +1,4 @@
-changes = '''bug fixes;detection of up to 66 WAFs'''
+changes = '''progress bar for bruteforcer;fixed a bug in html parser;fixed a bug in bruteforcer''
 
 defaultEditor = 'nano'
 blindPayload = '' #  your blind XSS payload
