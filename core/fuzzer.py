@@ -1,11 +1,12 @@
 import copy
-from time import sleep
 from random import randint
-from core.utils import replacer
-from core.requester import requester
-from core.config import fuzzes, xsschecker
+from time import sleep
 from urllib.parse import unquote
+
 from core.colors import end, red, green, yellow, bad, good, info
+from core.config import fuzzes, xsschecker
+from core.requester import requester
+from core.utils import replacer
 
 def counter(string):
     special = '\'"=/:*&)(}{][><'

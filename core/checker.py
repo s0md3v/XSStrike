@@ -1,10 +1,11 @@
-import re
 import copy
 from fuzzywuzzy import fuzz
+import re
+from urllib.parse import unquote
+
 from core.config import xsschecker
 from core.requester import requester
 from core.utils import replacer, fillHoles
-from urllib.parse import unquote
 
 def checker(url, params, headers, GET, delay, payload, positions, timeout, encoding):
     checkString = 'st4r7s' + payload + '3nd'
@@ -16,7 +17,7 @@ def checker(url, params, headers, GET, delay, payload, positions, timeout, encod
     for match in re.finditer('st4r7s', response):
         reflectedPositions.append(match.start())
     filledPositions = fillHoles(positions, reflectedPositions)
-    # Itretating over the reflections
+    #  Itretating over the reflections
     num = 0
     efficiencies = []
     for position in filledPositions:

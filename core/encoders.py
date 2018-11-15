@@ -1,5 +1,5 @@
-import re
 import base64 as b64
+import re
 
 def base64(string):
 	if re.match(r'^[A-Za-z0-9+\/=]+$', string) and (len(string) % 4) == 0:

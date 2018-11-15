@@ -1,6 +1,6 @@
+from core.config import badTags, fillings, eFillings, lFillings, jFillings, eventHandlers, tags, functions
 from core.jsContexter import jsContexter
 from core.utils import randomUpper as r, genGen, extractScripts
-from core.config import badTags, fillings, eFillings, lFillings, jFillings, eventHandlers, tags, functions
 
 def generator(occurences, response):
     scripts = extractScripts(response)
@@ -83,7 +83,6 @@ def generator(occurences, response):
                 except:
                     continue
             closer = jsContexter(script)
-            validBreakers = ['\'', '"', '`']
             scriptEfficiency = occurences[i]['score']['</scRipT/>']
             greatBracketEfficiency = occurences[i]['score']['>']
             breakerEfficiency = occurences[i]['score'][breaker]

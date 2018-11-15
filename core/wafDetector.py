@@ -1,5 +1,6 @@
-import re
 import json
+import re
+
 from core.requester import requester
 
 def wafDetector(url, params, headers, GET, delay, timeout):

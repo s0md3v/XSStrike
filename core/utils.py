@@ -1,8 +1,9 @@
-import re
 import json
 import random
-from core.config import xsschecker
+import re
+
 from core.colors import info, red, end
+from core.config import xsschecker
 
 def verboseOutput(data, name, verbose):
     if verbose:
