@@ -28,7 +28,7 @@ from core.wafDetector import wafDetector
 
 # Just a fancy ass banner
 print('''%s
-\tXSStrike %sv3.0.3
+\tXSStrike %sv3.0.4
 %s''' % (red, white, end))
 
 try:
