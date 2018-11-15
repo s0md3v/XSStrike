@@ -1,6 +1,5 @@
 import re
 from core.config import badTags
-from core.encoders import base64
 from core.config import xsschecker
 
 def htmlParser(response, encoding):

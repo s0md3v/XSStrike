@@ -13,3 +13,4 @@ before_script:
   - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 script:
   - python xsstrike.py -u "https://public-firing-range.appspot.com/reflected/index.html" --crawl
+  - echo "No" > input.txt && python xsstrike.py -u https://public-firing-range.appspot.com/reflected/parameter/body?q=query < input.txt
