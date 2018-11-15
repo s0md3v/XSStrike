@@ -88,7 +88,8 @@ if args.file:
         payloadList = []
         with open(args.file, 'r') as f:
             for line in f:
-                payloadList.append(line.rstrip('\n').encode('utf-8').decode('utf-8'))
+                payloadList.append(line.strip('\n').encode('utf-8').decode('utf-8'))
+        payloadList = list(filter(None, payloadList))
 
 encoding = False
 if encode:
@@ -283,8 +284,10 @@ def bruteforcer(target, paramData, payloadList, verbose, encoding):
         quit()
     verboseOutput(params, 'params', verbose)
     for paramName in params.keys():
+        progress = 1
         paramsCopy = copy.deepcopy(params)
         for payload in payloadList:
+            print ('%s Progress: %i/%i' % (run, progress, len(payloadList)), end='\r')
             if encoding:
                 payload = encoding(unquote(payload))
             paramsCopy[paramName] = payload
@@ -293,6 +296,8 @@ def bruteforcer(target, paramData, payloadList, verbose, encoding):
                 payload = encoding(payload)
             if payload in response:
                 print ('%s %s' % (good, payload))
+            progress += 1
+    print ('')
 
 if not args.recursive:
     if args.file:
