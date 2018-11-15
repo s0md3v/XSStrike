@@ -1,11 +1,10 @@
 import re
 import copy
 from fuzzywuzzy import fuzz
-from core.encoders import base64
 from core.config import xsschecker
 from core.requester import requester
 from core.utils import replacer, fillHoles
-from urllib.parse import quote_plus, unquote
+from urllib.parse import unquote
 
 def checker(url, params, headers, GET, delay, payload, positions, timeout, encoding):
     checkString = 'st4r7s' + payload + '3nd'
