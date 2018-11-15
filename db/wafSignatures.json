@@ -132,7 +132,7 @@
 	"FortiWeb Web Application Firewall (Fortinet)" : {
 		"code" : "",
 		"page" : "\\.fgd_icon|\\.blocked|\\.authenticate",
-		"headers" : "FORTIWAFSID="
+		"headers" : "FORTIWAFSID=|cookiesession1="
 	},
 	"Hyperguard Web Application Firewall (art of defence)" : {
 		"code" : "",
