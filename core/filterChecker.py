@@ -1,7 +1,4 @@
-from core.utils import replacer
 from core.checker import checker
-from core.config import xsschecker
-from core.requester import requester
 
 def filterChecker(url, params, headers, GET, delay, occurences, timeout, encoding):
     positions = {}
