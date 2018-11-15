@@ -24,17 +24,19 @@ def htmlParser(response, encoding):
         elif '</' in deep[0]:
             location = 'html'
         else:
+            num = 0
             for i in deep:
                 if i[-2:] == '--':
-                    if '<!--' not in i:
+                    if '<!--' not in ''.join(deep[:num + 1]):
                         location = 'comment'
                         break
                         continue
                 location = 'script'
                 for char in part:
-                    if char == '<':
-                        location = 'attribute'
+                    if char == '<': #  the only way to find out if it's attribute context is to see if '<' is present. 
+                        location = 'attribute' #  no, it doesn't match '<script>'
                         break
+                num += 1
         if '<' not in response:
             if rawResponse.headers['Content-Type'] == 'text/html':
                 location = 'html'
