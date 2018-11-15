@@ -1,17 +1,16 @@
-# Let's import what we need
-from re import findall
 import concurrent.futures
+from re import findall
 from urllib.parse import urlparse
 
 from core.colors import run
-from core.zetanize import zetanize
-from core.requester import requester
 from core.utils import getUrl, getParams
+from core.requester import requester
+from core.zetanize import zetanize
 
 def photon(seedUrl, headers, level, threadCount, delay, timeout):
-    forms = [] # web forms
-    processed = set() # urls that have been crawled
-    storage = set() # urls that belong to the target i.e. in-scope
+    forms = [] #  web forms
+    processed = set() #  urls that have been crawled
+    storage = set() #  urls that belong to the target i.e. in-scope
     schema = urlparse(seedUrl).scheme
     host = urlparse(seedUrl).netloc
     main_url = schema + '://' + host
@@ -29,8 +28,8 @@ def photon(seedUrl, headers, level, threadCount, delay, timeout):
         response = requester(url, params, headers, True, delay, timeout).text
         forms.append(zetanize(response))
         matches = findall(r'<[aA].*href=["\']{0,1}(.*?)["\']', response)
-        for link in matches: # iterate over the matches
-            link = link.split('#')[0] # remove everything after a "#" to deal with in-page anchors
+        for link in matches: #  iterate over the matches
+            link = link.split('#')[0] #  remove everything after a "#" to deal with in-page anchors
             if link[:4] == 'http':
                 if link.startswith(main_url):
                     storage.add(link)

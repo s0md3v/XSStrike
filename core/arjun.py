@@ -1,8 +1,9 @@
-import re
 import concurrent.futures
-from core.requester import requester
+import re
+
 from core.colors import good, info, green, end
 from core.config import blindParams, xsschecker, threadCount
+from core.requester import requester
 
 def checky(param, paraNames, url, headers, GET, delay, timeout):
     if param not in paraNames:

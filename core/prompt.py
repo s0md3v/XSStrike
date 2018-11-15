@@ -1,5 +1,6 @@
 import os
 import tempfile
+
 from core.config import defaultEditor
 
 def prompt(default=None):

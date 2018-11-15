@@ -1,8 +1,9 @@
-import re
 import os
+import re
 from requests import get
+
 from core.config import changes
-from core.colors import run, que, good, info, red, end, green
+from core.colors import run, que, good, info, end, green
 
 def updater():
     print('%s Checking for updates' % run)

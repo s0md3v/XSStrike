@@ -33,7 +33,7 @@ print('''%s
 
 try:
     import concurrent.futures
-    from urllib.parse import quote_plus, unquote, urlparse
+    from urllib.parse import unquote, urlparse
 except ImportError:  # throws error in python2
     print('%s XSStrike isn\'t compatible with python2.\n Use python > 3.4 to run XSStrike.' % bad)
     quit()
@@ -215,7 +215,6 @@ def singleTarget(target, paramData, verbose, encoding):
 
 
 def multiTargets(scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload, headers, delay, timeout):
-    signatures = set()  # TODO(NN) unused
     if domURL and not skipDOM:
         response = requester(domURL, {}, headers, True, delay, timeout).text
         highlighted = dom(response)

