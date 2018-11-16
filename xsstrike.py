@@ -28,7 +28,7 @@ from core.wafDetector import wafDetector
 
 # Just a fancy ass banner
 print('''%s
-\tXSStrike %sv3.0.4
+\tXSStrike %sv3.0.3
 %s''' % (red, white, end))
 
 try:
@@ -190,7 +190,6 @@ def singleTarget(target, paramData, verbose, encoding):
         for confidence, vects in vectors.items():
             for vect in vects:
                 progress += 1
-                print('%s Payloads tried [%i/%i]' % (run, progress, total), end='\r')
                 if not GET:
                     vect = unquote(vect)
                 efficiencies = checker(url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)

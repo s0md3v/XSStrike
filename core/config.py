@@ -1,4 +1,4 @@
-changes = '''progress bar for bruteforcer;fixed a bug in html parser;fixed a bug in bruteforcer'''
+changes = '''bug fixes;detection of up to 66 WAFs'''
 
 defaultEditor = 'nano'
 blindPayload = '' #  your blind XSS payload
@@ -20,7 +20,7 @@ badTags = ('iframe', 'title', 'textarea', 'noembed', 'style', 'template', 'noscr
 tags = ('html', 'd3v', 'a', 'details') #  HTML Tags
 
 jFillings = ('-', '*', ';', '/')
-lFillings = ('', ' x')
+lFillings = ('', '%0dx')
 eFillings = ('%09', '%0a', '%0d',  '+') #  "Things" to use between event handler and = or between function and =
 fillings = ('%09', '%0a', '%0d', '/+/') #  "Things" to use instead of space
 

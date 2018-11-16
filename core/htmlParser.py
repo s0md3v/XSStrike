@@ -3,17 +3,20 @@ import re
 from core.config import badTags, xsschecker
 
 def htmlParser(response, encoding):
-    rawResponse = response
-    response = response.text
-    if encoding:
+    rawResponse = response #  raw response returned by requests
+    response = response.text #  response content
+    if encoding: #  if the user has specified an encoding, encode the probe in that
         response = response.replace(encoding(xsschecker), xsschecker)
     tags = [] #  tags in which the input is reflected
     locations = [] #  contexts in which the input is reflected
     attributes = [] #  attribute names
     environments = [] #  strings needed to break out of the context
-    positions = []
+    positions = [] # postions of all the reflections of the xsschecker
     for match in re.finditer(xsschecker, response):
         positions.append(match.start())
+
+#  It finds the contexts of the reflections
+
     parts = response.split(xsschecker)
     parts.remove(parts[0]) #  remove first element since it doesn't contain xsschecker
     parts = [xsschecker + s for s in parts] #  add xsschecker in front of all elements
@@ -41,6 +44,9 @@ def htmlParser(response, encoding):
             if rawResponse.headers['Content-Type'] == 'text/html':
                 location = 'html'
         locations.append(location) #  add location to locations list
+
+#  Finds the "environment" of reflections. is it within double quotes? Which tag contains the reflection?
+
     num = 0 #  dummy value to keep record of occurence being processed
     for occ in re.finditer(xsschecker, response, re.IGNORECASE): #  find xsschecker in response and return matches
         toLook = list(response[occ.end():]) #  convert "xsschecker to EOF" into a list
@@ -52,10 +58,10 @@ def htmlParser(response, encoding):
                 for token in tokens: #  iterate over tokens
                     if xsschecker in token: #  if xsschecker is in token
                         goodTokens.append(token) #  add it to goodTokens list
-                        attrs = token.split(' ')
-                        for attr in attrs:
-                            if xsschecker in attr:
-                                attributes.append(attr.split('=')[0])
+                        attrs = token.split(' ') #  attributes and their values are generally seperated with space so...
+                        for attr in attrs: #  iterate over the attribute
+                            if xsschecker in attr: #  is xsschecker in this attribute?
+                                attributes.append(attr.split('=')[0]) #  alright, this is the one we need
                                 break
                 try:
                     tag = re.search(r'\w+', goodTokens[num]).group() #  finds the tag "inside" which input is refelcted
@@ -64,12 +70,12 @@ def htmlParser(response, encoding):
                         tag = re.search(r'\w+', goodTokens[num - 1]).group() #  finds the tag "inside" which input is refelcted
                     except IndexError:
                         tag = 'null'
-                tags.append(tag) #  add the tag to the tags
+                tags.append(tag) #  add the tag to the tags list
                 break
             elif toLook[loc] == '<':
                 if toLook[loc + 1] == '/':
                     tag = ''.join(toLook).split('</')[1].split('>')[0]
-                    if tag in badTags:
+                    if tag in badTags: #  if the tag is a 
                         environments.append('</' + tag + '/>')
                     else:
                         environments.append('')
