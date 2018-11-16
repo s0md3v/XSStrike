@@ -75,7 +75,7 @@ def htmlParser(response, encoding):
             elif toLook[loc] == '<':
                 if toLook[loc + 1] == '/':
                     tag = ''.join(toLook).split('</')[1].split('>')[0]
-                    if tag in badTags: #  if the tag is a 
+                    if tag in badTags: #  if the tag is a non-executable context e.g. noscript, textarea
                         environments.append('</' + tag + '/>')
                     else:
                         environments.append('')
