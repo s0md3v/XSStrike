@@ -1,10 +1,12 @@
 from core.checker import checker
 from core.utils import randomUpper
 
+
 def filterChecker(url, params, headers, GET, delay, occurences, timeout, encoding):
     positions = {}
     sortedEfficiencies = {}
-    environments = set(['<', '>']) #  adding < > to environments anyway because they can be used in all contexts
+    # adding < > to environments anyway because they can be used in all contexts
+    environments = set(['<', '>'])
     for i in range(len(occurences)):
         sortedEfficiencies[i] = {}
     for i, occurence in zip(range(len(occurences)), occurences.values()):
@@ -16,15 +18,16 @@ def filterChecker(url, params, headers, GET, delay, occurences, timeout, encodin
             environments.add('-->')
         elif location == 'script':
             environments.add('</' + randomUpper('script') + '/>')
-        elif attribute == 'srcdoc': #  srcdoc attribute accepts html data with html entity encoding
-            environments.add('&lt;') #  so let's add the html entity
-            environments.add('&gt;') #  encoded versions of < and >
+        elif attribute == 'srcdoc':  # srcdoc attribute accepts html data with html entity encoding
+            environments.add('&lt;')  # so let's add the html entity
+            environments.add('&gt;')  # encoded versions of < and >
 
     for environment in environments:
         if environment == '':
             efficiencies = [100 for i in range(len(occurences))]
         else:
-            efficiencies = checker(url, params, headers, GET, delay, environment, positions, timeout, encoding)
+            efficiencies = checker(
+                url, params, headers, GET, delay, environment, positions, timeout, encoding)
             if len(efficiencies) < len(occurences):
                 for i in range(len(occurences) - len(efficiencies)):
                     efficiencies.append(0)
