@@ -1,4 +1,4 @@
-changes = '''progress bar for bruteforcer;fixed a bug in html parser;fixed a bug in bruteforcer'''
+changes = '''fixed a bug while handling script context in XSStrike 3.0.4'''
 
 defaultEditor = 'nano'
 blindPayload = ''  # your blind XSS payload
