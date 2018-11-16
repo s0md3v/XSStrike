@@ -1,5 +1,4 @@
 from core.checker import checker
-from core.utils import randomUpper
 
 
 def filterChecker(url, params, headers, GET, delay, occurences, timeout, encoding):
@@ -17,7 +16,7 @@ def filterChecker(url, params, headers, GET, delay, occurences, timeout, encodin
         if location == 'comment':
             environments.add('-->')
         elif location == 'script':
-            environments.add('</' + randomUpper('script') + '/>')
+            environments.add('</scRipT/>')
         elif attribute == 'srcdoc':  # srcdoc attribute accepts html data with html entity encoding
             environments.add('&lt;')  # so let's add the html entity
             environments.add('&gt;')  # encoded versions of < and >
