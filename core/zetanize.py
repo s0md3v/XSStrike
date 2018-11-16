@@ -7,11 +7,11 @@ def zetanize(response):
     def d(string):
         return string.decode('utf-8')
 
-    response = re.sub(r'(?s)<!--.*?-->', '', response)
+    response = re.sub(r'(?s)<!--.*?-->', '', response) #  remove the content between html comments
     forms = {}
-    matches = re.findall(r'(?i)(?s)<form.*?</form.*?>', response)
+    matches = re.findall(r'(?i)(?s)<form.*?</form.*?>', response) #  extract all the forms
     num = 0
-    for match in matches:
+    for match in matches: #  everything else is self explanatory if you know regex
         page = re.search(r'(?i)action=[\'"](.*?)[\'"]', match)
         method = re.search(r'(?i)method=[\'"](.*?)[\'"]', match)
         forms[num] = {}

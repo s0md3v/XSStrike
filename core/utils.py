@@ -96,14 +96,14 @@ def flattenParams(currentParam, params, payload):
 
 def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special):
     vectors = []
-    r = randomUpper
+    r = randomUpper #  randomUpper randomly converts chars of a string to uppercase
     for tag in tags:
         if tag == 'd3v' or tag == 'a':
             bait = 'z'
         else:
             bait = ''
         for eventHandler in eventHandlers:
-            if tag in eventHandlers[eventHandler]:
+            if tag in eventHandlers[eventHandler]: #  if the tag is compatible with the event handler
                 for function in functions:
                     for filling in fillings:
                         for eFilling in eFillings:
@@ -111,7 +111,7 @@ def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends,
                                 for end in ends:
                                     if tag == 'd3v' or tag == 'a':
                                         if '>' in ends:
-                                            end = '>'
+                                            end = '>' #  we can't use // as > with "a" or "d3v" tag
                                     vector = vector = r(breaker) + special + '<' + r(tag) + filling + r(eventHandler) + eFilling + '=' + eFilling + function + lFilling + end + bait
                                     vectors.append(vector)
     return vectors

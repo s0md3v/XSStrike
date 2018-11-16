@@ -6,9 +6,9 @@ from core.requester import requester
 def wafDetector(url, params, headers, GET, delay, timeout):
     with open('./db/wafSignatures.json', 'r') as file:
         wafSignatures = json.load(file)
-    noise = '<script>alert("XSS")</script>' #a payload which is noisy enough to provoke the WAF
+    noise = '<script>alert("XSS")</script>' #  a payload which is noisy enough to provoke the WAF
     params['xss'] = noise
-    response = requester(url, params, headers, GET, delay, timeout) # Opens the noise injected payload
+    response = requester(url, params, headers, GET, delay, timeout) #  Opens the noise injected payload
     page = response.text
     code = str(response.status_code)
     headers = str(response.headers)
@@ -24,13 +24,13 @@ def wafDetector(url, params, headers, GET, delay, timeout):
                     score += 1
             if codeSign:
                 if re.search(codeSign, code, re.I):
-                    score += 0.5
+                    score += 0.5 #  increase the overall score by a smaller amount because http codes aren't strong indicators
             if headersSign:
                 if re.search(headersSign, headers, re.I):
                     score += 1
-            if score > bestMatch[0]:
-                del bestMatch[:]
-                bestMatch.extend([score, wafName])
+            if score > bestMatch[0]: #  if the overall score of the waf is higher than the previous one
+                del bestMatch[:] #  delete the previous one
+                bestMatch.extend([score, wafName]) #  and add this one
         if bestMatch[0] != 0:
             return bestMatch[1]
         else:

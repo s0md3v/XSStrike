@@ -1,9 +1,9 @@
 from core.checker import checker
+from core.utils import randomUpper
 
 def filterChecker(url, params, headers, GET, delay, occurences, timeout, encoding):
     positions = {}
-    environments = set(['<', '>'])
-    sortedEfficiencies = {}
+    environments = set(['<', '>']) #  adding < > to environments anyway because they can be used in all contexts
     for i in range(len(occurences)):
         sortedEfficiencies[i] = {}
     for i, occurence in zip(range(len(occurences)), occurences.values()):
@@ -14,10 +14,12 @@ def filterChecker(url, params, headers, GET, delay, occurences, timeout, encodin
         if location == 'comment':
             environments.add('-->')
         elif location == 'script':
-            environments.add('</scRipT/>')
-        elif attribute == 'srcdoc':
-            environments.add('&lt;')
-            environments.add('&gt;')
+            environments.add('</' + randomUpper('script') + '/>')
+        elif attribute == 'srcdoc': #  srcdoc attribute accepts html data with html entity encoding
+            environments.add('&lt;') #  so let's add the html entity
+            environments.add('&gt;') #  encoded versions of < and >
+
+    sortedEfficiencies = {}
     for environment in environments:
         if environment == '':
             efficiencies = [100 for i in range(len(occurences))]

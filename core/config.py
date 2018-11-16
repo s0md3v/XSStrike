@@ -1,4 +1,4 @@
-changes = '''bug fixes;detection of up to 66 WAFs'''
+changes = '''progress bar for bruteforcer;fixed a bug in html parser;fixed a bug in bruteforcer'''
 
 defaultEditor = 'nano'
 blindPayload = '' #  your blind XSS payload
@@ -7,20 +7,20 @@ xsschecker = 'v3dm0s' #  A non malicious string to check for reflections and stu
 #  More information on adding proxies: http://docs.python-requests.org/en/master/user/advanced/#proxies
 proxies = {'http' : 'http://0.0.0.0:8080', 'https' : 'http://0.0.0.0:8080'}
 
-minEfficiency = 90
+minEfficiency = 90 #  payloads below this efficiency will not be displayed
 
-delay = 0
-threadCount = 10
-timeout = 10
+delay = 0 #  default delay between http requests
+threadCount = 10 #  default number of threads
+timeout = 10 #  default number of http request timeout
 
-specialAttributes = ['srcdoc', 'src']
+specialAttributes = ['srcdoc', 'src'] #  attributes that have special properties
 
 badTags = ('iframe', 'title', 'textarea', 'noembed', 'style', 'template', 'noscript')
 
 tags = ('html', 'd3v', 'a', 'details') #  HTML Tags
 
-jFillings = ('-', '*', ';', '/')
-lFillings = ('', '%0dx')
+jFillings = ('-', '*', ';', '/') #  "Things" that can be used between js functions and breakers e.g. '};alert()//
+lFillings = ('', '%0dx') #  "Things" that can be used before > e.g. <tag attr=value%0dx>
 eFillings = ('%09', '%0a', '%0d',  '+') #  "Things" to use between event handler and = or between function and =
 fillings = ('%09', '%0a', '%0d', '/+/') #  "Things" to use instead of space
 
@@ -65,7 +65,7 @@ fuzzes = ( #  Fuzz strings to test WAFs
 '<iSinDEx x=y//', '<aUdio x=y>', '<script x=y>', '<script//src=//', '">payload<br/attr="',
 '"-confirm``-"', '<test ONdBlcLicK=x>', '<test/oNcoNTeXtMenU=x>', '<test OndRAgOvEr=x>')
 
-headers = {
+headers = { #  default headers
 'User-Agent' : '$',
 'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 'Accept-Language' : 'en-US,en;q=0.5',
@@ -75,10 +75,11 @@ headers = {
 'Upgrade-Insecure-Requests' : '1',
 }
 
-blindParams = ['redirect','redir','url','link','goto','debug','_debug','test','get','index','src','source','file',
+blindParams = ( #  common paramtere names to be bruteforced for parameter discovery
+'redirect','redir','url','link','goto','debug','_debug','test','get','index','src','source','file',
 'frame','config','new','old','var','rurl','return_to','_return','returl','last','text','load','email',
 'mail','user','username','password','pass','passwd','first_name','last_name','back','href','ref','data','input',
 'out','net','host','address','code','auth','userid','auth_token','token','error','keyword','key','q','query','aid',
 'bid','cid','did','eid','fid','gid','hid','iid','jid','kid','lid','mid','nid','oid','pid','qid','rid','sid',
 'tid','uid','vid','wid','xid','yid','zid','cal','country','x','y','topic','title','head','higher','lower','width',
-'height','add','result','log','demo','example','message']
+'height','add','result','log','demo','example','message')

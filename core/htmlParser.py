@@ -72,23 +72,23 @@ def htmlParser(response, encoding):
                         tag = 'null'
                 tags.append(tag) #  add the tag to the tags list
                 break
-            elif toLook[loc] == '<':
-                if toLook[loc + 1] == '/':
+            elif toLook[loc] == '<': #  if we encounter a closing angular brackt
+                if toLook[loc + 1] == '/':  #  check if the next character to it is a / to make sure its a closing tag
                     tag = ''.join(toLook).split('</')[1].split('>')[0]
                     if tag in badTags: #  if the tag is a non-executable context e.g. noscript, textarea
-                        environments.append('</' + tag + '/>')
+                        environments.append('</' + tag + '/>') #  add it to environments because we need to break out of it
                     else:
                         environments.append('')
-                    tags.append(tag)
-                    attributes.append('')
+                    tags.append(tag) #  add the tag to tags list
+                    attributes.append('') #  since it's a closing tag, it can't have any attributes
                 break
             loc += 1
         num += 1
-    occurences = {}
+    occurences = {} #  a dict to store all the collected information about the reflections
     for i, loc, env, tag, attr, position in zip(range(len(locations)), locations, environments, tags, attributes, positions):
         occurences[i] = {}
         occurences[i]['position'] = position
-        if loc == 'comment':
-            env = '-->'
+        if loc == 'comment': #  if context is html comment
+            env = '-->' #  add --> as environment as we need this to break out
         occurences[i]['context'] = [loc, env, tag, attr]
     return [occurences, positions]
