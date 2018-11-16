@@ -3,6 +3,7 @@ from core.utils import randomUpper
 
 def filterChecker(url, params, headers, GET, delay, occurences, timeout, encoding):
     positions = {}
+    sortedEfficiencies = {}
     environments = set(['<', '>']) #  adding < > to environments anyway because they can be used in all contexts
     for i in range(len(occurences)):
         sortedEfficiencies[i] = {}
@@ -19,7 +20,6 @@ def filterChecker(url, params, headers, GET, delay, occurences, timeout, encodin
             environments.add('&lt;') #  so let's add the html entity
             environments.add('&gt;') #  encoded versions of < and >
 
-    sortedEfficiencies = {}
     for environment in environments:
         if environment == '':
             efficiencies = [100 for i in range(len(occurences))]
