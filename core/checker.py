@@ -7,12 +7,14 @@ from core.config import xsschecker
 from core.requester import requester
 from core.utils import replacer, fillHoles
 
+
 def checker(url, params, headers, GET, delay, payload, positions, timeout, encoding):
     checkString = 'st4r7s' + payload + '3nd'
     if encoding:
         checkString = encoding(unquote(checkString))
     paramsCopy = copy.deepcopy(params)
-    response = requester(url, replacer(paramsCopy, xsschecker, checkString), headers, GET, delay, timeout).text.lower()
+    response = requester(url, replacer(
+        paramsCopy, xsschecker, checkString), headers, GET, delay, timeout).text.lower()
     reflectedPositions = []
     for match in re.finditer('st4r7s', response):
         reflectedPositions.append(match.start())
@@ -23,7 +25,8 @@ def checker(url, params, headers, GET, delay, payload, positions, timeout, encod
     for position in filledPositions:
         allEfficiencies = []
         try:
-            reflected = response[reflectedPositions[num]:reflectedPositions[num]+len(checkString)]
+            reflected = response[reflectedPositions[num]
+                :reflectedPositions[num]+len(checkString)]
             efficiency = fuzz.partial_ratio(reflected, checkString.lower())
             allEfficiencies.append(efficiency)
         except IndexError:

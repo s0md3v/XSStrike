@@ -2,6 +2,7 @@ import re
 
 from core.colors import red, end, yellow
 
+
 def dom(response):
     highlighted = []
     response = response.split('\n')

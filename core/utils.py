@@ -5,6 +5,7 @@ import re
 from core.colors import info, red, end
 from core.config import xsschecker
 
+
 def verboseOutput(data, name, verbose):
     if verbose:
         print ('%s %s %s%s%s' % (info, name, red, ('-' * 50), end))
@@ -16,13 +17,15 @@ def verboseOutput(data, name, verbose):
         print (data)
         print ('%s%s%s' % (red, ('-' * 60), end))
 
+
 def closest(number, numbers):
     difference = [abs(list(numbers.values())[0]), {}]
     for index, i in numbers.items():
         diff = abs(number - i)
         if diff < difference[0]:
-            difference = [diff, {index : i}]
+            difference = [diff, {index: i}]
     return difference[1]
+
 
 def fillHoles(original, new):
     filler = 0
@@ -34,6 +37,7 @@ def fillHoles(original, new):
             filled.extend([0, y])
             filler += (int(x) - y)
     return filled
+
 
 def stripper(string, substring, direction='right'):
     done = False
@@ -49,6 +53,7 @@ def stripper(string, substring, direction='right'):
         strippedString = strippedString[::-1]
     return strippedString
 
+
 def extractHeaders(headers):
     sorted_headers = {}
     matches = re.findall(r'(.*):\s(.*)', headers)
@@ -63,17 +68,20 @@ def extractHeaders(headers):
             pass
     return sorted_headers
 
+
 def replacer(dic, toReplace, replaceWith):
     for key in dic.keys():
         if dic[key] == toReplace:
             dic[key] = replaceWith
     return dic
 
+
 def getUrl(url, GET):
     if GET:
         return url.split('?')[0]
     else:
         return url
+
 
 def extractScripts(response):
     scripts = []
@@ -83,8 +91,10 @@ def extractScripts(response):
             scripts.append(match)
     return scripts
 
+
 def randomUpper(string):
-    return ''.join(random.choice((x, y)) for x, y in zip(string.upper(),string.lower()))
+    return ''.join(random.choice((x, y)) for x, y in zip(string.upper(), string.lower()))
+
 
 def flattenParams(currentParam, params, payload):
     flatted = []
@@ -94,15 +104,17 @@ def flattenParams(currentParam, params, payload):
         flatted.append(name + '=' + value)
     return '?' + '&'.join(flatted)
 
+
 def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special):
     vectors = []
-    r = randomUpper
+    r = randomUpper  # randomUpper randomly converts chars of a string to uppercase
     for tag in tags:
         if tag == 'd3v' or tag == 'a':
             bait = 'z'
         else:
             bait = ''
         for eventHandler in eventHandlers:
+            # if the tag is compatible with the event handler
             if tag in eventHandlers[eventHandler]:
                 for function in functions:
                     for filling in fillings:
@@ -111,10 +123,12 @@ def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends,
                                 for end in ends:
                                     if tag == 'd3v' or tag == 'a':
                                         if '>' in ends:
-                                            end = '>'
-                                    vector = vector = r(breaker) + special + '<' + r(tag) + filling + r(eventHandler) + eFilling + '=' + eFilling + function + lFilling + end + bait
+                                            end = '>'  # we can't use // as > with "a" or "d3v" tag
+                                    vector = vector = r(breaker) + special + '<' + r(tag) + filling + r(
+                                        eventHandler) + eFilling + '=' + eFilling + function + lFilling + end + bait
                                     vectors.append(vector)
     return vectors
+
 
 def getParams(url, data, GET):
     params = {}

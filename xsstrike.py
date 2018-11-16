@@ -44,21 +44,36 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--url', help='url', dest='target')
 parser.add_argument('--data', help='post data', dest='paramData')
 parser.add_argument('-e', '--encode', help='encode payloads', dest='encode')
-parser.add_argument('--fuzzer', help='fuzzer', dest='fuzz', action='store_true')
-parser.add_argument('--update', help='update', dest='update', action='store_true')
-parser.add_argument('--timeout', help='timeout', dest='timeout', type=int, default=core.config.timeout)
-parser.add_argument('--proxy', help='use prox(y|ies)', dest='proxy', action='store_true')
-parser.add_argument('--params', help='find params', dest='find', action='store_true')
-parser.add_argument('--crawl', help='crawl', dest='recursive', action='store_true')
-parser.add_argument('-f', '--file', help='load payloads from a file', dest='args_file')
-parser.add_argument('-l', '--level', help='level of crawling', dest='level', type=int, default=2)
-parser.add_argument('--headers', help='add headers', dest='add_headers', action='store_true')
-parser.add_argument('-t', '--threads', help='number of threads', dest='threadCount', type=int, default=core.config.threadCount)
-parser.add_argument('-d', '--delay', help='delay between requests', dest='delay', type=int, default=core.config.delay)
-parser.add_argument('--skip', help='don\'t ask to continue', dest='skip', action='store_true')
-parser.add_argument('--skip-dom', help='skip dom checking', dest='skipDOM', action='store_true')
-parser.add_argument('-v', '--vectors', help='verbose output', dest='verbose', action='store_true')
-parser.add_argument('--blind', help='inject blind XSS payload while crawling', dest='blindXSS', action='store_true')
+parser.add_argument('--fuzzer', help='fuzzer',
+                    dest='fuzz', action='store_true')
+parser.add_argument('--update', help='update',
+                    dest='update', action='store_true')
+parser.add_argument('--timeout', help='timeout',
+                    dest='timeout', type=int, default=core.config.timeout)
+parser.add_argument('--proxy', help='use prox(y|ies)',
+                    dest='proxy', action='store_true')
+parser.add_argument('--params', help='find params',
+                    dest='find', action='store_true')
+parser.add_argument('--crawl', help='crawl',
+                    dest='recursive', action='store_true')
+parser.add_argument(
+    '-f', '--file', help='load payloads from a file', dest='args_file')
+parser.add_argument('-l', '--level', help='level of crawling',
+                    dest='level', type=int, default=2)
+parser.add_argument('--headers', help='add headers',
+                    dest='add_headers', action='store_true')
+parser.add_argument('-t', '--threads', help='number of threads',
+                    dest='threadCount', type=int, default=core.config.threadCount)
+parser.add_argument('-d', '--delay', help='delay between requests',
+                    dest='delay', type=int, default=core.config.delay)
+parser.add_argument('--skip', help='don\'t ask to continue',
+                    dest='skip', action='store_true')
+parser.add_argument('--skip-dom', help='skip dom checking',
+                    dest='skipDOM', action='store_true')
+parser.add_argument('-v', '--vectors', help='verbose output',
+                    dest='verbose', action='store_true')
+parser.add_argument('--blind', help='inject blind XSS payload while crawling',
+                    dest='blindXSS', action='store_true')
 args = parser.parse_args()
 
 if args.add_headers:
@@ -94,7 +109,8 @@ if args_file:
         payloadList = []
         with open(args_file, 'r') as f:
             for line in f:
-                payloadList.append(line.strip('\n').encode('utf-8').decode('utf-8'))
+                payloadList.append(line.strip(
+                    '\n').encode('utf-8').decode('utf-8'))
         payloadList = list(filter(None, payloadList))
 
 encoding = base64 if encode and encode == 'base64' else False
@@ -116,7 +132,8 @@ def singleTarget(target, paramData, verbose, encoding):
     # If the user hasn't supplied the root url with http(s), we will handle it
     if not target.startswith('http'):
         try:
-            response = requester('https://' + target, {}, headers, GET, delay, timeout)
+            response = requester('https://' + target, {},
+                                 headers, GET, delay, timeout)
             target = 'https://' + target
         except:
             target = 'http://' + target
@@ -141,7 +158,8 @@ def singleTarget(target, paramData, verbose, encoding):
     if not params:
         print('%s No parameters to test.' % bad)
         quit()
-    WAF = wafDetector(url, {list(params.keys())[0]: xsschecker}, headers, GET, delay, timeout)
+    WAF = wafDetector(
+        url, {list(params.keys())[0]: xsschecker}, headers, GET, delay, timeout)
     if WAF:
         print('%s WAF detected: %s%s%s' % (bad, green, WAF, end))
     else:
@@ -152,7 +170,8 @@ def singleTarget(target, paramData, verbose, encoding):
             print('%s Fuzzing parameter: %s' % (info, paramName))
             paramsCopy = copy.deepcopy(params)
             paramsCopy[paramName] = xsschecker
-            fuzzer(url, paramsCopy, headers, GET, delay, timeout, WAF, encoding)
+            fuzzer(url, paramsCopy, headers, GET,
+                   delay, timeout, WAF, encoding)
         quit()
 
     for paramName in params.keys():
@@ -174,7 +193,8 @@ def singleTarget(target, paramData, verbose, encoding):
         else:
             print('%s Reflections found: %s' % (info, len(occurences)))
         print('%s Analysing reflections' % run)
-        efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences, timeout, encoding)
+        efficiencies = filterChecker(
+            url, paramsCopy, headers, GET, delay, occurences, timeout, encoding)
         verboseOutput(efficiencies, 'efficiencies', verbose)
         print('%s Generating payloads' % run)
         vectors = generator(occurences, response.text)
@@ -190,10 +210,10 @@ def singleTarget(target, paramData, verbose, encoding):
         for confidence, vects in vectors.items():
             for vect in vects:
                 progress += 1
-                print('%s Payloads tried [%i/%i]' % (run, progress, total), end='\r')
                 if not GET:
                     vect = unquote(vect)
-                efficiencies = checker(url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
+                efficiencies = checker(
+                    url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
                 if not efficiencies:
                     for i in range(len(occurences)):
                         efficiencies.append(0)
@@ -204,7 +224,8 @@ def singleTarget(target, paramData, verbose, encoding):
                     print('%s Efficiency: %i' % (info, bestEfficiency))
                     print('%s Confidence: %i' % (info, confidence))
                     if not skip:
-                        choice = input('%s Would you like to continue scanning? [y/N] ' % que).lower()
+                        choice = input(
+                            '%s Would you like to continue scanning? [y/N] ' % que).lower()
                         if choice != 'y':
                             quit()
                 elif bestEfficiency > minEfficiency:
@@ -219,7 +240,8 @@ def multiTargets(scheme, host, main_url, form, domURL, verbose, blindXSS, blindP
         response = requester(domURL, {}, headers, True, delay, timeout).text
         highlighted = dom(response)
         if highlighted:
-            print('%s Potentially vulnerable objects found at %s' % (good, domURL))
+            print('%s Potentially vulnerable objects found at %s' %
+                  (good, domURL))
             print(red + ('-' * 60) + end)
             for line in highlighted:
                 print(line)
@@ -245,24 +267,29 @@ def multiTargets(scheme, host, main_url, form, domURL, verbose, blindXSS, blindP
                     for paramName in paramData.keys():
                         paramsCopy = copy.deepcopy(paramData)
                         paramsCopy[paramName] = xsschecker
-                        response = requester(url, paramsCopy, headers, GET, delay, timeout)
+                        response = requester(
+                            url, paramsCopy, headers, GET, delay, timeout)
                         parsedResponse = htmlParser(response, encoding)
                         occurences = parsedResponse[0]
                         positions = parsedResponse[1]
-                        efficiencies = filterChecker(url, paramsCopy, headers, GET, delay, occurences, timeout, encoding)
+                        efficiencies = filterChecker(
+                            url, paramsCopy, headers, GET, delay, occurences, timeout, encoding)
                         vectors = generator(occurences, response.text)
                         if vectors:
                             for confidence, vects in vectors.items():
                                 try:
                                     payload = list(vects)[0]
-                                    print('%s Vulnerable webpage: %s%s%s' % (good, green, url, end))
-                                    print('%s Vector for %s%s%s: %s' % (good, green, paramName, end, payload))
+                                    print('%s Vulnerable webpage: %s%s%s' %
+                                          (good, green, url, end))
+                                    print('%s Vector for %s%s%s: %s' %
+                                          (good, green, paramName, end, payload))
                                     break
                                 except IndexError:
                                     pass
                         if blindXSS and blindPayload:
                             paramsCopy[paramName] = blindPayload
-                            requester(url, paramsCopy, headers, GET, delay, timeout)
+                            requester(url, paramsCopy, headers,
+                                      GET, delay, timeout)
 
 
 def bruteforcer(target, paramData, payloadList, verbose, encoding):
@@ -284,13 +311,15 @@ def bruteforcer(target, paramData, payloadList, verbose, encoding):
             if encoding:
                 payload = encoding(unquote(payload))
             paramsCopy[paramName] = payload
-            response = requester(url, paramsCopy, headers, GET, delay, timeout).text
+            response = requester(url, paramsCopy, headers,
+                                 GET, delay, timeout).text
             if encoding:
                 payload = encoding(payload)
             if payload in response:
                 print('%s %s' % (good, payload))
             progress += 1
     print ('')
+
 
 if not recursive:
     if args_file:
@@ -303,7 +332,8 @@ else:
     verboseOutput(scheme, 'scheme', verbose)
     host = urlparse(target).netloc
     main_url = scheme + '://' + host
-    crawlingResult = photon(target, headers, level, threadCount, delay, timeout)
+    crawlingResult = photon(target, headers, level,
+                            threadCount, delay, timeout)
     forms = crawlingResult[0]
     domURLs = list(crawlingResult[1])
     difference = abs(len(domURLs) - len(forms))
@@ -314,7 +344,8 @@ else:
         for i in range(difference):
             domURLs.append(0)
     threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-    futures = (threadpool.submit(multiTargets, scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload, headers, delay, timeout) for form, domURL in zip(forms, domURLs))
+    futures = (threadpool.submit(multiTargets, scheme, host, main_url, form, domURL, verbose,
+                                 blindXSS, blindPayload, headers, delay, timeout) for form, domURL in zip(forms, domURLs))
     for i, _ in enumerate(concurrent.futures.as_completed(futures)):
         if i + 1 == len(forms) or (i + 1) % threadCount == 0:
             print('%s Progress: %i/%i' % (info, i + 1, len(forms)), end='\r')
