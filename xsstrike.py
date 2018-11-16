@@ -33,7 +33,7 @@ print('''%s
 
 try:
     import concurrent.futures
-    from urllib.parse import unquote, urlparse
+    from urllib.parse import quote, unquote, urlparse
 except ImportError:  # throws error in python2
     print('%s XSStrike isn\'t compatible with python2.\n Use python > 3.4 to run XSStrike.' % bad)
     quit()
@@ -214,6 +214,8 @@ def singleTarget(target, paramData, verbose, encoding):
                     vect = unquote(vect)
                 efficiencies = checker(
                     url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
+                if not GET:
+                    vect = quote(vect)
                 if not efficiencies:
                     for i in range(len(occurences)):
                         efficiencies.append(0)
