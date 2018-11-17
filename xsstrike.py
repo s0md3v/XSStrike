@@ -7,7 +7,7 @@ import argparse
 
 # ... and from core lib
 import core.config
-from core.colors import end, info, red, run, white
+from core.colors import end, info, red, run, white, bad
 from core.config import blindPayload
 from core.encoders import base64
 from core.photon import photon
