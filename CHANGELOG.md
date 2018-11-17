@@ -1,3 +1,11 @@
+### 3.0.5
+
+- Fixed a bug in HTML Parser
+- Ability to add urls from file
+- More modular structure
+- Show parameter name while bruteforcing
+- Fix payload display while using POST method
+
 ### 3.0.4
 
 - Fixed a bug in bruteforcer

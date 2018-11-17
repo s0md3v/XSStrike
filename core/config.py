@@ -1,4 +1,4 @@
-changes = '''fixed a bug while handling script context in XSStrike 3.0.4'''
+changes = '''ability to load seeds from file;show parameter name while bruteforcing;fixed payload display while using POST method'''
 
 defaultEditor = 'nano'
 blindPayload = ''  # your blind XSS payload
