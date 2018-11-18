@@ -5,14 +5,14 @@ from urllib.parse import unquote
 
 from core.config import xsschecker
 from core.requester import requester
-from core.utils import replace_value, fillHoles
+from core.utils import replaceValue, fillHoles
 
 
 def checker(url, params, headers, GET, delay, payload, positions, timeout, encoding):
     checkString = 'st4r7s' + payload + '3nd'
     if encoding:
         checkString = encoding(unquote(checkString))
-    response = requester(url, replace_value(
+    response = requester(url, replaceValue(
         params, xsschecker, checkString, copy.deepcopy), headers, GET, delay, timeout).text.lower()
     reflectedPositions = []
     for match in re.finditer('st4r7s', response):
