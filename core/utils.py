@@ -79,11 +79,11 @@ def replaceValue(mapping, old, new, strategy=None):
 
     Note: A dict is returned regardless of modifications.
     """
-    another_map = strategy(mapping) if strategy else mapping
-    if old in another_map.values():
-        for k in another_map.keys():
-            if another_map[k] == old:
-                another_map[k] = new
+    anotherMap = strategy(mapping) if strategy else mapping
+    if old in anotherMap.values():
+        for k in anotherMap.keys():
+            if anotherMap[k] == old:
+                anotherMap[k] = new
     return another_map
 
 
