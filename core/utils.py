@@ -69,11 +69,22 @@ def extractHeaders(headers):
     return sorted_headers
 
 
-def replacer(dic, toReplace, replaceWith):
-    for key in dic.keys():
-        if dic[key] == toReplace:
-            dic[key] = replaceWith
-    return dic
+def replaceValue(mapping, old, new, strategy=None):
+    """
+    Replace old values with new ones following dict strategy.
+
+    The parameter strategy is None per default for inplace operation.
+    A copy operation is injected via strateg values like copy.copy
+    or copy.deepcopy
+
+    Note: A dict is returned regardless of modifications.
+    """
+    anotherMap = strategy(mapping) if strategy else mapping
+    if old in anotherMap.values():
+        for k in anotherMap.keys():
+            if anotherMap[k] == old:
+                anotherMap[k] = new
+    return anotherMap
 
 
 def getUrl(url, GET):
@@ -147,3 +158,21 @@ def getParams(url, data, GET):
         except IndexError:
             params = None
     return params
+
+
+def writer(obj, path):
+    kind = str(type(obj)).split('\'')[0]
+    if kind == 'list' or kind == 'tuple':
+        obj = '\n'.join(obj)
+    elif kind == 'dict':
+        obj = json.dumps(obj, indent=4)
+    savefile = open(path, 'w+')
+    savefile.write(obj)
+    savefile.close()
+
+
+def reader(path):
+    with open(path, 'r') as f:
+        result = [line.strip(
+                    '\n').encode('utf-8').decode('utf-8') for line in f]
+    return result
