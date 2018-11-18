@@ -84,7 +84,7 @@ def replaceValue(mapping, old, new, strategy=None):
         for k in anotherMap.keys():
             if anotherMap[k] == old:
                 anotherMap[k] = new
-    return another_map
+    return anotherMap
 
 
 def getUrl(url, GET):
