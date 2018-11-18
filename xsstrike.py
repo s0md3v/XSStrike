@@ -8,7 +8,7 @@ import argparse
 # ... and from core lib
 import core.config
 from core.colors import end, info, red, run, white, bad
-from core.config import blindPayload, browserEngine
+from core.config import blindPayload
 from core.encoders import base64
 from core.photon import photon
 from core.prompt import prompt
@@ -22,24 +22,15 @@ from modes.singleFuzz import singleFuzz
 
 # Just a fancy ass banner
 print('''%s
-\tXSStrike %sv3.0.4
+\tXSStrike %sv3.0.5
 %s''' % (red, white, end))
 
 try:
     import concurrent.futures
-    from urllib.parse import urlparse, quote
+    from urllib.parse import urlparse
 except ImportError:  # throws error in python2
     print('%s XSStrike isn\'t compatible with python2.\n Use python > 3.4 to run XSStrike.' % bad)
     quit()
-
-if browserEngine:
-    print ('%s Initializing browser engine' % run)
-    from selenium import webdriver
-    from selenium.webdriver.firefox.options import Options
-    options = Options()
-    options.add_argument('--headless')
-    browser = webdriver.Firefox(options=options)
-    from core.browserEngine import browserEngine
 
 # Processing command line arguments, where dest var names will be mapped to local vars with the same name
 parser = argparse.ArgumentParser()
@@ -111,11 +102,7 @@ if args_file:
     if args_file == 'default':
         payloadList = core.config.payloads
     else:
-        payloadList = []
-        with open(args_file, 'r') as f:
-            for line in f:
-                payloadList.append()
-        payloadList = list(filter(None, payloadList))
+        payloadList = list(filter(None, reader(args_file)))
 
 seedList = []
 if args_seeds:
@@ -140,7 +127,7 @@ elif not recursive and not args_seeds:
     if args_file:
         bruteforcer(target, paramData, payloadList, verbose, encoding, headers, delay, timeout)
     else:
-        scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM, find, skip, browser)
+        scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM, find, skip)
 else:
     if target:
         seedList.append(target)
