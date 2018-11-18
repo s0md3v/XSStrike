@@ -1,5 +1,6 @@
-changes = '''ability to load seeds from file;show parameter name while bruteforcing;fixed payload display while using POST method'''
+changes = '''fixed a bug while handling script context in XSStrike 3.0.4'''
 
+browserEngine = True
 defaultEditor = 'nano'
 blindPayload = ''  # your blind XSS payload
 xsschecker = 'v3dm0s'  # A non malicious string to check for reflections and stuff
@@ -11,7 +12,7 @@ minEfficiency = 90  # payloads below this efficiency will not be displayed
 
 delay = 0  # default delay between http requests
 threadCount = 10  # default number of threads
-timeout = 10  # default number of http request timeout
+timeout = 30  # default number of http request timeout
 
 # attributes that have special properties
 specialAttributes = ['srcdoc', 'src']

@@ -8,12 +8,12 @@ import argparse
 # ... and from core lib
 import core.config
 from core.colors import end, info, red, run, white, bad
-from core.config import blindPayload
+from core.config import blindPayload, browserEngine
 from core.encoders import base64
 from core.photon import photon
 from core.prompt import prompt
 from core.updater import updater
-from core.utils import extractHeaders, verboseOutput
+from core.utils import extractHeaders, verboseOutput, reader
 
 from modes.bruteforcer import bruteforcer
 from modes.crawl import crawl
@@ -22,16 +22,24 @@ from modes.singleFuzz import singleFuzz
 
 # Just a fancy ass banner
 print('''%s
-\tXSStrike %sv3.0.5
+\tXSStrike %sv3.0.4
 %s''' % (red, white, end))
 
 try:
     import concurrent.futures
-    from urllib.parse import urlparse
+    from urllib.parse import urlparse, quote
 except ImportError:  # throws error in python2
     print('%s XSStrike isn\'t compatible with python2.\n Use python > 3.4 to run XSStrike.' % bad)
     quit()
 
+if browserEngine:
+    print ('%s Initializing browser engine' % run)
+    from selenium import webdriver
+    from selenium.webdriver.firefox.options import Options
+    options = Options()
+    options.add_argument('--headless')
+    browser = webdriver.Firefox(options=options)
+    from core.browserEngine import browserEngine
 
 # Processing command line arguments, where dest var names will be mapped to local vars with the same name
 parser = argparse.ArgumentParser()
@@ -106,17 +114,12 @@ if args_file:
         payloadList = []
         with open(args_file, 'r') as f:
             for line in f:
-                payloadList.append(line.strip(
-                    '\n').encode('utf-8').decode('utf-8'))
+                payloadList.append()
         payloadList = list(filter(None, payloadList))
 
 seedList = []
 if args_seeds:
-    with open(args_seeds, 'r') as f:
-        for line in f:
-            seedList.append(line.strip(
-                '\n').encode('utf-8').decode('utf-8'))
-    seedList = list(filter(None, seedList))
+    seedList = list(filter(None, reader(args_seeds)))
 
 encoding = base64 if encode and encode == 'base64' else False
 
@@ -137,7 +140,7 @@ elif not recursive and not args_seeds:
     if args_file:
         bruteforcer(target, paramData, payloadList, verbose, encoding, headers, delay, timeout)
     else:
-        scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM, find, skip)
+        scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM, find, skip, browser)
 else:
     if target:
         seedList.append(target)

@@ -147,3 +147,21 @@ def getParams(url, data, GET):
         except IndexError:
             params = None
     return params
+
+
+def writer(obj, path):
+    kind = str(type(obj)).split('\'')[0]
+    if kind == 'list' or kind == 'tuple':
+        obj = '\n'.join(obj)
+    elif kind == 'dict':
+        obj = json.dumps(obj, indent=4)
+    savefile = open(path, 'w+')
+    savefile.write(obj)
+    savefile.close()
+
+
+def reader(path):
+    with open(path, 'r') as f:
+        result = [line.strip(
+                    '\n').encode('utf-8').decode('utf-8') for line in f]
+    return result
