@@ -6,7 +6,7 @@ from urllib.parse import unquote
 from core.colors import end, red, green, yellow, bad, good, info
 from core.config import fuzzes, xsschecker
 from core.requester import requester
-from core.utils import replace_value
+from core.utils import replaceValue
 
 
 def counter(string):
@@ -27,7 +27,7 @@ def fuzzer(url, params, headers, GET, delay, timeout, WAF, encoding):
         try:
             if encoding:
                 fuzz = encoding(unquote(fuzz))
-            data = replace_value(params, xsschecker, fuzz, copy.deepcopy)
+            data = replaceValue(params, xsschecker, fuzz, copy.deepcopy)
             response = requester(url, data, headers, GET, delay/2, timeout)
         except:
             print ('\n%s WAF is dropping suspicious requests.' % bad)
