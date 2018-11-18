@@ -69,7 +69,7 @@ def extractHeaders(headers):
     return sorted_headers
 
 
-def replace_value(mapping, old, new, strategy=None):
+def replaceValue(mapping, old, new, strategy=None):
     """
     Replace old values with new ones following dict strategy.
 
