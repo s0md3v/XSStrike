@@ -13,7 +13,7 @@ from core.requester import requester
 from core.utils import getUrl, getParams, verboseOutput
 from core.wafDetector import wafDetector
 
-def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM, find, skip, browser):
+def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM, find, skip):
     GET, POST = (False, True) if paramData else (True, False)
     # If the user hasn't supplied the root url with http(s), we will handle it
     if not target.startswith('http'):
@@ -89,34 +89,26 @@ def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM,
                 progress += 1
                 if not GET:
                     vect = unquote(vect)
-                if browser:
-                	from core.browserEngine import browserEngine
-                	paramsCopy[paramName] = vect
-                	response = requester(url, paramsCopy, headers, GET, delay, timeout).text
-                	success = browserEngine(browser, response)
-                	if success:
-                		print('%s Payload: %s' % (good, vect))
-                else:
-	                efficiencies = checker(
-	                    url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
-	                if not GET:
-	                    vect = quote(vect)
-	                if not efficiencies:
-	                    for i in range(len(occurences)):
-	                        efficiencies.append(0)
-	                bestEfficiency = max(efficiencies)
-	                if bestEfficiency == 100 or (vect[0] == '\\' and bestEfficiency >= 95):
-	                    print(('%s-%s' % (red, end)) * 60)
-	                    print('%s Payload: %s' % (good, vect))
-	                    print('%s Efficiency: %i' % (info, bestEfficiency))
-	                    print('%s Confidence: %i' % (info, confidence))
-	                    if not skip:
-	                        choice = input(
-	                            '%s Would you like to continue scanning? [y/N] ' % que).lower()
-	                        if choice != 'y':
-	                            quit()
-	                elif bestEfficiency > minEfficiency:
-	                    print(('%s-%s' % (red, end)) * 60)
-	                    print('%s Payload: %s' % (good, vect))
-	                    print('%s Efficiency: %i' % (info, bestEfficiency))
-	                    print('%s Confidence: %i' % (info, confidence))
+                efficiencies = checker(
+                    url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
+                if not GET:
+                    vect = quote(vect)
+                if not efficiencies:
+                    for i in range(len(occurences)):
+                        efficiencies.append(0)
+                bestEfficiency = max(efficiencies)
+                if bestEfficiency == 100 or (vect[0] == '\\' and bestEfficiency >= 95):
+                    print(('%s-%s' % (red, end)) * 60)
+                    print('%s Payload: %s' % (good, vect))
+                    print('%s Efficiency: %i' % (info, bestEfficiency))
+                    print('%s Confidence: %i' % (info, confidence))
+                    if not skip:
+                        choice = input(
+                            '%s Would you like to continue scanning? [y/N] ' % que).lower()
+                        if choice != 'y':
+                            quit()
+                elif bestEfficiency > minEfficiency:
+                    print(('%s-%s' % (red, end)) * 60)
+                    print('%s Payload: %s' % (good, vect))
+                    print('%s Efficiency: %i' % (info, bestEfficiency))
+                    print('%s Confidence: %i' % (info, confidence))
