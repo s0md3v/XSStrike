@@ -69,11 +69,22 @@ def extractHeaders(headers):
     return sorted_headers
 
 
-def replacer(dic, toReplace, replaceWith):
-    for key in dic.keys():
-        if dic[key] == toReplace:
-            dic[key] = replaceWith
-    return dic
+def replace_value(mapping, old, new, strategy=None):
+    """
+    Replace old values with new ones following dict strategy.
+
+    The parameter strategy is None per default for inplace operation.
+    A copy operation is injected via strateg values like copy.copy
+    or copy.deepcopy
+
+    Note: A dict is returned regardless of modifications.
+    """
+    another_map = strategy(mapping) if strategy else mapping
+    if old in another_map.values():
+        for k in another_map.keys():
+            if another_map[k] == old:
+                another_map[k] = new
+    return another_map
 
 
 def getUrl(url, GET):
