@@ -18,6 +18,12 @@
   <a href="https://github.com/s0md3v/XSStrike/issues?q=is%3Aissue+is%3Aclosed">
       <img src="https://img.shields.io/github/issues-closed-raw/s0md3v/XSStrike.svg">
   </a>
+  <a href="https://inventory.rawsec.ml/tools.html#XSStrike">
+      <img src="https://inventory.rawsec.ml/img/badges/Rawsec-inventoried-FF5050_flat.svg">
+  </a>
+  <a href="https://github.com/s0md3v/XSStrike/blob/master/LICENSE">
+      <img src="https://img.shields.io/github/license/s0md3v/XSStrike.svg">
+  </a>
 </p>
 
 ![multi xss](https://image.ibb.co/gOCV5L/Screenshot-2018-11-19-13-33-49.png)
