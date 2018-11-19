@@ -20,7 +20,7 @@
   </a>
 </p>
 
-![multi xss](https://image.ibb.co/gR1ToA/Screenshot-2018-10-27-11-18-43.png)
+![multi xss](https://image.ibb.co/gOCV5L/Screenshot-2018-11-19-13-33-49.png)
 
 <p align="center">
   <a href="https://github.com/s0md3v/XSStrike/wiki">XSStrike Wiki</a> •
@@ -76,19 +76,19 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 
 ### Gallery
 #### DOM XSS
-![dom xss](https://image.ibb.co/d1rpvq/Screenshot-2018-10-27-10-59-43.png)
+![dom xss](https://image.ibb.co/bQaQ5L/Screenshot-2018-11-19-13-48-19.png)
 #### Reflected XSS
-![multi xss](https://image.ibb.co/gR1ToA/Screenshot-2018-10-27-11-18-43.png)
+![multi xss](https://image.ibb.co/gJogUf/Screenshot-2018-11-19-14-19-36.png)
 #### Crawling
-![crawling](https://image.ibb.co/iAWNFq/Screenshot-2018-10-27-16-20-36.png)
+![crawling](https://image.ibb.co/e6Rezf/Screenshot-2018-11-19-13-50-59.png)
 #### Fuzzing
-![fuzzing](https://image.ibb.co/mjqgsq/Screenshot-2018-11-10-18-50-49.png)
+![fuzzing](https://image.ibb.co/fnhuFL/Screenshot-2018-11-19-14-04-46.png)
 #### Bruteforcing payloads from a file
-![bruteforcing](https://image.ibb.co/iJJBVA/Screenshot-2018-11-12-21-20-16.png)
+![bruteforcing](https://image.ibb.co/dy5EFL/Screenshot-2018-11-19-14-08-36.png)
 #### Interactive HTTP Headers Prompt
-![headers](https://image.ibb.co/jw5NgV/Screenshot-2018-10-27-18-45-32.png)
+![headers](https://image.ibb.co/ecNph0/Screenshot-2018-11-19-14-29-35.png)
 #### Hidden Parameter Discovery
-![arjun](https://image.ibb.co/bOAD5q/Screenshot-2018-10-27-18-16-37.png)
+![arjun](https://image.ibb.co/effjh0/Screenshot-2018-11-19-14-16-51.png)
 
 ### Contribution, Credits & License
 Ways to contribute
