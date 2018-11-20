@@ -8,14 +8,14 @@ from core.config import xsschecker
 
 def verboseOutput(data, name, verbose):
     if verbose:
-        print ('%s %s %s%s%s' % (info, name, red, ('-' * 50), end))
+        print('%s %s %s%s%s' % (info, name, red, ('-' * 50), end))
         if str(type(data)) == '<class \'dict\'>':
             try:
-                print (json.dumps(data, indent=2))
+                print(json.dumps(data, indent=2))
             except TypeError:
-                print (data)
-        print (data)
-        print ('%s%s%s' % (red, ('-' * 60), end))
+                print(data)
+        print(data)
+        print('%s%s%s' % (red, ('-' * 60), end))
 
 
 def closest(number, numbers):
@@ -88,10 +88,14 @@ def replaceValue(mapping, old, new, strategy=None):
 
 
 def getUrl(url, GET):
-    if GET:
-        return url.split('?')[0]
-    else:
-        return url
+    """
+    Return URL minus any query part or question mark
+
+    :param url: String of complete URL including possibly a query part
+    :param GET: Boolean mode switch for interpreting as GET URL that might contain query part
+    :return: guaranteed query part free URL
+    """
+    return url.split('?', 1)[0] if GET else url
 
 
 def extractScripts(response):
@@ -104,40 +108,68 @@ def extractScripts(response):
 
 
 def randomUpper(string):
-    return ''.join(random.choice((x, y)) for x, y in zip(string.upper(), string.lower()))
+    """
+    Randomly choose case per character in string
+
+    Optimized local lookup for len(string) invocations
+
+    :param string: string with some case mix
+    :return: string with random case mix
+    """
+    rc = random.choice
+    return ''.join(rc(x) for x in zip(string.upper(), string.lower()))
 
 
-def flattenParams(currentParam, params, payload):
-    flatted = []
-    for name, value in params.items():
-        if name == currentParam:
-            value = payload
-        flatted.append(name + '=' + value)
-    return '?' + '&'.join(flatted)
+def flattenAndPatch(params, name, payload):
+    """
+    Transform params dict to string URL query part including question mark and assing name if present to payload
+
+    Note: Unused function renamed and reordered arguments.
+
+    :param params: dict of key value pairs
+    :param name: name of param to patch
+    :param payload: value to patch into query part string if name is present as key in params
+    :return: query part of URL as string including the leading question mark
+    """
+    return '?' + '&'.join(('='.join((k, payload if k == name else v)) for k, v in params.items()))
 
 
 def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special):
+    """
+    Generate vectors of string from combining many things.
+
+    Note: Maybe refactor or move into generator module (only client of function).
+
+    :param fillings:
+    :param eFillings:
+    :param lFillings:
+    :param eventHandlers:
+    :param tags:
+    :param functions:
+    :param ends:
+    :param breaker:
+    :param special:
+    :return:
+    """
     vectors = []
     r = randomUpper  # randomUpper randomly converts chars of a string to uppercase
     for tag in tags:
-        if tag == 'd3v' or tag == 'a':
-            bait = 'z'
-        else:
-            bait = ''
+        bait = 'z' if tag == 'd3v' or tag == 'a' else ''
         for eventHandler in eventHandlers:
+            if tag not in eventHandlers[eventHandler]:
+                continue
             # if the tag is compatible with the event handler
-            if tag in eventHandlers[eventHandler]:
-                for function in functions:
-                    for filling in fillings:
-                        for eFilling in eFillings:
-                            for lFilling in lFillings:
-                                for end in ends:
-                                    if tag == 'd3v' or tag == 'a':
-                                        if '>' in ends:
-                                            end = '>'  # we can't use // as > with "a" or "d3v" tag
-                                    vector = vector = r(breaker) + special + '<' + r(tag) + filling + r(
-                                        eventHandler) + eFilling + '=' + eFilling + function + lFilling + end + bait
-                                    vectors.append(vector)
+            for aFunction in functions:
+                for filling in fillings:
+                    for eFilling in eFillings:
+                        for lFilling in lFillings:
+                            for anEnd in ends:
+                                if (tag == 'd3v' or tag == 'a') and '>' in ends:
+                                    anEnd = '>'  # we can't use // as > with "a" or "d3v" tag
+                                left = ''.join(
+                                    (r(breaker), special, '<', r(tag), filling, r(eventHandler),
+                                     eFilling, '=', eFilling, aFunction, lFilling))
+                                vectors.append(left + anEnd + bait)
     return vectors
 
 
