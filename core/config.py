@@ -22,7 +22,7 @@ badTags = ('iframe', 'title', 'textarea', 'noembed',
 tags = ('html', 'd3v', 'a', 'details')  # HTML Tags
 
 # "Things" that can be used between js functions and breakers e.g. '};alert()//
-jFillings = ('-', '*', ';', '/')
+jFillings = (';')
 # "Things" that can be used before > e.g. <tag attr=value%0dx>
 lFillings = ('', '%0dx')
 # "Things" to use between event handler and = or between function and =
