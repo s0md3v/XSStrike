@@ -142,21 +142,21 @@ def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends,
 
 
 def getParams(url, data, GET):
-    params = {}
     if GET:
+        params = {}
         if '=' in url:
             data = url.split('?')[1]
             if data[:1] == '?':
                 data = data[1:]
-        else:
-            data = ''
-    parts = data.split('&')
-    for part in parts:
-        each = part.split('=')
-        try:
-            params[each[0]] = each[1]
-        except IndexError:
-            params = None
+        parts = data.split('&')
+        for part in parts:
+            each = part.split('=')
+            try:
+                params[each[0]] = each[1]
+            except IndexError:
+                params = None
+    else:
+        params = json.loads(data.replace('\'', '"'))
     return params
 
 
