@@ -1,4 +1,6 @@
 language: python
+cache: pip
+sudo: required
 os:
   - linux
 python:
