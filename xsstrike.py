@@ -22,7 +22,7 @@ from modes.singleFuzz import singleFuzz
 
 # Just a fancy ass banner
 print('''%s
-\tXSStrike %sv3.1.0
+\tXSStrike %sv3.1.1
 %s''' % (red, white, end))
 
 try:
