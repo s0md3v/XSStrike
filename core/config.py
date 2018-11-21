@@ -1,4 +1,5 @@
 changes = '''browser engine integration for zero false positives;coverage of event handler context;bug fixes'''
+globalVariables = {}  # it holds variables during runtime for collaboration across modules
 
 defaultEditor = 'nano'
 blindPayload = ''  # your blind XSS payload
