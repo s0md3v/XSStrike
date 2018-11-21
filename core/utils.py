@@ -2,8 +2,20 @@ import json
 import random
 import re
 
+import core.config
 from core.colors import info, red, end
 from core.config import xsschecker
+
+def jsonize(data):
+    if 'str' in str(type(data)):
+        return json.loads(data)
+    else:
+        return json.dumps(data)
+
+
+def counter(string):
+    string = re.sub(r'\s|\w', '')
+    return len(string)
 
 
 def verboseOutput(data, name, verbose):
@@ -156,7 +168,10 @@ def getParams(url, data, GET):
             except IndexError:
                 params = None
     else:
-        params = json.loads(data.replace('\'', '"'))
+        if core.config.globalVariables['jsonData']:
+            params = data
+        else:
+            params = json.loads(data.replace('\'', '"'))
     return params
 
 
