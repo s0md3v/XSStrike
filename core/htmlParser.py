@@ -69,7 +69,11 @@ def htmlParser(response, encoding):
                         for attr in attrs:  # iterate over the attribute
                             if xsschecker in attr:  # is xsschecker in this attribute?
                                 # alright, this is the one we need
-                                attributes.append(attr.split('=')[0])
+                                attributeName = attr.split('=')[0]
+                                attributeValue = ''.join(attr.split('=')[1:])
+                                if attributeValue.startswith('\'') or attributeValue.startswith('"'):
+                                    attributeValue = attributeValue[1:-1]
+                                attributes.append({attributeName:attributeValue})
                                 break
                 try:
                     # finds the tag "inside" which input is refelcted
