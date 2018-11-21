@@ -7,7 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import UnexpectedAlertPresentException
 
-def browserEngine(url, response):
+def browserEngine(response):
     options = Options()
     options.add_argument('--headless')
     browser = webdriver.Firefox(options=options)
