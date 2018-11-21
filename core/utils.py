@@ -155,12 +155,10 @@ def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends,
 
 def getParams(url, data, GET):
     params = {}
-    if GET:
-        params = {}
-        if '=' in url:
-            data = url.split('?')[1]
-            if data[:1] == '?':
-                data = data[1:]
+    if '=' in url:
+        data = url.split('?')[1]
+        if data[:1] == '?':
+            data = data[1:]
     elif data:
         if core.config.globalVariables['jsonData']:
             params = data
@@ -170,6 +168,8 @@ def getParams(url, data, GET):
                 return params
             except json.decoder.JSONDecodeError:
                 pass
+    else:
+        return None
     if not params:
         parts = data.split('&')
         for part in parts:
