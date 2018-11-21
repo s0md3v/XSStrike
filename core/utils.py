@@ -121,7 +121,7 @@ def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends,
     r = randomUpper  # randomUpper randomly converts chars of a string to uppercase
     for tag in tags:
         if tag == 'd3v' or tag == 'a':
-            bait = 'z'
+            bait = xsschecker
         else:
             bait = ''
         for eventHandler in eventHandlers:

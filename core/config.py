@@ -1,4 +1,4 @@
-changes = '''ability to load seeds from file;show parameter name while bruteforcing;fixed payload display while using POST method'''
+changes = '''browser engine integration for zero false positives;coverage of event handler context;bug fixes'''
 
 defaultEditor = 'nano'
 blindPayload = ''  # your blind XSS payload
