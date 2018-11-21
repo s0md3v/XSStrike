@@ -154,12 +154,23 @@ def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends,
 
 
 def getParams(url, data, GET):
+    params = {}
     if GET:
         params = {}
         if '=' in url:
             data = url.split('?')[1]
             if data[:1] == '?':
                 data = data[1:]
+    elif data:
+        if core.config.globalVariables['jsonData']:
+            params = data
+        else:
+            try:
+                params = json.loads(data.replace('\'', '"'))
+                return params
+            except json.decoder.JSONDecodeError:
+                pass
+    if not params:
         parts = data.split('&')
         for part in parts:
             each = part.split('=')
@@ -167,11 +178,6 @@ def getParams(url, data, GET):
                 params[each[0]] = each[1]
             except IndexError:
                 params = None
-    else:
-        if core.config.globalVariables['jsonData']:
-            params = data
-        else:
-            params = json.loads(data.replace('\'', '"'))
     return params
 
 
