@@ -13,7 +13,7 @@ from core.encoders import base64
 from core.photon import photon
 from core.prompt import prompt
 from core.updater import updater
-from core.utils import extractHeaders, verboseOutput, reader
+from core.utils import extractHeaders, verboseOutput, reader, jsonize
 
 from modes.bruteforcer import bruteforcer
 from modes.crawl import crawl
@@ -49,6 +49,8 @@ parser.add_argument('--params', help='find params',
                     dest='find', action='store_true')
 parser.add_argument('--crawl', help='crawl',
                     dest='recursive', action='store_true')
+parser.add_argument('--json', help='treat post data as json',
+                    dest='jsonData', action='store_true')
 parser.add_argument(
     '--seeds', help='load crawling seeds from a file', dest='args_seeds')
 parser.add_argument(
@@ -79,7 +81,8 @@ else:
 # Pull all parameter values of dict from argparse namespace into local variables of name == key
 # The following works, but the static checkers are too static ;-) locals().update(vars(args))
 target = args.target
-paramData = args.paramData
+jsonData = args.jsonData
+paramData = jsonize(args.paramData) if jsonData else args.paramData 
 encode = args.encode
 fuzz = args.fuzz
 update = args.update
@@ -97,6 +100,8 @@ skip = args.skip
 skipDOM = args.skipDOM
 verbose = args.verbose
 blindXSS = args.blindXSS
+
+core.config.globalVariables = vars(args)
 
 if args_file:
     if args_file == 'default':
