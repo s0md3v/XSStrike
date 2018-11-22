@@ -4,11 +4,18 @@ import time
 import warnings
 
 import core.config
+from core.config import globalVariables
+from core.utils import converter
 
 warnings.filterwarnings('ignore')  # Disable SSL related warnings
 
 
 def requester(url, data, headers, GET, delay, timeout):
+    if core.config.globalVariables['jsonData']:
+        data = converter(data)
+    elif core.config.globalVariables['path']:
+        url = converter(data, url)
+        data = []
     time.sleep(delay)
     user_agents = ['Mozilla/5.0 (X11; Linux i686; rv:60.0) Gecko/20100101 Firefox/60.0',
                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'

@@ -1,9 +1,12 @@
 import copy
+import re
 from urllib.parse import urlparse, quote, unquote
 
 from core.arjun import arjun
+from core.browserEngine import browserEngine
 from core.checker import checker
 from core.colors import good, bad, end, info, green, run, red, que
+import core.config
 from core.config import xsschecker, minEfficiency
 from core.dom import dom
 from core.filterChecker import filterChecker
@@ -86,29 +89,53 @@ def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM,
         progress = 0
         for confidence, vects in vectors.items():
             for vect in vects:
+                if core.config.globalVariables['path']:
+                    vect = vect.replace('/', '%2F')
+                printVector = vect
                 progress += 1
-                if not GET:
+                print ('%s Progress: %i/%i' % (run, progress, total), end='\r')
+                if confidence == 10:
+                    if not GET:
+                        vect = unquote(vect)
+                    efficiencies = checker(
+                        url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
+                    if not efficiencies:
+                        for i in range(len(occurences)):
+                            efficiencies.append(0)
+                    bestEfficiency = max(efficiencies)
+                    if bestEfficiency == 100 or (vect[0] == '\\' and bestEfficiency >= 95):
+                        print(('%s-%s' % (red, end)) * 60)
+                        print('%s Payload: %s' % (good, printVector))
+                        print('%s Efficiency: %i' % (info, bestEfficiency))
+                        print('%s Confidence: %i' % (info, confidence))
+                        if not skip:
+                            choice = input(
+                                '%s Would you like to continue scanning? [y/N] ' % que).lower()
+                            if choice != 'y':
+                                quit()
+                    elif bestEfficiency > minEfficiency:
+                        print(('%s-%s' % (red, end)) * 60)
+                        print('%s Payload: %s' % (good, printVector))
+                        print('%s Efficiency: %i' % (info, bestEfficiency))
+                        print('%s Confidence: %i' % (info, confidence))
+                else:
+                    if re.search(r'<(a|d3|details)|lt;(a|d3|details)', vect.lower()):
+                        continue
                     vect = unquote(vect)
-                efficiencies = checker(
-                    url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
-                if not GET:
-                    vect = quote(vect)
-                if not efficiencies:
-                    for i in range(len(occurences)):
-                        efficiencies.append(0)
-                bestEfficiency = max(efficiencies)
-                if bestEfficiency == 100 or (vect[0] == '\\' and bestEfficiency >= 95):
-                    print(('%s-%s' % (red, end)) * 60)
-                    print('%s Payload: %s' % (good, vect))
-                    print('%s Efficiency: %i' % (info, bestEfficiency))
-                    print('%s Confidence: %i' % (info, confidence))
-                    if not skip:
-                        choice = input(
-                            '%s Would you like to continue scanning? [y/N] ' % que).lower()
-                        if choice != 'y':
-                            quit()
-                elif bestEfficiency > minEfficiency:
-                    print(('%s-%s' % (red, end)) * 60)
-                    print('%s Payload: %s' % (good, vect))
-                    print('%s Efficiency: %i' % (info, bestEfficiency))
-                    print('%s Confidence: %i' % (info, confidence))
+                    if encoding:
+                        paramsCopy[paramName] = encoding(vect)
+                    else:
+                        paramsCopy[paramName] = vect
+                    response = requester(url, paramsCopy, headers, GET, delay, timeout).text
+                    success = browserEngine(response)
+                    if success:
+                        print(('%s-%s' % (red, end)) * 60)
+                        print('%s Payload: %s' % (good, printVector))
+                        print('%s Efficiency: %i' % (info, 100))
+                        print('%s Confidence: %i' % (info, 10))
+                        if not skip:
+                            choice = input(
+                                '%s Would you like to continue scanning? [y/N] ' % que).lower()
+                            if choice != 'y':
+                                quit()
+        print ('')

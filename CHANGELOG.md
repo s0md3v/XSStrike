@@ -1,3 +1,11 @@
+### 3.1.1
+- Fixed a build breaking typo
+
+### 3.1.0
+- Various minor enhancements and bug fixes
+- Browser engine integration for zero false positives
+- Coverage of event handler context
+
 ### 3.0.5
 
 - Fixed a bug in HTML Parser

@@ -1,21 +1,46 @@
 import json
 import random
 import re
+from urllib.parse import urlparse
 
+import core.config
 from core.colors import info, red, end
 from core.config import xsschecker
 
 
+def converter(data, url=False):
+    if 'str' in str(type(data)):
+        if url:
+            dictized = {}
+            parts = data.split('/')[3:]
+            for part in parts:
+                dictized[part] = part
+            return dictized
+        else:
+            return json.loads(data)
+    else:
+        if url:
+            url = urlparse(url).scheme + '://' + urlparse(url).netloc
+            for part in list(data.values()):
+                url += '/' + part
+            return url
+        else:
+            return json.dumps(data)
+
+
+def counter(string):
+    string = re.sub(r'\s|\w', '')
+    return len(string)
+
+
 def verboseOutput(data, name, verbose):
-    if verbose:
-        print('%s %s %s%s%s' % (info, name, red, ('-' * 50), end))
+    if core.config.globalVariables['verbose']:
         if str(type(data)) == '<class \'dict\'>':
             try:
                 print(json.dumps(data, indent=2))
             except TypeError:
-                print(data)
-        print(data)
-        print('%s%s%s' % (red, ('-' * 60), end))
+                print (data)
+        print (data)
 
 
 def closest(number, numbers):
@@ -159,20 +184,29 @@ def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends,
 
 def getParams(url, data, GET):
     params = {}
-    if GET:
-        if '=' in url:
-            data = url.split('?')[1]
-            if data[:1] == '?':
-                data = data[1:]
+    if '=' in url:
+        data = url.split('?')[1]
+        if data[:1] == '?':
+            data = data[1:]
+    elif data:
+        if core.config.globalVariables['jsonData'] or core.config.globalVariables['path']:
+            params = data
         else:
-            data = ''
-    parts = data.split('&')
-    for part in parts:
-        each = part.split('=')
-        try:
-            params[each[0]] = each[1]
-        except IndexError:
-            params = None
+            try:
+                params = json.loads(data.replace('\'', '"'))
+                return params
+            except json.decoder.JSONDecodeError:
+                pass
+    else:
+        return None
+    if not params:
+        parts = data.split('&')
+        for part in parts:
+            each = part.split('=')
+            try:
+                params[each[0]] = each[1]
+            except IndexError:
+                params = None
     return params
 
 

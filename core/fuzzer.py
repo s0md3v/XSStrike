@@ -6,16 +6,7 @@ from urllib.parse import unquote
 from core.colors import end, red, green, yellow, bad, good, info
 from core.config import fuzzes, xsschecker
 from core.requester import requester
-from core.utils import replaceValue
-
-
-def counter(string):
-    special = '\'"=/:*&)(}{][><'
-    count = 0
-    for char in list(string):
-        if char in special:
-            count += 1
-    return count
+from core.utils import replaceValue, counter
 
 
 def fuzzer(url, params, headers, GET, delay, timeout, WAF, encoding):
