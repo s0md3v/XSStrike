@@ -120,36 +120,20 @@ def randomUpper(string):
     return ''.join(rc(x) for x in zip(string.upper(), string.lower()))
 
 
-def flattenAndPatch(params, name, payload):
-    """
-    Transform params dict to string URL query part including question mark and assing name if present to payload
-
-    Note: Unused function renamed and reordered arguments.
-
-    :param params: dict of key value pairs
-    :param name: name of param to patch
-    :param payload: value to patch into query part string if name is present as key in params
-    :return: query part of URL as string including the leading question mark
-    """
-    return '?' + '&'.join(('='.join((k, payload if k == name else v)) for k, v in params.items()))
-
-
 def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special):
     """
-    Generate vectors of string from combining many things.
+    Generate vectors of string from combining and randomizing input parameters.
 
-    Note: Maybe refactor or move into generator module (only client of function).
-
-    :param fillings:
-    :param eFillings:
-    :param lFillings:
-    :param eventHandlers:
-    :param tags:
-    :param functions:
-    :param ends:
-    :param breaker:
-    :param special:
-    :return:
+    :param fillings: Strings that can be used instead of space
+    :param eFillings: Characters that can be used between = and JavaScript function or event handler [<svg onload<eFilling>=<eFilling>function()>]
+    :param lFillings: Characters that can be used exactly before > in a HTML tag.
+    :param eventHandlers: Event handlers and the tags compatible with them to be used while generating payloads
+    :param tags: HTML tags to be used while generating payloads.
+    :param functions: JavaScript popup functions e.g. alert() or confirm()
+    :param ends: Strings to end a HTML tag [> or //]
+    :param breaker: String needed to break out of the context
+    :param special: The HTML tag which contains the reflection i.e. user input
+    :return: vectors of strings from combinations and randomization
     """
     vectors = []
     r = randomUpper  # randomUpper randomly converts chars of a string to uppercase
@@ -159,17 +143,17 @@ def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends,
             if tag not in eventHandlers[eventHandler]:
                 continue
             # if the tag is compatible with the event handler
-            for aFunction in functions:
+            for function in functions:
                 for filling in fillings:
                     for eFilling in eFillings:
                         for lFilling in lFillings:
-                            for anEnd in ends:
+                            for end in ends:
                                 if (tag == 'd3v' or tag == 'a') and '>' in ends:
-                                    anEnd = '>'  # we can't use // as > with "a" or "d3v" tag
+                                    end = '>'  # we can't use // as > with "a" or "d3v" tag
                                 left = ''.join(
                                     (r(breaker), special, '<', r(tag), filling, r(eventHandler),
-                                     eFilling, '=', eFilling, aFunction, lFilling))
-                                vectors.append(left + anEnd + bait)
+                                     eFilling, '=', eFilling, function, lFilling))
+                                vectors.append(left + end + bait)
     return vectors
 
 
