@@ -6,6 +6,7 @@ from core.arjun import arjun
 from core.browserEngine import browserEngine
 from core.checker import checker
 from core.colors import good, bad, end, info, green, run, red, que
+import core.config
 from core.config import xsschecker, minEfficiency
 from core.dom import dom
 from core.filterChecker import filterChecker
@@ -88,6 +89,8 @@ def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM,
         progress = 0
         for confidence, vects in vectors.items():
             for vect in vects:
+                if core.config.globalVariables['path']:
+                    vect = vect.replace('/', '%2F')
                 printVector = vect
                 progress += 1
                 print ('%s Progress: %i/%i' % (run, progress, total), end='\r')

@@ -1,16 +1,30 @@
 import json
 import random
 import re
+from urllib.parse import urlparse
 
 import core.config
 from core.colors import info, red, end
 from core.config import xsschecker
 
-def jsonize(data):
+def converter(data, url=False):
     if 'str' in str(type(data)):
-        return json.loads(data)
+        if url:
+            dictized = {}
+            parts = data.split('/')[3:]
+            for part in parts:
+                dictized[part] = part
+            return dictized
+        else:
+            return json.loads(data)
     else:
-        return json.dumps(data)
+        if url:
+            url = urlparse(url).scheme + '://' + urlparse(url).netloc
+            for part in list(data.values()):
+                url += '/' + part
+            return url
+        else:
+            return json.dumps(data)
 
 
 def counter(string):
@@ -19,15 +33,13 @@ def counter(string):
 
 
 def verboseOutput(data, name, verbose):
-    if verbose:
-        print ('%s %s %s%s%s' % (info, name, red, ('-' * 50), end))
+    if core.config.globalVariables['verbose']:
         if str(type(data)) == '<class \'dict\'>':
             try:
                 print (json.dumps(data, indent=2))
             except TypeError:
                 print (data)
         print (data)
-        print ('%s%s%s' % (red, ('-' * 60), end))
 
 
 def closest(number, numbers):
@@ -160,7 +172,7 @@ def getParams(url, data, GET):
         if data[:1] == '?':
             data = data[1:]
     elif data:
-        if core.config.globalVariables['jsonData']:
+        if core.config.globalVariables['jsonData'] or core.config.globalVariables['path']:
             params = data
         else:
             try:

@@ -1,4 +1,4 @@
-changes = '''browser engine integration for zero false positives;coverage of event handler context;bug fixes'''
+changes = '''URL rewriting support'''
 globalVariables = {}  # it holds variables during runtime for collaboration across modules
 
 defaultEditor = 'nano'
