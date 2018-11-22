@@ -19,7 +19,12 @@ def photon(seedUrl, headers, level, threadCount, delay, timeout):
 
     def rec(target):
         processed.add(target)
-        print ('%s Parsing %s' % (run, target))
+        printableTarget = '/'.join(target.split('/')[3:])
+        if len(printableTarget) > 40:
+            printableTarget = printableTarget[-40:]
+        else:
+            printableTarget = (printableTarget + (' ' * (40 - len(printableTarget))))
+        print ('%s Parsing %s' % (run, printableTarget), end='\r')
         url = getUrl(target, True)
         params = getParams(target, '', True)
         if '=' in target:  # if there's a = in the url, there should be GET parameters
