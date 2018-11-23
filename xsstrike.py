@@ -2,6 +2,8 @@
 
 from __future__ import print_function
 
+from core.colors import end, info, red, run, white, bad
+
 # Just a fancy ass banner
 print('''%s
 \tXSStrike %sv3.1.1
@@ -19,7 +21,6 @@ import argparse
 
 # ... and from core lib
 import core.config
-from core.colors import end, info, red, run, white, bad
 from core.config import blindPayload
 from core.encoders import base64
 from core.photon import photon
