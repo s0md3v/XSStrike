@@ -45,7 +45,7 @@ def htmlParser(response, encoding):
                         break
                 num += 1
         if '<' not in response:
-            if rawResponse.headers['Content-Type'] == 'text/html':
+            if rawResponse.headers['Content-Type'].startswith('text/html'):
                 location = 'html'
         locations.append(location)  # add location to locations list
 
