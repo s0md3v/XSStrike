@@ -7,14 +7,14 @@ import argparse
 
 # ... and from core lib
 import core.config
-from core.colors import end, info, red, run, white, bad
+import core.log
+from core.colors import end, info, red, run, white, bad, yellow
 from core.config import blindPayload
 from core.encoders import base64
 from core.photon import photon
 from core.prompt import prompt
 from core.updater import updater
 from core.utils import extractHeaders, verboseOutput, reader
-
 from modes.bruteforcer import bruteforcer
 from modes.crawl import crawl
 from modes.scan import scan
@@ -69,7 +69,15 @@ parser.add_argument('-v', '--vectors', help='verbose output',
                     dest='verbose', action='store_true')
 parser.add_argument('--blind', help='inject blind XSS payload while crawling',
                     dest='blindXSS', action='store_true')
+parser.add_argument('--console-log-level', help='Console logging level',
+                    dest='console_log_level', default=core.log.console_log_level,
+                    choices=core.log.log_config.keys())
+parser.add_argument('--file-log-level', help='File logging level', dest='file_log_level',
+                    choices=core.log.log_config.keys(), default=None)
+parser.add_argument('--log-file', help='Name of the file to log', dest='log_file',
+                    default=core.log.log_file)
 args = parser.parse_args()
+
 
 if args.add_headers:
     headers = extractHeaders(prompt())
@@ -97,6 +105,20 @@ skip = args.skip
 skipDOM = args.skipDOM
 verbose = args.verbose
 blindXSS = args.blindXSS
+core.log.console_log_level = args.console_log_level
+core.log.file_log_level = args.file_log_level
+core.log.log_file = args.log_file
+
+# Only for test purposes
+logger = core.log.setup_logger()
+logger.debug('Test debug')
+logger.info('Test Info')
+logger.warn('Test warning')
+logger.run('Test run')
+logger.good('Test good')
+logger.error('Test error')
+logger.critical('Test critical')
+logger.vuln('Test vuln')
 
 if args_file:
     if args_file == 'default':
@@ -132,7 +154,7 @@ else:
     if target:
         seedList.append(target)
     for target in seedList:
-        print('%s Crawling the target' % run)
+        logger.run('Crawling the target')
         scheme = urlparse(target).scheme
         verboseOutput(scheme, 'scheme', verbose)
         host = urlparse(target).netloc
@@ -153,5 +175,5 @@ else:
                                      blindXSS, blindPayload, headers, delay, timeout, skipDOM, encoding) for form, domURL in zip(forms, domURLs))
         for i, _ in enumerate(concurrent.futures.as_completed(futures)):
             if i + 1 == len(forms) or (i + 1) % threadCount == 0:
-                print('%s Progress: %i/%i' % (info, i + 1, len(forms)), end='\r')
+                logger.info('Progress: %i/%i' % (i + 1, len(forms)), end='\r')
         print()
