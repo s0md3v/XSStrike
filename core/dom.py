@@ -15,11 +15,13 @@ def dom(response):
             pattern = re.findall(sources, line)
             for grp in pattern:
                 source = ''.join(grp)
-                line = line.replace(source, yellow + source + end)
+                if source:
+                    line = line.replace(source, yellow + source + end)
             pattern = re.findall(sinks, line)
             for grp in pattern:
                 sink = ''.join(grp)
-                line = line.replace(sink, red + sink + end)
+                if sink:
+                    line = line.replace(sink, red + sink + end)
             if line != newLine:
                 highlighted.append('%-3s %s' % (str(num), line.lstrip(' ')))
             num += 1

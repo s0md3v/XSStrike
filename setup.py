@@ -49,7 +49,8 @@ setup(
     install_requires=[
         "tld",
         "fuzzywuzzy",
-        "requests"
+        "requests",
+        "selenium",
     ],
     # extras_require={
     #     'dev': [

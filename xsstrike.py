@@ -2,27 +2,11 @@
 
 from __future__ import print_function
 
-# Let's import whatever we need from standard lib
-import argparse
-
-# ... and from core lib
-import core.config
-import core.log
-from core.colors import end, info, red, run, white, bad, yellow
-from core.config import blindPayload
-from core.encoders import base64
-from core.photon import photon
-from core.prompt import prompt
-from core.updater import updater
-from core.utils import extractHeaders, verboseOutput, reader
-from modes.bruteforcer import bruteforcer
-from modes.crawl import crawl
-from modes.scan import scan
-from modes.singleFuzz import singleFuzz
+from core.colors import end, info, red, run, white, bad
 
 # Just a fancy ass banner
 print('''%s
-\tXSStrike %sv3.0.5
+\tXSStrike %sv3.1.1
 %s''' % (red, white, end))
 
 try:
@@ -31,6 +15,25 @@ try:
 except ImportError:  # throws error in python2
     print('%s XSStrike isn\'t compatible with python2.\n Use python > 3.4 to run XSStrike.' % bad)
     quit()
+
+# Let's import whatever we need from standard lib
+import argparse
+
+# ... and from core lib
+import core.config
+import core.log
+from core.config import blindPayload
+from core.encoders import base64
+from core.photon import photon
+from core.prompt import prompt
+from core.updater import updater
+from core.utils import extractHeaders, verboseOutput, reader, converter
+
+
+from modes.bruteforcer import bruteforcer
+from modes.crawl import crawl
+from modes.scan import scan
+from modes.singleFuzz import singleFuzz
 
 # Processing command line arguments, where dest var names will be mapped to local vars with the same name
 parser = argparse.ArgumentParser()
@@ -49,6 +52,10 @@ parser.add_argument('--params', help='find params',
                     dest='find', action='store_true')
 parser.add_argument('--crawl', help='crawl',
                     dest='recursive', action='store_true')
+parser.add_argument('--json', help='treat post data as json',
+                    dest='jsonData', action='store_true')
+parser.add_argument('--path', help='inject payloads in the path',
+                    dest='path', action='store_true')
 parser.add_argument(
     '--seeds', help='load crawling seeds from a file', dest='args_seeds')
 parser.add_argument(
@@ -87,7 +94,9 @@ else:
 # Pull all parameter values of dict from argparse namespace into local variables of name == key
 # The following works, but the static checkers are too static ;-) locals().update(vars(args))
 target = args.target
-paramData = args.paramData
+path = args.path
+jsonData = args.jsonData
+paramData = args.paramData 
 encode = args.encode
 fuzz = args.fuzz
 update = args.update
@@ -119,6 +128,13 @@ logger.good('Test good')
 logger.error('Test error')
 logger.critical('Test critical')
 logger.vuln('Test vuln')
+
+core.config.globalVariables = vars(args)
+
+if path:
+    paramData = converter(target, target)
+elif jsonData:
+    paramData = converter(paramData)
 
 if args_file:
     if args_file == 'default':

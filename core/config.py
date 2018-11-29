@@ -1,4 +1,5 @@
-changes = '''ability to load seeds from file;show parameter name while bruteforcing;fixed payload display while using POST method'''
+changes = '''URL rewriting support'''
+globalVariables = {}  # it holds variables during runtime for collaboration across modules
 
 defaultEditor = 'nano'
 blindPayload = ''  # your blind XSS payload
@@ -22,7 +23,7 @@ badTags = ('iframe', 'title', 'textarea', 'noembed',
 tags = ('html', 'd3v', 'a', 'details')  # HTML Tags
 
 # "Things" that can be used between js functions and breakers e.g. '};alert()//
-jFillings = ('-', '*', ';', '/')
+jFillings = (';')
 # "Things" that can be used before > e.g. <tag attr=value%0dx>
 lFillings = ('', '%0dx')
 # "Things" to use between event handler and = or between function and =
@@ -80,11 +81,11 @@ headers = {  # default headers
     'Upgrade-Insecure-Requests': '1',
 }
 
-blindParams = (  # common paramtere names to be bruteforced for parameter discovery
+blindParams = [  # common paramtere names to be bruteforced for parameter discovery
     'redirect', 'redir', 'url', 'link', 'goto', 'debug', '_debug', 'test', 'get', 'index', 'src', 'source', 'file',
     'frame', 'config', 'new', 'old', 'var', 'rurl', 'return_to', '_return', 'returl', 'last', 'text', 'load', 'email',
     'mail', 'user', 'username', 'password', 'pass', 'passwd', 'first_name', 'last_name', 'back', 'href', 'ref', 'data', 'input',
     'out', 'net', 'host', 'address', 'code', 'auth', 'userid', 'auth_token', 'token', 'error', 'keyword', 'key', 'q', 'query', 'aid',
     'bid', 'cid', 'did', 'eid', 'fid', 'gid', 'hid', 'iid', 'jid', 'kid', 'lid', 'mid', 'nid', 'oid', 'pid', 'qid', 'rid', 'sid',
     'tid', 'uid', 'vid', 'wid', 'xid', 'yid', 'zid', 'cal', 'country', 'x', 'y', 'topic', 'title', 'head', 'higher', 'lower', 'width',
-    'height', 'add', 'result', 'log', 'demo', 'example', 'message')
+    'height', 'add', 'result', 'log', 'demo', 'example', 'message']
