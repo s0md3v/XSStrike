@@ -62,6 +62,8 @@ parser.add_argument('-l', '--level', help='level of crawling',
                     dest='level', type=int, default=2)
 parser.add_argument('--headers', help='add headers',
                     dest='add_headers', action='store_true')
+parser.add_argument('--headers-from-file', help='read headers from text file',
+					dest='file_headers', action='store')
 parser.add_argument('-t', '--threads', help='number of threads',
                     dest='threadCount', type=int, default=core.config.threadCount)
 parser.add_argument('-d', '--delay', help='delay between requests',
@@ -76,10 +78,17 @@ parser.add_argument('--blind', help='inject blind XSS payload while crawling',
                     dest='blindXSS', action='store_true')
 args = parser.parse_args()
 
-if args.add_headers:
-    headers = extractHeaders(prompt())
+if args.file_headers:
+	with open(args.file_headers, "r") as f:
+		user_headers = extractHeaders(f.read())
+		from core.config import headers
+		for key in user_headers:
+			headers[key] = user_headers[key]
 else:
-    from core.config import headers
+	if args.add_headers:
+		headers = extractHeaders(prompt())
+	else:
+		from core.config import headers
 
 # Pull all parameter values of dict from argparse namespace into local variables of name == key
 # The following works, but the static checkers are too static ;-) locals().update(vars(args))
