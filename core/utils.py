@@ -28,7 +28,7 @@ def converter(data, url=False):
 
 
 def counter(string):
-    string = re.sub(r'\s|\w', '')
+    string = re.sub(r'\s|\w', '', string)
     return len(string)
 
 
