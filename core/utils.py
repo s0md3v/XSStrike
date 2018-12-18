@@ -200,7 +200,7 @@ def writer(obj, path):
     elif kind == 'dict':
         obj = json.dumps(obj, indent=4)
     savefile = open(path, 'w+')
-    savefile.write(obj.encode('utf-8'))
+    savefile.write(str(obj.encode('utf-8')))
     savefile.close()
 
 
