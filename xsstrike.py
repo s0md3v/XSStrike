@@ -61,7 +61,7 @@ parser.add_argument(
 parser.add_argument('-l', '--level', help='level of crawling',
                     dest='level', type=int, default=2)
 parser.add_argument('--headers', help='add headers',
-                    dest='add_headers', action='store_true')
+                    dest='add_headers', nargs='?', const=True)
 parser.add_argument('-t', '--threads', help='number of threads',
                     dest='threadCount', type=int, default=core.config.threadCount)
 parser.add_argument('-d', '--delay', help='delay between requests',
@@ -76,8 +76,10 @@ parser.add_argument('--blind', help='inject blind XSS payload while crawling',
                     dest='blindXSS', action='store_true')
 args = parser.parse_args()
 
-if args.add_headers:
+if type(args.add_headers) == bool:
     headers = extractHeaders(prompt())
+elif type(args.add_headers) == str:
+    headers = extractHeaders(args.add_headers)
 else:
     from core.config import headers
 
