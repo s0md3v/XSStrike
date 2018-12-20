@@ -61,9 +61,9 @@ parser.add_argument(
 parser.add_argument('-l', '--level', help='level of crawling',
                     dest='level', type=int, default=2)
 parser.add_argument('--headers', help='add headers',
-                    dest='add_headers', action='store_true')
-parser.add_argument('--headers-from-file', help='read headers from text file',
                     dest='add_headers', nargs='?', const=True)
+parser.add_argument('--headers-from-file', help='read headers from text file',
+					dest='file_headers', action='store')
 parser.add_argument('-t', '--threads', help='number of threads',
                     dest='threadCount', type=int, default=core.config.threadCount)
 parser.add_argument('-d', '--delay', help='delay between requests',
