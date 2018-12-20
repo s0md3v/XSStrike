@@ -28,7 +28,7 @@ def converter(data, url=False):
 
 
 def counter(string):
-    string = re.sub(r'\s|\w', '')
+    string = re.sub(r'\s|\w', '', string)
     return len(string)
 
 
@@ -79,6 +79,7 @@ def stripper(string, substring, direction='right'):
 
 
 def extractHeaders(headers):
+    headers = headers.replace('\\n', '\n')
     sorted_headers = {}
     matches = re.findall(r'(.*):\s(.*)', headers)
     for match in matches:
@@ -200,7 +201,7 @@ def writer(obj, path):
     elif kind == 'dict':
         obj = json.dumps(obj, indent=4)
     savefile = open(path, 'w+')
-    savefile.write(obj)
+    savefile.write(str(obj.encode('utf-8')))
     savefile.close()
 
 

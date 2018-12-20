@@ -63,7 +63,7 @@ parser.add_argument('-l', '--level', help='level of crawling',
 parser.add_argument('--headers', help='add headers',
                     dest='add_headers', action='store_true')
 parser.add_argument('--headers-from-file', help='read headers from text file',
-					dest='file_headers', action='store')
+                    dest='add_headers', nargs='?', const=True)
 parser.add_argument('-t', '--threads', help='number of threads',
                     dest='threadCount', type=int, default=core.config.threadCount)
 parser.add_argument('-d', '--delay', help='delay between requests',
@@ -84,6 +84,11 @@ if args.file_headers:
 		from core.config import headers
 		for key in user_headers:
 			headers[key] = user_headers[key]
+
+if type(args.add_headers) == bool:
+    headers = extractHeaders(prompt())
+elif type(args.add_headers) == str:
+    headers = extractHeaders(args.add_headers)
 else:
 	if args.add_headers:
 		headers = extractHeaders(prompt())
