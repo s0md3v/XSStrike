@@ -17,7 +17,14 @@ from core.utils import getUrl, getParams, verboseOutput
 from core.wafDetector import wafDetector
 
 def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM, find, skip):
-    GET, POST = (False, True) if paramData else (True, False)
+    pathArg = core.config.globalVariables['path']
+    paramDataArg = paramDataArg = core.config.globalVariables['paramData']
+    # Scanning a path without passing any data should be done through GET request
+    if pathArg and paramDataArg == None:
+        GET, POST = (True, False)
+    else:
+        GET, POST = (False, True)
+        
     # If the user hasn't supplied the root url with http(s), we will handle it
     if not target.startswith('http'):
         try:
