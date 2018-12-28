@@ -12,6 +12,14 @@ print('''%s
 try:
     import concurrent.futures
     from urllib.parse import urlparse
+    try:
+        import fuzzywuzzy
+    except ImportError:
+        import os
+        print ('%s fuzzywuzzy isn\'t installed, installing now.' % info)
+        os.system('pip3 install fuzzywuzzy')
+        print ('%s fuzzywuzzy has been installed, restart XSStrike.' % info)
+        quit()
 except ImportError:  # throws error in python2
     print('%s XSStrike isn\'t compatible with python2.\n Use python > 3.4 to run XSStrike.' % bad)
     quit()
