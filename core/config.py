@@ -1,4 +1,4 @@
-changes = '''URL rewriting support'''
+changes = '''better dom xss scanning;add headers from command line;many bug fixes'''
 globalVariables = {}  # it holds variables during runtime for collaboration across modules
 
 defaultEditor = 'nano'
