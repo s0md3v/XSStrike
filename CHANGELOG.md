@@ -1,3 +1,15 @@
+### 3.1.2
+- Fixed POST data handling
+- Support for JSON POST data
+- Support for URL rewriting
+- Cleaner crawling dashboard
+- No more weird characters while scanning DOM
+- Better DOM XSS scanning
+- Handle unicode while writing to file
+- Handle connection reset
+- Added ability to add headers from command line
+- Fixed issue which caused `foundParams` to not be tested
+
 ### 3.1.1
 - Fixed a build breaking typo
 
