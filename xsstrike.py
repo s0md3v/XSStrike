@@ -6,7 +6,7 @@ from core.colors import end, info, red, run, white, bad
 
 # Just a fancy ass banner
 print('''%s
-\tXSStrike %sv3.1.1
+\tXSStrike %sv3.1.2
 %s''' % (red, white, end))
 
 try:
