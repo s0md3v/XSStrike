@@ -8,18 +8,19 @@ from core.filterChecker import filterChecker
 from core.generator import generator
 from core.htmlParser import htmlParser
 from core.requester import requester
+from core.utils import logger
 
-def crawl(scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload, headers, delay, timeout, skipDOM, encoding):
+def crawl(scheme, host, main_url, form, domURL, blindXSS, blindPayload, headers, delay, timeout, skipDOM, encoding):
     if domURL and not skipDOM:
         response = requester(domURL, {}, headers, True, delay, timeout).text
         highlighted = dom(response)
         if highlighted:
-            print('%s Potentially vulnerable objects found at %s' %
+            logger('%s Potentially vulnerable objects found at %s' %
                   (good, domURL))
-            print(red + ('-' * 60) + end)
+            logger(red + ('-' * 60) + end)
             for line in highlighted:
-                print(line)
-            print(red + ('-' * 60) + end)
+                logger(line)
+            logger(red + ('-' * 60) + end)
     if form:
         for each in form.values():
             url = each['action']
@@ -53,9 +54,9 @@ def crawl(scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload,
                             for confidence, vects in vectors.items():
                                 try:
                                     payload = list(vects)[0]
-                                    print('%s Vulnerable webpage: %s%s%s' %
+                                    logger('%s Vulnerable webpage: %s%s%s' %
                                           (good, green, url, end))
-                                    print('%s Vector for %s%s%s: %s' %
+                                    logger('%s Vector for %s%s%s: %s' %
                                           (good, green, paramName, end, payload))
                                     break
                                 except IndexError:

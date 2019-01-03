@@ -3,8 +3,8 @@ from re import findall
 from urllib.parse import urlparse
 
 from core.colors import run
-from core.utils import getUrl, getParams
 from core.requester import requester
+from core.utils import getUrl, getParams, logger
 from core.zetanize import zetanize
 
 
@@ -24,7 +24,7 @@ def photon(seedUrl, headers, level, threadCount, delay, timeout):
             printableTarget = printableTarget[-40:]
         else:
             printableTarget = (printableTarget + (' ' * (40 - len(printableTarget))))
-        print ('%s Parsing %s' % (run, printableTarget), end='\r')
+        logger('%s Parsing %s' % (run, printableTarget), end='\r')
         url = getUrl(target, True)
         params = getParams(target, '', True)
         if '=' in target:  # if there's a = in the url, there should be GET parameters

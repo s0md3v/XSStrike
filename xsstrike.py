@@ -34,7 +34,7 @@ from core.encoders import base64
 from core.photon import photon
 from core.prompt import prompt
 from core.updater import updater
-from core.utils import extractHeaders, verboseOutput, reader, converter
+from core.utils import extractHeaders, logger, reader, converter
 
 from modes.bruteforcer import bruteforcer
 from modes.crawl import crawl
@@ -142,23 +142,23 @@ if update:  # if the user has supplied --update argument
     quit()  # quitting because files have been changed
 
 if not target and not args_seeds:  # if the user hasn't supplied a url
-    print('\n' + parser.format_help().lower())
+    logger('\n' + parser.format_help().lower())
     quit()
 
 if fuzz:
-    singleFuzz(target, paramData, verbose, encoding, headers, delay, timeout)
+    singleFuzz(target, paramData, encoding, headers, delay, timeout)
 elif not recursive and not args_seeds:
     if args_file:
-        bruteforcer(target, paramData, payloadList, verbose, encoding, headers, delay, timeout)
+        bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
     else:
-        scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM, find, skip)
+        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, skip)
 else:
     if target:
         seedList.append(target)
     for target in seedList:
-        print('%s Crawling the target' % run)
+        logger('%s Crawling the target' % run)
         scheme = urlparse(target).scheme
-        verboseOutput(scheme, 'scheme', verbose)
+        logger(scheme, 'scheme', verbose)
         host = urlparse(target).netloc
         main_url = scheme + '://' + host
         crawlingResult = photon(target, headers, level,
@@ -177,5 +177,5 @@ else:
                                      blindXSS, blindPayload, headers, delay, timeout, skipDOM, encoding) for form, domURL in zip(forms, domURLs))
         for i, _ in enumerate(concurrent.futures.as_completed(futures)):
             if i + 1 == len(forms) or (i + 1) % threadCount == 0:
-                print('%s Progress: %i/%i' % (info, i + 1, len(forms)), end='\r')
-        print()
+                logger('%s Progress: %i/%i' % (info, i + 1, len(forms)), end='\r')
+        logger('')
