@@ -78,10 +78,14 @@ parser.add_argument('--skip', help='don\'t ask to continue',
                     dest='skip', action='store_true')
 parser.add_argument('--skip-dom', help='skip dom checking',
                     dest='skipDOM', action='store_true')
-parser.add_argument('-v', '--vectors', help='verbose output',
-                    dest='verbose', action='store_true')
 parser.add_argument('--blind', help='inject blind XSS payload while crawling',
                     dest='blindXSS', action='store_true')
+parser.add_argument('-v', '--verbose', help='verbose output',
+                    dest='verbose', action='store_true')
+parser.add_argument('--log', help='log to file',
+                    dest='log', action='store_true')
+parser.add_argument('--debug', help='debug output',
+                    dest='debug', action='store_true')
 args = parser.parse_args()
 
 if type(args.add_headers) == bool:
@@ -112,8 +116,10 @@ threadCount = args.threadCount
 delay = args.delay
 skip = args.skip
 skipDOM = args.skipDOM
-verbose = args.verbose
 blindXSS = args.blindXSS
+verbose = args.verbose
+log = args.log
+debug = args.debug
 
 core.config.globalVariables = vars(args)
 
@@ -158,7 +164,7 @@ else:
     for target in seedList:
         logger('%s Crawling the target' % run)
         scheme = urlparse(target).scheme
-        logger(scheme, 'scheme', verbose)
+        logger(scheme, flag='debug', variable='scheme', function='xsstrike.py')
         host = urlparse(target).netloc
         main_url = scheme + '://' + host
         crawlingResult = photon(target, headers, level,
@@ -173,9 +179,9 @@ else:
             for i in range(difference):
                 domURLs.append(0)
         threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-        futures = (threadpool.submit(crawl, scheme, host, main_url, form, domURL, verbose,
+        futures = (threadpool.submit(crawl, scheme, host, main_url, form, domURL,
                                      blindXSS, blindPayload, headers, delay, timeout, skipDOM, encoding) for form, domURL in zip(forms, domURLs))
         for i, _ in enumerate(concurrent.futures.as_completed(futures)):
             if i + 1 == len(forms) or (i + 1) % threadCount == 0:
-                logger('%s Progress: %i/%i' % (info, i + 1, len(forms)), end='\r')
+                print('%s Progress: %i/%i' % (info, i + 1, len(forms)), end='\r')
         logger('')

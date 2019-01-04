@@ -94,7 +94,7 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
                     vect = vect.replace('/', '%2F')
                 loggerVector = vect
                 progress += 1
-                logger ('%s Progress: %i/%i' % (run, progress, total), end='\r')
+                print('%s Progress: %i/%i' % (run, progress, total), end='\r')
                 if confidence == 10:
                     if not GET:
                         vect = unquote(vect)
@@ -139,4 +139,4 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
                                 '%s Would you like to continue scanning? [y/N] ' % que).lower()
                             if choice != 'y':
                                 quit()
-        logger ('')
+        logger('')

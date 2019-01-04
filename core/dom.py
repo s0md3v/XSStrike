@@ -19,7 +19,7 @@ def dom(response):
                 for part in parts:
                     for controlledVariable in allControlledVariables:
                         if controlledVariable in part:
-                            controlledVariables.add(part.split(' ')[0])
+                            controlledVariables.add(re.search(r'[a-zA-Z$_][a-zA-Z0-9$_]+', part).group())
             pattern = re.findall(sources, newLine)
             for grp in pattern:
                 source = ''.join(grp)
@@ -27,7 +27,7 @@ def dom(response):
                     parts = newLine.split('var ')
                     for part in parts:
                         if source in part:
-                            controlledVariables.add(part.split(' ')[0])
+                            controlledVariables.add(re.search(r'[a-zA-Z$_][a-zA-Z0-9$_]+', part).group())
                     line = line.replace(source, yellow + source + end)
             for controlledVariable in controlledVariables:
                 allControlledVariables.add(controlledVariable)

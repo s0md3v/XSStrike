@@ -21,7 +21,7 @@ def bruteforcer(target, paramData, payloadList, verbose, encoding, headers, dela
         progress = 1
         paramsCopy = copy.deepcopy(params)
         for payload in payloadList:
-            logger ('%s Bruteforcing %s[%s%s%s]%s: %i/%i' % (run, green, end, paramName, green, end, progress, len(payloadList)), end='\r')
+            print('%s Bruteforcing %s[%s%s%s]%s: %i/%i' % (run, green, end, paramName, green, end, progress, len(payloadList)), end='\r')
             if encoding:
                 payload = encoding(unquote(payload))
             paramsCopy[paramName] = payload
