@@ -4,6 +4,9 @@ from urllib.parse import urlparse, unquote
 from core.colors import run, good, bad, green, end
 from core.requester import requester
 from core.utils import getUrl, getParams, verboseOutput
+from core.log import setup_logger
+
+logger = setup_logger(__name__)
 
 def bruteforcer(target, paramData, payloadList, verbose, encoding, headers, delay, timeout):
     GET, POST = (False, True) if paramData else (True, False)
@@ -13,7 +16,7 @@ def bruteforcer(target, paramData, payloadList, verbose, encoding, headers, dela
     verboseOutput(url, 'url', verbose)
     params = getParams(target, paramData, GET)
     if not params:
-        print('%s No parameters to test.' % bad)
+        logger.error('No parameters to test.')
         quit()
     verboseOutput(params, 'params', verbose)
     for paramName in params.keys():
@@ -29,6 +32,6 @@ def bruteforcer(target, paramData, payloadList, verbose, encoding, headers, dela
             if encoding:
                 payload = encoding(payload)
             if payload in response:
-                print('%s %s' % (good, payload))
+                logger.info('%s %s' % (good, payload))
             progress += 1
     print ()

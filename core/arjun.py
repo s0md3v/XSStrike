@@ -4,7 +4,9 @@ import re
 from core.colors import good, info, green, end
 from core.config import blindParams, xsschecker, threadCount
 from core.requester import requester
+from core.log import setup_logger
 
+logger = setup_logger(__name__)
 
 def checky(param, paraNames, url, headers, GET, delay, timeout):
     if param not in paraNames:
@@ -12,8 +14,7 @@ def checky(param, paraNames, url, headers, GET, delay, timeout):
                              headers, GET, delay, timeout).text
         if '\'%s\'' % xsschecker in response or '"%s"' % xsschecker in response or ' %s ' % xsschecker in response:
             paraNames[param] = ''
-            print('%s Valid parameter found : %s%s%s' %
-                  (good, green, param, end))
+            logger.good('Valid parameter found: %s%s', green, param)
 
 
 def arjun(url, GET, headers, delay, timeout):
@@ -26,8 +27,8 @@ def arjun(url, GET, headers, delay, timeout):
             foundParam = match[1]
         except UnicodeDecodeError:
             continue
-        print('%s Heuristics found a potentially valid parameter: %s%s%s. Priortizing it.' % (
-            good, green, foundParam, end))
+        logger.good('Heuristics found a potentially valid parameter: %s%s%s. Priortizing it.' % (
+            green, foundParam, end))
         if foundParam in blindParams:
             blindParams.remove(foundParam)
             blindParams.insert(0, foundParam)

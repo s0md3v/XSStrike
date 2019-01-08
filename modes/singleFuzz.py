@@ -7,6 +7,9 @@ from core.fuzzer import fuzzer
 from core.requester import requester
 from core.utils import getUrl, getParams, verboseOutput
 from core.wafDetector import wafDetector
+from core.log import setup_logger
+
+logger = setup_logger(__name__)
 
 def singleFuzz(target, paramData, verbose, encoding, headers, delay, timeout):
     GET, POST = (False, True) if paramData else (True, False)
@@ -30,12 +33,13 @@ def singleFuzz(target, paramData, verbose, encoding, headers, delay, timeout):
     WAF = wafDetector(
         url, {list(params.keys())[0]: xsschecker}, headers, GET, delay, timeout)
     if WAF:
-        print('%s WAF detected: %s%s%s' % (bad, green, WAF, end))
+        logger.error('WAF detected: %s%s%s' % (green, WAF, end))
+
     else:
-        print('%s WAF Status: %sOffline%s' % (good, green, end))
+        logger.good('WAF Status: %sOffline%s' % (green, end))
 
     for paramName in params.keys():
-        print('%s Fuzzing parameter: %s' % (info, paramName))
+        logger.info('Fuzzing parameter: %s' % paramName)
         paramsCopy = copy.deepcopy(params)
         paramsCopy[paramName] = xsschecker
         fuzzer(url, paramsCopy, headers, GET,

@@ -156,6 +156,7 @@ if update:  # if the user has supplied --update argument
     quit()  # quitting because files have been changed
 
 if not target and not args_seeds:  # if the user hasn't supplied a url
+    logger.debug('No URL supplied')
     print('\n' + parser.format_help().lower())
     quit()
 
