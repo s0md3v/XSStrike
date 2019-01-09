@@ -3,7 +3,7 @@ from random import randint
 from time import sleep
 from urllib.parse import unquote
 
-from core.colors import end, red, green, yellow, bad, good, info
+from core.colors import end, red, green, yellow
 from core.config import fuzzes, xsschecker
 from core.requester import requester
 from core.utils import replaceValue, counter
@@ -31,7 +31,7 @@ def fuzzer(url, params, headers, GET, delay, timeout, WAF, encoding):
             limit = (delay + 1) * 50
             timer = -1
             while timer < limit:
-                print ('\r%s Fuzzing will continue after %s%i%s seconds.\t\t' % (info, green, limit, end), end='\r')
+                logger.info('\rFuzzing will continue after %s%i%s seconds.\t\t\r' % (green, limit, end))
                 limit -= 1
                 sleep(1)
             try:

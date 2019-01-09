@@ -89,10 +89,28 @@ class CustomFormatter(logging.Formatter):
         return msg
 
 
+class CustomStreamHandler(logging.StreamHandler):
+    default_terminator = '\n'
+
+    def emit(self, record):
+        """
+        Overrides emit method to temporally update terminator character in case last log record character is '\r'
+
+        :param record:
+        :return:
+        """
+        if record.msg.endswith('\r'):
+            self.terminator = '\r'
+            super().emit(record)
+            self.terminator = self.default_terminator
+        else:
+            super().emit(record)
+
+
 def setup_logger(name='xsstrike'):
     logger = logging.getLogger(name)
     logger.setLevel(log_config[console_log_level]['value'])
-    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler = CustomStreamHandler(sys.stdout)
     console_handler.setLevel(console_log_level)
     console_handler.setFormatter(CustomFormatter('%(message)s'))
     logger.addHandler(console_handler)

@@ -5,7 +5,7 @@ from urllib.parse import urlparse, quote, unquote
 from core.arjun import arjun
 from core.browserEngine import browserEngine
 from core.checker import checker
-from core.colors import good, bad, end, info, green, run, red, que
+from core.colors import good, bad, end, info, green, red, que
 import core.config
 from core.config import xsschecker, minEfficiency
 from core.dom import dom
@@ -18,6 +18,7 @@ from core.wafDetector import wafDetector
 from core.log import setup_logger
 
 logger = setup_logger(__name__)
+
 
 def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM, find, skip):
     GET, POST = (False, True) if paramData else (True, False)
@@ -97,7 +98,7 @@ def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM,
                     vect = vect.replace('/', '%2F')
                 printVector = vect
                 progress += 1
-                print ('%s Progress: %i/%i' % (run, progress, total), end='\r')
+                logger.run('Progress: %i/%i\r' % (progress, total))
                 if confidence == 10:
                     if not GET:
                         vect = unquote(vect)

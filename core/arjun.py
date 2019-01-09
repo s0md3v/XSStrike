@@ -1,7 +1,7 @@
 import concurrent.futures
 import re
 
-from core.colors import good, info, green, end
+from core.colors import green, end
 from core.config import blindParams, xsschecker, threadCount
 from core.requester import requester
 from core.log import setup_logger
@@ -37,5 +37,5 @@ def arjun(url, GET, headers, delay, timeout):
                                  headers, GET, delay, timeout) for param in blindParams)
     for i, _ in enumerate(concurrent.futures.as_completed(futures)):
         if i + 1 == len(blindParams) or (i + 1) % threadCount == 0:
-            print('%s Progress: %i/%i' % (info, i + 1, len(blindParams)), end='\r')
+            logger.info('Progress: %i/%i\r' % (i + 1, len(blindParams)))
     return paraNames

@@ -1,7 +1,7 @@
 import copy
 from urllib.parse import urlparse, unquote
 
-from core.colors import run, good, bad, green, end
+from core.colors import good, green, end
 from core.requester import requester
 from core.utils import getUrl, getParams, verboseOutput
 from core.log import setup_logger
@@ -23,7 +23,8 @@ def bruteforcer(target, paramData, payloadList, verbose, encoding, headers, dela
         progress = 1
         paramsCopy = copy.deepcopy(params)
         for payload in payloadList:
-            print ('%s Bruteforcing %s[%s%s%s]%s: %i/%i' % (run, green, end, paramName, green, end, progress, len(payloadList)), end='\r')
+            logger.run('Bruteforcing %s[%s%s%s]%s: %i/%i\r' %
+                       (green, end, paramName, green, end, progress, len(payloadList)))
             if encoding:
                 payload = encoding(unquote(payload))
             paramsCopy[paramName] = payload

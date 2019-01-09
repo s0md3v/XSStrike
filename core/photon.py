@@ -2,10 +2,13 @@ import concurrent.futures
 from re import findall
 from urllib.parse import urlparse
 
-from core.colors import run
+
 from core.utils import getUrl, getParams
 from core.requester import requester
 from core.zetanize import zetanize
+from core.log import setup_logger
+
+logger = setup_logger(__name__)
 
 
 def photon(seedUrl, headers, level, threadCount, delay, timeout):
@@ -24,7 +27,7 @@ def photon(seedUrl, headers, level, threadCount, delay, timeout):
             printableTarget = printableTarget[-40:]
         else:
             printableTarget = (printableTarget + (' ' * (40 - len(printableTarget))))
-        print ('%s Parsing %s' % (run, printableTarget), end='\r')
+        logger.run('Parsing %s\r' % printableTarget)
         url = getUrl(target, True)
         params = getParams(target, '', True)
         if '=' in target:  # if there's a = in the url, there should be GET parameters

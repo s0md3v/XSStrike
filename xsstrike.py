@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-from core.colors import end, info, red, run, white, bad
+from core.colors import end, red, white, bad
 
 # Just a fancy ass banner
 print('''%s
@@ -118,16 +118,7 @@ core.log.console_log_level = args.console_log_level
 core.log.file_log_level = args.file_log_level
 core.log.log_file = args.log_file
 
-# Only for test purposes
 logger = core.log.setup_logger()
-logger.debug('Test debug')
-logger.info('Test Info')
-logger.warn('Test warning')
-logger.run('Test run')
-logger.good('Test good')
-logger.error('Test error')
-logger.critical('Test critical')
-logger.vuln('Test vuln')
 
 core.config.globalVariables = vars(args)
 
@@ -192,5 +183,5 @@ else:
                                      blindXSS, blindPayload, headers, delay, timeout, skipDOM, encoding) for form, domURL in zip(forms, domURLs))
         for i, _ in enumerate(concurrent.futures.as_completed(futures)):
             if i + 1 == len(forms) or (i + 1) % threadCount == 0:
-                logger.info('Progress: %i/%i' % (i + 1, len(forms)), end='\r')
+                logger.info('Progress: %i/%i\r' % (i + 1, len(forms)))
         print()
