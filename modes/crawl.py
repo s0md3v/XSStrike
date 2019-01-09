@@ -12,15 +12,17 @@ from core.log import setup_logger
 
 logger = setup_logger(__name__)
 
+
 def crawl(scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload, headers, delay, timeout, skipDOM, encoding):
     if domURL and not skipDOM:
         response = requester(domURL, {}, headers, True, delay, timeout).text
         highlighted = dom(response)
         if highlighted:
-            logger.good('Potentially vulnerable objects found at %s\n%s%s%s' % (domURL, red, ('-' * 60), end))
+            logger.good('Potentially vulnerable objects found at %s' % domURL)
+            logger.red_line()
             for line in highlighted:
                 print(line)
-            print(red + ('-' * 60) + end)
+            logger.red_line()
     if form:
         for each in form.values():
             url = each['action']

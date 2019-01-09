@@ -35,10 +35,11 @@ def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM,
         logger.run('Checking for DOM vulnerabilities')
         highlighted = dom(response)
         if highlighted:
-            logger.good('Potentially vulnerable objects found\n%s%s%s' % (red, ('-' * 60), end))
+            logger.good('Potentially vulnerable objects found')
+            logger.red_line()
             for line in highlighted:
                 print(line)
-            print(red + ('-' * 60) + end)
+            logger.red_line()
     host = urlparse(target).netloc  # Extracts host out of the url
     verboseOutput(host, 'host', verbose)
     url = getUrl(target, GET)

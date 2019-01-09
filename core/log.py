@@ -107,17 +107,66 @@ class CustomStreamHandler(logging.StreamHandler):
             super().emit(record)
 
 
+def _switch_to_no_format_loggers(self):
+    self.removeHandler(self.console_handler)
+    self.addHandler(self.no_format_console_handler)
+    if hasattr(self, 'file_handler') and hasattr(self, 'no_format_file_handler'):
+        self.removeHandler(self.file_handler)
+        self.addHandler(self.no_format_file_handler)
+
+
+def _switch_to_default_loggers(self):
+    self.removeHandler(self.no_format_console_handler)
+    self.addHandler(self.console_handler)
+    if hasattr(self, 'file_handler') and hasattr(self, 'no_format_file_handler'):
+        self.removeHandler(self.no_format_file_handler)
+        self.addHandler(self.file_handler)
+
+
+def log_red_line(self, amount=60):
+    _switch_to_no_format_loggers(self)
+    self.info(red + ('-' * amount) + end)
+    _switch_to_default_loggers(self)
+
+
+def log_no_format(self, msg=''):
+    _switch_to_no_format_loggers(self)
+    self.info(msg)
+    _switch_to_default_loggers(self)
+
+
 def setup_logger(name='xsstrike'):
+    from types import MethodType
     logger = logging.getLogger(name)
     logger.setLevel(log_config[console_log_level]['value'])
     console_handler = CustomStreamHandler(sys.stdout)
     console_handler.setLevel(console_log_level)
     console_handler.setFormatter(CustomFormatter('%(message)s'))
     logger.addHandler(console_handler)
+    # Setup blank handler to temporally use to log without format
+    no_format_console_handler = logging.StreamHandler()
+    no_format_console_handler.setLevel((log_config[console_log_level]['value']))
+    no_format_console_handler.setFormatter(logging.Formatter(fmt=''))
+    # Store current handlers
+    logger.console_handler = console_handler
+    logger.no_format_console_handler = no_format_console_handler
+
     if file_log_level:
         detailed_formatter = logging.Formatter("%(asctime)s %(name)s - %(levelname)s - %(message)s")
-        log_file_handler = logging.FileHandler(log_file)
-        log_file_handler.setLevel(log_config[file_log_level]['value'])
-        log_file_handler.setFormatter(detailed_formatter)
-        logger.addHandler(log_file_handler)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(log_config[file_log_level]['value'])
+        file_handler.setFormatter(detailed_formatter)
+        logger.addHandler(file_handler)
+        # Setup blank handler to temporally use to log without format
+        no_format_file_handler = logging.FileHandler(log_file)
+        no_format_file_handler.setLevel(log_config[file_log_level]['value'])
+        no_format_file_handler.setFormatter(logging.Formatter(fmt=''))
+        # Store file handlers
+        logger.file_handler = file_handler
+        logger.no_format_file_handler = no_format_file_handler
+
+    # Create logger method to only log a red line
+    logger.red_line = MethodType(log_red_line, logger)
+    # Create logger method to log without format
+    logger.no_format = MethodType(log_no_format, logger)
     return logger
