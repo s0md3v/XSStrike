@@ -5,11 +5,12 @@ from core.colors import bad, green, end, good, info
 from core.config import xsschecker
 from core.fuzzer import fuzzer
 from core.requester import requester
-from core.utils import getUrl, getParams, verboseOutput
+from core.utils import getUrl, getParams
 from core.wafDetector import wafDetector
 from core.log import setup_logger
 
 logger = setup_logger(__name__)
+
 
 def singleFuzz(target, paramData, verbose, encoding, headers, delay, timeout):
     GET, POST = (False, True) if paramData else (True, False)
@@ -22,13 +23,13 @@ def singleFuzz(target, paramData, verbose, encoding, headers, delay, timeout):
         except:
             target = 'http://' + target
     host = urlparse(target).netloc  # Extracts host out of the url
-    verboseOutput(host, 'host', verbose)
+    logger.debug('Single fuzz host: {}'.format(host))
     url = getUrl(target, GET)
-    verboseOutput(url, 'url', verbose)
+    logger.debug('Single fuzz url: {}'.format(url))
     params = getParams(target, paramData, GET)
-    verboseOutput(params, 'params', verbose)
+    logger.debug('Single fuzz params: {}'.format(params))
     if not params:
-        print('%s No parameters to test.' % bad)
+        logger.error('No parameters to test.')
         quit()
     WAF = wafDetector(
         url, {list(params.keys())[0]: xsschecker}, headers, GET, delay, timeout)

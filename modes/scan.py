@@ -13,7 +13,7 @@ from core.filterChecker import filterChecker
 from core.generator import generator
 from core.htmlParser import htmlParser
 from core.requester import requester
-from core.utils import getUrl, getParams, verboseOutput
+from core.utils import getUrl, getParams
 from core.wafDetector import wafDetector
 from core.log import setup_logger
 
@@ -36,16 +36,16 @@ def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM,
         highlighted = dom(response)
         if highlighted:
             logger.good('Potentially vulnerable objects found')
-            logger.red_line()
+            logger.red_line(level='good')
             for line in highlighted:
-                print(line)
-            logger.red_line()
+                logger.no_format(line, level='good')
+            logger.red_line(level='good')
     host = urlparse(target).netloc  # Extracts host out of the url
-    verboseOutput(host, 'host', verbose)
+    logger.debug('Host to scan: {}'.format(host))
     url = getUrl(target, GET)
-    verboseOutput(url, 'url', verbose)
+    logger.debug('Url to scan: {}'.format(url))
     params = getParams(target, paramData, GET)
-    verboseOutput(params, 'params', verbose)
+    logger.debug('Scan parameters: {}'.format(params))
     if find:
         params = arjun(url, GET, headers, delay, timeout)
     if not params:
@@ -69,9 +69,9 @@ def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM,
         response = requester(url, paramsCopy, headers, GET, delay, timeout)
         parsedResponse = htmlParser(response, encoding)
         occurences = parsedResponse[0]
-        verboseOutput(occurences, 'occurences', verbose)
+        logger.debug('Scan occurences: {}'.format(occurences))
         positions = parsedResponse[1]
-        verboseOutput(positions, 'positions', verbose)
+        logger.debug('Scan positions: {}'.format(positions))
         if not occurences:
             logger.error('No reflection found' % bad)
             continue
@@ -81,10 +81,10 @@ def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM,
         logger.run('Analysing reflections')
         efficiencies = filterChecker(
             url, paramsCopy, headers, GET, delay, occurences, timeout, encoding)
-        verboseOutput(efficiencies, 'efficiencies', verbose)
+        logger.debug('Scan efficiencies: {}'.format(efficiencies))
         logger.run('Generating payloads')
         vectors = generator(occurences, response.text)
-        verboseOutput(vectors, 'vectors', verbose)
+        logger.debug('Scan vectors: {}'.format(verbose))
         total = 0
         for v in vectors.values():
             total += len(v)
@@ -110,20 +110,20 @@ def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM,
                             efficiencies.append(0)
                     bestEfficiency = max(efficiencies)
                     if bestEfficiency == 100 or (vect[0] == '\\' and bestEfficiency >= 95):
-                        print(('%s-%s' % (red, end)) * 60)
-                        print('%s Payload: %s' % (good, printVector))
-                        print('%s Efficiency: %i' % (info, bestEfficiency))
-                        print('%s Confidence: %i' % (info, confidence))
+                        logger.red_line()
+                        logger.good('Payload: %s' % printVector)
+                        logger.info('Efficiency: %i' % bestEfficiency)
+                        logger.info('Confidence: %i' % confidence)
                         if not skip:
                             choice = input(
                                 '%s Would you like to continue scanning? [y/N] ' % que).lower()
                             if choice != 'y':
                                 quit()
                     elif bestEfficiency > minEfficiency:
-                        print(('%s-%s' % (red, end)) * 60)
-                        print('%s Payload: %s' % (good, printVector))
-                        print('%s Efficiency: %i' % (info, bestEfficiency))
-                        print('%s Confidence: %i' % (info, confidence))
+                        logger.red_line()
+                        logger.good('Payload: %s' % printVector)
+                        logger.info('Efficiency: %i' % bestEfficiency)
+                        logger.info('Confidence: %i' % confidence)
                 else:
                     if re.search(r'<(a|d3|details)|lt;(a|d3|details)', vect.lower()):
                         continue
@@ -135,13 +135,13 @@ def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM,
                     response = requester(url, paramsCopy, headers, GET, delay, timeout).text
                     success = browserEngine(response)
                     if success:
-                        print(('%s-%s' % (red, end)) * 60)
-                        print('%s Payload: %s' % (good, printVector))
-                        print('%s Efficiency: %i' % (info, 100))
-                        print('%s Confidence: %i' % (info, 10))
+                        logger.red_line()
+                        logger.good('Payload: %s' % printVector)
+                        logger.info('Efficiency: %i' % 100)
+                        logger.info('Confidence: %i' % 10)
                         if not skip:
                             choice = input(
                                 '%s Would you like to continue scanning? [y/N] ' % que).lower()
                             if choice != 'y':
                                 quit()
-        print ('')
+        logger.no_format('')

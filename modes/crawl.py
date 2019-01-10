@@ -19,10 +19,10 @@ def crawl(scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload,
         highlighted = dom(response)
         if highlighted:
             logger.good('Potentially vulnerable objects found at %s' % domURL)
-            logger.red_line()
+            logger.red_line(level='good')
             for line in highlighted:
-                print(line)
-            logger.red_line()
+                logger.no_format(line, level='good')
+            logger.red_line(level='good')
     if form:
         for each in form.values():
             url = each['action']

@@ -27,7 +27,7 @@ from core.encoders import base64
 from core.photon import photon
 from core.prompt import prompt
 from core.updater import updater
-from core.utils import extractHeaders, verboseOutput, reader, converter
+from core.utils import extractHeaders, reader, converter
 
 
 from modes.bruteforcer import bruteforcer
@@ -148,7 +148,7 @@ if update:  # if the user has supplied --update argument
 
 if not target and not args_seeds:  # if the user hasn't supplied a url
     logger.debug('No URL supplied')
-    print('\n' + parser.format_help().lower())
+    logger.no_format('\n' + parser.format_help().lower())
     quit()
 
 if fuzz:
@@ -164,7 +164,7 @@ else:
     for target in seedList:
         logger.run('Crawling the target')
         scheme = urlparse(target).scheme
-        verboseOutput(scheme, 'scheme', verbose)
+        logger.debug('Target scheme: {}'.format(scheme))
         host = urlparse(target).netloc
         main_url = scheme + '://' + host
         crawlingResult = photon(target, headers, level,
@@ -184,4 +184,4 @@ else:
         for i, _ in enumerate(concurrent.futures.as_completed(futures)):
             if i + 1 == len(forms) or (i + 1) % threadCount == 0:
                 logger.info('Progress: %i/%i\r' % (i + 1, len(forms)))
-        print()
+        logger.no_format('')

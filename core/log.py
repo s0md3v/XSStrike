@@ -123,24 +123,32 @@ def _switch_to_default_loggers(self):
         self.addHandler(self.file_handler)
 
 
-def log_red_line(self, amount=60):
+def _get_level_and_log(self, msg, level):
+    if level.upper() in log_config.keys():
+        log_method = getattr(self, level.lower())
+        log_method(msg)
+    else:
+        self.info(msg)
+
+
+def log_red_line(self, amount=60, level='INFO'):
     _switch_to_no_format_loggers(self)
-    self.info(red + ('-' * amount) + end)
+    _get_level_and_log(self, red + ('-' * amount) + end, level)
     _switch_to_default_loggers(self)
 
 
-def log_no_format(self, msg=''):
+def log_no_format(self, msg='', level='INFO'):
     _switch_to_no_format_loggers(self)
-    self.info(msg)
+    _get_level_and_log(self, msg, level)
     _switch_to_default_loggers(self)
 
 
 def setup_logger(name='xsstrike'):
     from types import MethodType
     logger = logging.getLogger(name)
-    logger.setLevel(log_config[console_log_level]['value'])
+    logger.setLevel(logging.DEBUG)
     console_handler = CustomStreamHandler(sys.stdout)
-    console_handler.setLevel(console_log_level)
+    console_handler.setLevel(log_config[console_log_level]['value'])
     console_handler.setFormatter(CustomFormatter('%(message)s'))
     logger.addHandler(console_handler)
     # Setup blank handler to temporally use to log without format

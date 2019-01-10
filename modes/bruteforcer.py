@@ -3,22 +3,23 @@ from urllib.parse import urlparse, unquote
 
 from core.colors import good, green, end
 from core.requester import requester
-from core.utils import getUrl, getParams, verboseOutput
+from core.utils import getUrl, getParams
 from core.log import setup_logger
 
 logger = setup_logger(__name__)
 
+
 def bruteforcer(target, paramData, payloadList, verbose, encoding, headers, delay, timeout):
     GET, POST = (False, True) if paramData else (True, False)
     host = urlparse(target).netloc  # Extracts host out of the url
-    verboseOutput(host, 'host', verbose)
+    logger.debug('Parsed host to bruteforce: {}'.format(host))
     url = getUrl(target, GET)
-    verboseOutput(url, 'url', verbose)
+    logger.debug('Parsed url to bruteforce: {}'.format(url))
     params = getParams(target, paramData, GET)
     if not params:
         logger.error('No parameters to test.')
         quit()
-    verboseOutput(params, 'params', verbose)
+    logger.debug('Parameters to bruteforce: {}'.format(params))
     for paramName in params.keys():
         progress = 1
         paramsCopy = copy.deepcopy(params)
@@ -35,4 +36,4 @@ def bruteforcer(target, paramData, payloadList, verbose, encoding, headers, dela
             if payload in response:
                 logger.info('%s %s' % (good, payload))
             progress += 1
-    print ()
+    logger.no_format('')

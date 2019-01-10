@@ -32,16 +32,6 @@ def counter(string):
     return len(string)
 
 
-def verboseOutput(data, name, verbose):
-    if core.config.globalVariables['verbose']:
-        if str(type(data)) == '<class \'dict\'>':
-            try:
-                print (json.dumps(data, indent=2))
-            except TypeError:
-                print (data)
-        print (data)
-
-
 def closest(number, numbers):
     difference = [abs(list(numbers.values())[0]), {}]
     for index, i in numbers.items():
