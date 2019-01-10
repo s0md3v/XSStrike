@@ -20,7 +20,7 @@ from core.log import setup_logger
 logger = setup_logger(__name__)
 
 
-def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM, find, skip):
+def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, skip):
     GET, POST = (False, True) if paramData else (True, False)
     # If the user hasn't supplied the root url with http(s), we will handle it
     if not target.startswith('http'):
@@ -30,6 +30,7 @@ def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM,
             target = 'https://' + target
         except:
             target = 'http://' + target
+    logger(target, flag='debug', variable='target', function='scan')
     response = requester(target, {}, headers, GET, delay, timeout).text
     if not skipDOM:
         logger.run('Checking for DOM vulnerabilities')
@@ -61,7 +62,6 @@ def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM,
     for paramName in params.keys():
         paramsCopy = copy.deepcopy(params)
         logger.info('Testing parameter: %s' % paramName)
-
         if encoding:
             paramsCopy[paramName] = encoding(xsschecker)
         else:
@@ -97,7 +97,7 @@ def scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM,
             for vect in vects:
                 if core.config.globalVariables['path']:
                     vect = vect.replace('/', '%2F')
-                printVector = vect
+                loggerVector = vect
                 progress += 1
                 logger.run('Progress: %i/%i\r' % (progress, total))
                 if confidence == 10:

@@ -12,7 +12,7 @@ from core.log import setup_logger
 logger = setup_logger(__name__)
 
 
-def singleFuzz(target, paramData, verbose, encoding, headers, delay, timeout):
+def singleFuzz(target, paramData, encoding, headers, delay, timeout):
     GET, POST = (False, True) if paramData else (True, False)
     # If the user hasn't supplied the root url with http(s), we will handle it
     if not target.startswith('http'):
@@ -22,6 +22,7 @@ def singleFuzz(target, paramData, verbose, encoding, headers, delay, timeout):
             target = 'https://' + target
         except:
             target = 'http://' + target
+    logger(target, flag='debug', variable='target', function='singleFuzz')
     host = urlparse(target).netloc  # Extracts host out of the url
     logger.debug('Single fuzz host: {}'.format(host))
     url = getUrl(target, GET)
@@ -35,7 +36,6 @@ def singleFuzz(target, paramData, verbose, encoding, headers, delay, timeout):
         url, {list(params.keys())[0]: xsschecker}, headers, GET, delay, timeout)
     if WAF:
         logger.error('WAF detected: %s%s%s' % (green, WAF, end))
-
     else:
         logger.good('WAF Status: %sOffline%s' % (green, end))
 

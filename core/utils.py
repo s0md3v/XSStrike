@@ -4,8 +4,25 @@ import re
 from urllib.parse import urlparse
 
 import core.config
-from core.colors import info, red, end
+from core.colors import info, red, end, yellow
 from core.config import xsschecker
+
+def logger(data, flag=None, variable=None, function=None):
+    if flag == 'debug':
+        if core.config.globalVariables['debug']:
+            print ('%s[%sDebug%s]%s %s in %s()' % (yellow, end, yellow, end, variable, function))
+            if str(type(data)) == '<class \'dict\'>':
+                try:
+                    print (json.dumps(data, indent=2))
+                except TypeError:
+                    print (data)
+            else:
+                print (data)
+    elif flag == 'log':
+        if core.config.globalVariables['verbose']:
+            print (data)
+    else:
+        print (data)
 
 def converter(data, url=False):
     if 'str' in str(type(data)):
@@ -28,7 +45,7 @@ def converter(data, url=False):
 
 
 def counter(string):
-    string = re.sub(r'\s|\w', '')
+    string = re.sub(r'\s|\w', '', string)
     return len(string)
 
 
@@ -69,6 +86,7 @@ def stripper(string, substring, direction='right'):
 
 
 def extractHeaders(headers):
+    headers = headers.replace('\\n', '\n')
     sorted_headers = {}
     matches = re.findall(r'(.*):\s(.*)', headers)
     for match in matches:
@@ -190,7 +208,7 @@ def writer(obj, path):
     elif kind == 'dict':
         obj = json.dumps(obj, indent=4)
     savefile = open(path, 'w+')
-    savefile.write(obj)
+    savefile.write(str(obj.encode('utf-8')))
     savefile.close()
 
 

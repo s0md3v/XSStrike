@@ -6,12 +6,20 @@ from core.colors import end, red, white, bad
 
 # Just a fancy ass banner
 print('''%s
-\tXSStrike %sv3.1.1
+\tXSStrike %sv3.1.2
 %s''' % (red, white, end))
 
 try:
     import concurrent.futures
     from urllib.parse import urlparse
+    try:
+        import fuzzywuzzy
+    except ImportError:
+        import os
+        print ('%s fuzzywuzzy isn\'t installed, installing now.' % info)
+        os.system('pip3 install fuzzywuzzy')
+        print ('%s fuzzywuzzy has been installed, restart XSStrike.' % info)
+        quit()
 except ImportError:  # throws error in python2
     print('%s XSStrike isn\'t compatible with python2.\n Use python > 3.4 to run XSStrike.' % bad)
     quit()
@@ -28,7 +36,6 @@ from core.photon import photon
 from core.prompt import prompt
 from core.updater import updater
 from core.utils import extractHeaders, reader, converter
-
 
 from modes.bruteforcer import bruteforcer
 from modes.crawl import crawl
@@ -63,7 +70,7 @@ parser.add_argument(
 parser.add_argument('-l', '--level', help='level of crawling',
                     dest='level', type=int, default=2)
 parser.add_argument('--headers', help='add headers',
-                    dest='add_headers', action='store_true')
+                    dest='add_headers', nargs='?', const=True)
 parser.add_argument('-t', '--threads', help='number of threads',
                     dest='threadCount', type=int, default=core.config.threadCount)
 parser.add_argument('-d', '--delay', help='delay between requests',
@@ -72,8 +79,6 @@ parser.add_argument('--skip', help='don\'t ask to continue',
                     dest='skip', action='store_true')
 parser.add_argument('--skip-dom', help='skip dom checking',
                     dest='skipDOM', action='store_true')
-parser.add_argument('-v', '--vectors', help='verbose output',
-                    dest='verbose', action='store_true')
 parser.add_argument('--blind', help='inject blind XSS payload while crawling',
                     dest='blindXSS', action='store_true')
 parser.add_argument('--console-log-level', help='Console logging level',
@@ -85,9 +90,10 @@ parser.add_argument('--log-file', help='Name of the file to log', dest='log_file
                     default=core.log.log_file)
 args = parser.parse_args()
 
-
-if args.add_headers:
+if type(args.add_headers) == bool:
     headers = extractHeaders(prompt())
+elif type(args.add_headers) == str:
+    headers = extractHeaders(args.add_headers)
 else:
     from core.config import headers
 
@@ -112,7 +118,6 @@ threadCount = args.threadCount
 delay = args.delay
 skip = args.skip
 skipDOM = args.skipDOM
-verbose = args.verbose
 blindXSS = args.blindXSS
 core.log.console_log_level = args.console_log_level
 core.log.file_log_level = args.file_log_level
@@ -147,17 +152,16 @@ if update:  # if the user has supplied --update argument
     quit()  # quitting because files have been changed
 
 if not target and not args_seeds:  # if the user hasn't supplied a url
-    logger.debug('No URL supplied')
     logger.no_format('\n' + parser.format_help().lower())
     quit()
 
 if fuzz:
-    singleFuzz(target, paramData, verbose, encoding, headers, delay, timeout)
+    singleFuzz(target, paramData, encoding, headers, delay, timeout)
 elif not recursive and not args_seeds:
     if args_file:
-        bruteforcer(target, paramData, payloadList, verbose, encoding, headers, delay, timeout)
+        bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
     else:
-        scan(target, paramData, verbose, encoding, headers, delay, timeout, skipDOM, find, skip)
+        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, skip)
 else:
     if target:
         seedList.append(target)
@@ -179,7 +183,7 @@ else:
             for i in range(difference):
                 domURLs.append(0)
         threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-        futures = (threadpool.submit(crawl, scheme, host, main_url, form, domURL, verbose,
+        futures = (threadpool.submit(crawl, scheme, host, main_url, form, domURL,
                                      blindXSS, blindPayload, headers, delay, timeout, skipDOM, encoding) for form, domURL in zip(forms, domURLs))
         for i, _ in enumerate(concurrent.futures.as_completed(futures)):
             if i + 1 == len(forms) or (i + 1) % threadCount == 0:
