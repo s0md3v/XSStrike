@@ -1,7 +1,7 @@
 import copy
 from urllib.parse import urlparse
 
-from core.colors import bad, green, end, good, info
+from core.colors import green, end
 from core.config import xsschecker
 from core.fuzzer import fuzzer
 from core.requester import requester
@@ -22,7 +22,7 @@ def singleFuzz(target, paramData, encoding, headers, delay, timeout):
             target = 'https://' + target
         except:
             target = 'http://' + target
-    logger(target, flag='debug', variable='target', function='singleFuzz')
+    logger.debug('Single Fuzz target: {}'.format(target))
     host = urlparse(target).netloc  # Extracts host out of the url
     logger.debug('Single fuzz host: {}'.format(host))
     url = getUrl(target, GET)

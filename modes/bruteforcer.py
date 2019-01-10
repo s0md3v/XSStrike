@@ -16,11 +16,10 @@ def bruteforcer(target, paramData, payloadList, verbose, encoding, headers, dela
     url = getUrl(target, GET)
     logger.debug('Parsed url to bruteforce: {}'.format(url))
     params = getParams(target, paramData, GET)
-    logger(params, flag='debug', variable='params', function='bruteforcer')
+    logger.debug('Bruteforcer params: {}'.format(params))
     if not params:
         logger.error('No parameters to test.')
         quit()
-    logger.debug('Parameters to bruteforce: {}'.format(params))
     for paramName in params.keys():
         progress = 1
         paramsCopy = copy.deepcopy(params)

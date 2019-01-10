@@ -6,12 +6,12 @@ from core.config import blindParams, xsschecker, threadCount
 from core.requester import requester
 from core.log import setup_logger
 
-
 logger = setup_logger(__name__)
+
 
 def checky(param, paraNames, url, headers, GET, delay, timeout):
     if param not in paraNames:
-        logger('Checking %s' % param, flag='verbose')
+        logger.debug('Checking param: {}'.format(param))
         response = requester(url, {param: xsschecker},
                              headers, GET, delay, timeout).text
         if '\'%s\'' % xsschecker in response or '"%s"' % xsschecker in response or ' %s ' % xsschecker in response:
