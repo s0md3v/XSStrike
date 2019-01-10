@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-from core.colors import end, red, white, bad
+from core.colors import end, red, white, bad, info
 
 # Just a fancy ass banner
 print('''%s
