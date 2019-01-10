@@ -84,7 +84,6 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
         logger.debug('Scan efficiencies: {}'.format(efficiencies))
         logger.run('Generating payloads')
         vectors = generator(occurences, response.text)
-        logger.debug('Scan vectors: {}'.format(verbose))
         total = 0
         for v in vectors.values():
             total += len(v)
@@ -111,7 +110,7 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
                     bestEfficiency = max(efficiencies)
                     if bestEfficiency == 100 or (vect[0] == '\\' and bestEfficiency >= 95):
                         logger.red_line()
-                        logger.good('Payload: %s' % printVector)
+                        logger.good('Payload: %s' % loggerVector)
                         logger.info('Efficiency: %i' % bestEfficiency)
                         logger.info('Confidence: %i' % confidence)
                         if not skip:
@@ -121,7 +120,7 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
                                 quit()
                     elif bestEfficiency > minEfficiency:
                         logger.red_line()
-                        logger.good('Payload: %s' % printVector)
+                        logger.good('Payload: %s' % loggerVector)
                         logger.info('Efficiency: %i' % bestEfficiency)
                         logger.info('Confidence: %i' % confidence)
                 else:
@@ -136,7 +135,7 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
                     success = browserEngine(response)
                     if success:
                         logger.red_line()
-                        logger.good('Payload: %s' % printVector)
+                        logger.good('Payload: %s' % loggerVector)
                         logger.info('Efficiency: %i' % 100)
                         logger.info('Confidence: %i' % 10)
                         if not skip:
