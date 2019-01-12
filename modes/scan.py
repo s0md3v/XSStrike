@@ -46,7 +46,7 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
     url = getUrl(target, GET)
     logger.debug('Url to scan: {}'.format(url))
     params = getParams(target, paramData, GET)
-    logger.debug('Scan parameters: {}'.format(params))
+    logger.debug_json('Scan parameters:', params)
     if find:
         params = arjun(url, GET, headers, delay, timeout)
     if not params:

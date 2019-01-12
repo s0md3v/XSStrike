@@ -27,20 +27,9 @@ except ImportError:  # throws error in python2
 # Let's import whatever we need from standard lib
 import argparse
 
-# ... and from core lib
+# ... and configurations core lib
 import core.config
 import core.log
-from core.config import blindPayload
-from core.encoders import base64
-from core.photon import photon
-from core.prompt import prompt
-from core.updater import updater
-from core.utils import extractHeaders, reader, converter
-
-from modes.bruteforcer import bruteforcer
-from modes.crawl import crawl
-from modes.scan import scan
-from modes.singleFuzz import singleFuzz
 
 # Processing command line arguments, where dest var names will be mapped to local vars with the same name
 parser = argparse.ArgumentParser()
@@ -90,13 +79,6 @@ parser.add_argument('--log-file', help='Name of the file to log', dest='log_file
                     default=core.log.log_file)
 args = parser.parse_args()
 
-if type(args.add_headers) == bool:
-    headers = extractHeaders(prompt())
-elif type(args.add_headers) == str:
-    headers = extractHeaders(args.add_headers)
-else:
-    from core.config import headers
-
 # Pull all parameter values of dict from argparse namespace into local variables of name == key
 # The following works, but the static checkers are too static ;-) locals().update(vars(args))
 target = args.target
@@ -126,6 +108,26 @@ core.log.log_file = args.log_file
 logger = core.log.setup_logger()
 
 core.config.globalVariables = vars(args)
+
+# Import everything else required from core lib
+from core.config import blindPayload
+from core.encoders import base64
+from core.photon import photon
+from core.prompt import prompt
+from core.updater import updater
+from core.utils import extractHeaders, reader, converter
+
+from modes.bruteforcer import bruteforcer
+from modes.crawl import crawl
+from modes.scan import scan
+from modes.singleFuzz import singleFuzz
+
+if type(args.add_headers) == bool:
+    headers = extractHeaders(prompt())
+elif type(args.add_headers) == str:
+    headers = extractHeaders(args.add_headers)
+else:
+    from core.config import headers
 
 if path:
     paramData = converter(target, target)

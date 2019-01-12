@@ -28,7 +28,7 @@ def singleFuzz(target, paramData, encoding, headers, delay, timeout):
     url = getUrl(target, GET)
     logger.debug('Single fuzz url: {}'.format(url))
     params = getParams(target, paramData, GET)
-    logger.debug('Single fuzz params: {}'.format(params))
+    logger.debug_json('Single fuzz params:', params)
     if not params:
         logger.error('No parameters to test.')
         quit()

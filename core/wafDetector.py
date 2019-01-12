@@ -19,7 +19,7 @@ def wafDetector(url, params, headers, GET, delay, timeout):
     code = str(response.status_code)
     headers = str(response.headers)
     logger.debug('Waf Detector code: {}'.format(code))
-    logger.debug('Waf Detector headers: {}'.format(response.headers))
+    logger.debug_json('Waf Detector headers:', response.headers)
 
     if int(code) >= 400:
         bestMatch = [0, None]
