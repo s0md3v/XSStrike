@@ -73,7 +73,7 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
         positions = parsedResponse[1]
         logger.debug('Scan positions: {}'.format(positions))
         if not occurences:
-            logger.error('No reflection found' % bad)
+            logger.error('No reflection found')
             continue
         else:
             logger.info('Reflections found: %i' % len(occurences))
