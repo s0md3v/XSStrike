@@ -3,10 +3,13 @@ from random import randint
 from time import sleep
 from urllib.parse import unquote
 
-from core.colors import end, red, green, yellow, bad, good, info
+from core.colors import end, red, green, yellow
 from core.config import fuzzes, xsschecker
 from core.requester import requester
 from core.utils import replaceValue, counter
+from core.log import setup_logger
+
+logger = setup_logger(__name__)
 
 
 def fuzzer(url, params, headers, GET, delay, timeout, WAF, encoding):
@@ -21,23 +24,22 @@ def fuzzer(url, params, headers, GET, delay, timeout, WAF, encoding):
             data = replaceValue(params, xsschecker, fuzz, copy.deepcopy)
             response = requester(url, data, headers, GET, delay/2, timeout)
         except:
-            print ('\n%s WAF is dropping suspicious requests.' % bad)
+            logger.error('WAF is dropping suspicious requests.')
             if delay == 0:
-                print ('%s Delay has been increased to %s6%s seconds.' %
-                       (info, green, end))
+                logger.info('Delay has been increased to %s6%s seconds.' % (green, end))
                 delay += 6
             limit = (delay + 1) * 50
             timer = -1
             while timer < limit:
-                print ('\r%s Fuzzing will continue after %s%i%s seconds.\t\t' % (info, green, limit, end), end='\r')
+                logger.info('\rFuzzing will continue after %s%i%s seconds.\t\t\r' % (green, limit, end))
                 limit -= 1
                 sleep(1)
             try:
                 requester(url, params, headers, GET, 0, 10)
-                print ('\n%s Pheww! Looks like sleeping for %s%i%s seconds worked!' % (
-                    good, green, (delay + 1) * 2), end)
+                logger.good('Pheww! Looks like sleeping for %s%i%s seconds worked!' % (
+                    green, ((delay + 1) * 2), end))
             except:
-                print ('\n%s Looks like WAF has blocked our IP Address. Sorry!' % bad)
+                logger.error('\nLooks like WAF has blocked our IP Address. Sorry!')
                 break
         if encoding:
             fuzz = encoding(fuzz)
@@ -48,4 +50,4 @@ def fuzzer(url, params, headers, GET, delay, timeout, WAF, encoding):
             result = ('%s[blocked] %s' % (red, end))
         else:  # if the fuzz string was not reflected in the response completely
             result = ('%s[filtered]%s' % (yellow, end))
-        print ('%s %s' % (result, fuzz))
+        logger.info('%s %s' % (result, fuzz))

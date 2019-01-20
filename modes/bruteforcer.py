@@ -1,26 +1,31 @@
 import copy
 from urllib.parse import urlparse, unquote
 
-from core.colors import run, good, bad, green, end
+from core.colors import good, green, end
 from core.requester import requester
-from core.utils import getUrl, getParams, verboseOutput
+from core.utils import getUrl, getParams
+from core.log import setup_logger
+
+logger = setup_logger(__name__)
+
 
 def bruteforcer(target, paramData, payloadList, verbose, encoding, headers, delay, timeout):
     GET, POST = (False, True) if paramData else (True, False)
     host = urlparse(target).netloc  # Extracts host out of the url
-    verboseOutput(host, 'host', verbose)
+    logger.debug('Parsed host to bruteforce: {}'.format(host))
     url = getUrl(target, GET)
-    verboseOutput(url, 'url', verbose)
+    logger.debug('Parsed url to bruteforce: {}'.format(url))
     params = getParams(target, paramData, GET)
+    logger.debug_json('Bruteforcer params:', params)
     if not params:
-        print('%s No parameters to test.' % bad)
+        logger.error('No parameters to test.')
         quit()
-    verboseOutput(params, 'params', verbose)
     for paramName in params.keys():
         progress = 1
         paramsCopy = copy.deepcopy(params)
         for payload in payloadList:
-            print ('%s Bruteforcing %s[%s%s%s]%s: %i/%i' % (run, green, end, paramName, green, end, progress, len(payloadList)), end='\r')
+            logger.run('Bruteforcing %s[%s%s%s]%s: %i/%i\r' %
+                       (green, end, paramName, green, end, progress, len(payloadList)))
             if encoding:
                 payload = encoding(unquote(payload))
             paramsCopy[paramName] = payload
@@ -29,6 +34,6 @@ def bruteforcer(target, paramData, payloadList, verbose, encoding, headers, dela
             if encoding:
                 payload = encoding(payload)
             if payload in response:
-                print('%s %s' % (good, payload))
+                logger.info('%s %s' % (good, payload))
             progress += 1
-    print ()
+    logger.no_format('')

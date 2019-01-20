@@ -2,8 +2,10 @@ import os
 import tempfile
 
 from core.config import defaultEditor
-from core.colors import info, white, bad, yellow
+from core.colors import white, yellow
+from core.log import setup_logger
 
+logger = setup_logger(__name__)
 
 
 def prompt(default=None):
@@ -21,10 +23,10 @@ def prompt(default=None):
             try:
                 os.execvp(editor, [editor, tmpfile.name])
             except FileNotFoundError:
-                print('%s You don\'t have either a default $EDITOR \
-value defined nor \'nano\' text editor' % bad)
-                print('%s Execute %s`export EDITOR=/pat/to/your/editor` \
-%sthen run XSStrike again.\n\n' % (info, yellow,white))
+                logger.error('You don\'t have either a default $EDITOR \
+value defined nor \'nano\' text editor')
+                logger.info('Execute %s`export EDITOR=/pat/to/your/editor` \
+%sthen run XSStrike again.\n\n' % (yellow,white))
                 exit(1)
         else:
             os.waitpid(child_pid, 0)  # wait till the editor gets closed

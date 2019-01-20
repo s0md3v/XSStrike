@@ -8,18 +8,21 @@ from core.filterChecker import filterChecker
 from core.generator import generator
 from core.htmlParser import htmlParser
 from core.requester import requester
+from core.log import setup_logger
 
-def crawl(scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload, headers, delay, timeout, skipDOM, encoding):
+logger = setup_logger(__name__)
+
+
+def crawl(scheme, host, main_url, form, domURL, blindXSS, blindPayload, headers, delay, timeout, skipDOM, encoding):
     if domURL and not skipDOM:
         response = requester(domURL, {}, headers, True, delay, timeout).text
         highlighted = dom(response)
         if highlighted:
-            print('%s Potentially vulnerable objects found at %s' %
-                  (good, domURL))
-            print(red + ('-' * 60) + end)
+            logger.good('Potentially vulnerable objects found at %s' % domURL)
+            logger.red_line(level='good')
             for line in highlighted:
-                print(line)
-            print(red + ('-' * 60) + end)
+                logger.no_format(line, level='good')
+            logger.red_line(level='good')
     if form:
         for each in form.values():
             url = each['action']
@@ -53,10 +56,10 @@ def crawl(scheme, host, main_url, form, domURL, verbose, blindXSS, blindPayload,
                             for confidence, vects in vectors.items():
                                 try:
                                     payload = list(vects)[0]
-                                    print('%s Vulnerable webpage: %s%s%s' %
-                                          (good, green, url, end))
-                                    print('%s Vector for %s%s%s: %s' %
-                                          (good, green, paramName, end, payload))
+                                    logger.vuln('Vulnerable webpage: %s%s%s' %
+                                                (green, url, end))
+                                    logger.vuln('Vector for %s%s%s: %s' %
+                                                (green, paramName, end, payload))
                                     break
                                 except IndexError:
                                     pass

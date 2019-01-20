@@ -4,8 +4,8 @@ import re
 from urllib.parse import urlparse
 
 import core.config
-from core.colors import info, red, end
 from core.config import xsschecker
+
 
 def converter(data, url=False):
     if 'str' in str(type(data)):
@@ -30,16 +30,6 @@ def converter(data, url=False):
 def counter(string):
     string = re.sub(r'\s|\w', '', string)
     return len(string)
-
-
-def verboseOutput(data, name, verbose):
-    if core.config.globalVariables['verbose']:
-        if str(type(data)) == '<class \'dict\'>':
-            try:
-                print (json.dumps(data, indent=2))
-            except TypeError:
-                print (data)
-        print (data)
 
 
 def closest(number, numbers):

@@ -3,6 +3,9 @@ import re
 import sys
 
 from core.requester import requester
+from core.log import setup_logger
+
+logger = setup_logger(__name__)
 
 
 def wafDetector(url, params, headers, GET, delay, timeout):
@@ -16,6 +19,9 @@ def wafDetector(url, params, headers, GET, delay, timeout):
     page = response.text
     code = str(response.status_code)
     headers = str(response.headers)
+    logger.debug('Waf Detector code: {}'.format(code))
+    logger.debug_json('Waf Detector headers:', response.headers)
+
     if int(code) >= 400:
         bestMatch = [0, None]
         for wafName, wafSignature in wafSignatures.items():
