@@ -1,27 +1,31 @@
 import copy
 from urllib.parse import urlparse, unquote
 
-from core.colors import run, good, bad, green, end
+from core.colors import good, green, end
 from core.requester import requester
-from core.utils import getUrl, getParams, logger
+from core.utils import getUrl, getParams
+from core.log import setup_logger
+
+logger = setup_logger(__name__)
+
 
 def bruteforcer(target, paramData, payloadList, verbose, encoding, headers, delay, timeout):
     GET, POST = (False, True) if paramData else (True, False)
     host = urlparse(target).netloc  # Extracts host out of the url
-    logger(host, flag='debug', variable='host', function='bruteforcer')
+    logger.debug('Parsed host to bruteforce: {}'.format(host))
     url = getUrl(target, GET)
-    logger(url, flag='debug', variable='url', function='bruteforcer')
+    logger.debug('Parsed url to bruteforce: {}'.format(url))
     params = getParams(target, paramData, GET)
-    logger(params, flag='debug', variable='params', function='bruteforcer')
+    logger.debug_json('Bruteforcer params:', params)
     if not params:
-        logger('%s No parameters to test.' % bad)
+        logger.error('No parameters to test.')
         quit()
-    logger(params, 'params', verbose)
     for paramName in params.keys():
         progress = 1
         paramsCopy = copy.deepcopy(params)
         for payload in payloadList:
-            print('%s Bruteforcing %s[%s%s%s]%s: %i/%i' % (run, green, end, paramName, green, end, progress, len(payloadList)), end='\r')
+            logger.run('Bruteforcing %s[%s%s%s]%s: %i/%i\r' %
+                       (green, end, paramName, green, end, progress, len(payloadList)))
             if encoding:
                 payload = encoding(unquote(payload))
             paramsCopy[paramName] = payload
@@ -30,6 +34,6 @@ def bruteforcer(target, paramData, payloadList, verbose, encoding, headers, dela
             if encoding:
                 payload = encoding(payload)
             if payload in response:
-                logger('%s %s' % (good, payload))
+                logger.info('%s %s' % (good, payload))
             progress += 1
-    logger('')
+    logger.no_format('')

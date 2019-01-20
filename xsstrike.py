@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-from core.colors import end, info, red, run, white, bad
+from core.colors import end, red, white, bad, info
 
 # Just a fancy ass banner
 print('''%s
@@ -27,19 +27,9 @@ except ImportError:  # throws error in python2
 # Let's import whatever we need from standard lib
 import argparse
 
-# ... and from core lib
+# ... and configurations core lib
 import core.config
-from core.config import blindPayload
-from core.encoders import base64
-from core.photon import photon
-from core.prompt import prompt
-from core.updater import updater
-from core.utils import extractHeaders, logger, reader, converter
-
-from modes.bruteforcer import bruteforcer
-from modes.crawl import crawl
-from modes.scan import scan
-from modes.singleFuzz import singleFuzz
+import core.log
 
 # Processing command line arguments, where dest var names will be mapped to local vars with the same name
 parser = argparse.ArgumentParser()
@@ -80,20 +70,14 @@ parser.add_argument('--skip-dom', help='skip dom checking',
                     dest='skipDOM', action='store_true')
 parser.add_argument('--blind', help='inject blind XSS payload while crawling',
                     dest='blindXSS', action='store_true')
-parser.add_argument('-v', '--verbose', help='verbose output',
-                    dest='verbose', action='store_true')
-parser.add_argument('--log', help='log to file',
-                    dest='log', action='store_true')
-parser.add_argument('--debug', help='debug output',
-                    dest='debug', action='store_true')
+parser.add_argument('--console-log-level', help='Console logging level',
+                    dest='console_log_level', default=core.log.console_log_level,
+                    choices=core.log.log_config.keys())
+parser.add_argument('--file-log-level', help='File logging level', dest='file_log_level',
+                    choices=core.log.log_config.keys(), default=None)
+parser.add_argument('--log-file', help='Name of the file to log', dest='log_file',
+                    default=core.log.log_file)
 args = parser.parse_args()
-
-if type(args.add_headers) == bool:
-    headers = extractHeaders(prompt())
-elif type(args.add_headers) == str:
-    headers = extractHeaders(args.add_headers)
-else:
-    from core.config import headers
 
 # Pull all parameter values of dict from argparse namespace into local variables of name == key
 # The following works, but the static checkers are too static ;-) locals().update(vars(args))
@@ -117,11 +101,33 @@ delay = args.delay
 skip = args.skip
 skipDOM = args.skipDOM
 blindXSS = args.blindXSS
-verbose = args.verbose
-log = args.log
-debug = args.debug
+core.log.console_log_level = args.console_log_level
+core.log.file_log_level = args.file_log_level
+core.log.log_file = args.log_file
+
+logger = core.log.setup_logger()
 
 core.config.globalVariables = vars(args)
+
+# Import everything else required from core lib
+from core.config import blindPayload
+from core.encoders import base64
+from core.photon import photon
+from core.prompt import prompt
+from core.updater import updater
+from core.utils import extractHeaders, reader, converter
+
+from modes.bruteforcer import bruteforcer
+from modes.crawl import crawl
+from modes.scan import scan
+from modes.singleFuzz import singleFuzz
+
+if type(args.add_headers) == bool:
+    headers = extractHeaders(prompt())
+elif type(args.add_headers) == str:
+    headers = extractHeaders(args.add_headers)
+else:
+    from core.config import headers
 
 if path:
     paramData = converter(target, target)
@@ -148,7 +154,7 @@ if update:  # if the user has supplied --update argument
     quit()  # quitting because files have been changed
 
 if not target and not args_seeds:  # if the user hasn't supplied a url
-    logger('\n' + parser.format_help().lower())
+    logger.no_format('\n' + parser.format_help().lower())
     quit()
 
 if fuzz:
@@ -162,9 +168,9 @@ else:
     if target:
         seedList.append(target)
     for target in seedList:
-        logger('%s Crawling the target' % run)
+        logger.run('Crawling the target')
         scheme = urlparse(target).scheme
-        logger(scheme, flag='debug', variable='scheme', function='xsstrike.py')
+        logger.debug('Target scheme: {}'.format(scheme))
         host = urlparse(target).netloc
         main_url = scheme + '://' + host
         crawlingResult = photon(target, headers, level,
@@ -183,5 +189,5 @@ else:
                                      blindXSS, blindPayload, headers, delay, timeout, skipDOM, encoding) for form, domURL in zip(forms, domURLs))
         for i, _ in enumerate(concurrent.futures.as_completed(futures)):
             if i + 1 == len(forms) or (i + 1) % threadCount == 0:
-                print('%s Progress: %i/%i' % (info, i + 1, len(forms)), end='\r')
-        logger('')
+                logger.info('Progress: %i/%i\r' % (i + 1, len(forms)))
+        logger.no_format('')

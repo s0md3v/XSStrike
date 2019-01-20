@@ -4,25 +4,8 @@ import re
 from urllib.parse import urlparse
 
 import core.config
-from core.colors import info, red, end, yellow
 from core.config import xsschecker
 
-def logger(data, flag=None, variable=None, function=None):
-    if flag == 'debug':
-        if core.config.globalVariables['debug']:
-            print ('%s[%sDebug%s]%s %s in %s()' % (yellow, end, yellow, end, variable, function))
-            if str(type(data)) == '<class \'dict\'>':
-                try:
-                    print (json.dumps(data, indent=2))
-                except TypeError:
-                    print (data)
-            else:
-                print (data)
-    elif flag == 'log':
-        if core.config.globalVariables['verbose']:
-            print (data)
-    else:
-        print (data)
 
 def converter(data, url=False):
     if 'str' in str(type(data)):
@@ -47,6 +30,7 @@ def converter(data, url=False):
 def counter(string):
     string = re.sub(r'\s|\w', '', string)
     return len(string)
+
 
 def closest(number, numbers):
     difference = [abs(list(numbers.values())[0]), {}]

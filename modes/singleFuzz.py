@@ -1,12 +1,16 @@
 import copy
 from urllib.parse import urlparse
 
-from core.colors import bad, green, end, good, info
+from core.colors import green, end
 from core.config import xsschecker
 from core.fuzzer import fuzzer
 from core.requester import requester
-from core.utils import getUrl, getParams, logger
+from core.utils import getUrl, getParams
 from core.wafDetector import wafDetector
+from core.log import setup_logger
+
+logger = setup_logger(__name__)
+
 
 def singleFuzz(target, paramData, encoding, headers, delay, timeout):
     GET, POST = (False, True) if paramData else (True, False)
@@ -18,25 +22,25 @@ def singleFuzz(target, paramData, encoding, headers, delay, timeout):
             target = 'https://' + target
         except:
             target = 'http://' + target
-    logger(target, flag='debug', variable='target', function='singleFuzz')
+    logger.debug('Single Fuzz target: {}'.format(target))
     host = urlparse(target).netloc  # Extracts host out of the url
-    logger(host, flag='debug', variable='host', function='singleFuzz')
+    logger.debug('Single fuzz host: {}'.format(host))
     url = getUrl(target, GET)
-    logger(url, flag='debug', variable='url', function='singleFuzz')
+    logger.debug('Single fuzz url: {}'.format(url))
     params = getParams(target, paramData, GET)
-    logger(params, flag='debug', variable='params', function='singleFuzz')
+    logger.debug_json('Single fuzz params:', params)
     if not params:
-        logger('%s No parameters to test.' % bad)
+        logger.error('No parameters to test.')
         quit()
     WAF = wafDetector(
         url, {list(params.keys())[0]: xsschecker}, headers, GET, delay, timeout)
     if WAF:
-        logger('%s WAF detected: %s%s%s' % (bad, green, WAF, end))
+        logger.error('WAF detected: %s%s%s' % (green, WAF, end))
     else:
-        logger('%s WAF Status: %sOffline%s' % (good, green, end))
+        logger.good('WAF Status: %sOffline%s' % (green, end))
 
     for paramName in params.keys():
-        logger('%s Fuzzing parameter: %s' % (info, paramName))
+        logger.info('Fuzzing parameter: %s' % paramName)
         paramsCopy = copy.deepcopy(params)
         paramsCopy[paramName] = xsschecker
         fuzzer(url, paramsCopy, headers, GET,
