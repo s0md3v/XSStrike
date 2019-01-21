@@ -132,6 +132,7 @@ else:
 if path:
     paramData = converter(target, target)
 elif jsonData:
+    headers['Content-type'] = 'application/json'
     paramData = converter(paramData)
 
 if args_file:
