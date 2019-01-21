@@ -31,7 +31,11 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
         except:
             target = 'http://' + target
     logger.debug('Scan target: {}'.format(target))
-    response = requester(target, {}, headers, GET, delay, timeout).text
+    try : 
+        response = requester(target, {}, headers, GET, delay, timeout).text
+    except AttributeError : 
+        logger.warning('No Response Got back From Scan Module')
+        quit()
     if not skipDOM:
         logger.run('Checking for DOM vulnerabilities')
         highlighted = dom(response)
