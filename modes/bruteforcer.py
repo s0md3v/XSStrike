@@ -9,7 +9,7 @@ from core.log import setup_logger
 logger = setup_logger(__name__)
 
 
-def bruteforcer(target, paramData, payloadList, verbose, encoding, headers, delay, timeout):
+def bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout):
     GET, POST = (False, True) if paramData else (True, False)
     host = urlparse(target).netloc  # Extracts host out of the url
     logger.debug('Parsed host to bruteforce: {}'.format(host))
