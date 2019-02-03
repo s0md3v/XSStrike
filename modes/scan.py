@@ -133,7 +133,7 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
                         paramsCopy[paramName] = vect
                     response = requester(url, paramsCopy, headers, GET, delay, timeout).text
                     success = browserEngine(response)
-                    if success:
+                    if success is True:
                         logger.red_line()
                         logger.good('Payload: %s' % loggerVector)
                         logger.info('Efficiency: %i' % 100)
@@ -141,6 +141,13 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
                         if not skip:
                             choice = input(
                                 '%s Would you like to continue scanning? [y/N] ' % que).lower()
+                            if choice != 'y':
+                                quit()
+                    elif isinstance(success, Exception):
+                        logger.warning('Could not test payload {} using browser engine'.format(loggerVector))
+                        if not skip:
+                            choice = input(
+                                '%s Would you like to continue scanning anyways? [y/N] ' % que).lower()
                             if choice != 'y':
                                 quit()
         logger.no_format('')

@@ -1,16 +1,23 @@
 import re
 import os
 import sys
-from core.config import xsschecker
 from core.utils import writer
+from core.log import setup_logger
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
-from selenium.common.exceptions import UnexpectedAlertPresentException
+from selenium.common.exceptions import UnexpectedAlertPresentException, WebDriverException
+
+logger = setup_logger(__name__)
+
 
 def browserEngine(response):
     options = Options()
     options.add_argument('--headless')
-    browser = webdriver.Firefox(options=options)
+    try:
+        browser = webdriver.Firefox(options=options)
+    except WebDriverException as e:
+        logger.error('There was an error initializing selenium web driver: {}'.format(str(e).strip('Message: ').strip()))
+        return e
     response = re.sub(r'<script.*?src=.*?>', '<script src=#>', response, re.I)
     response = re.sub(r'href=.*?>', 'href=#>', response, re.I)
     writer(response, 'test.html')
