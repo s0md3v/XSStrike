@@ -60,6 +60,8 @@ parser.add_argument('-l', '--level', help='level of crawling',
                     dest='level', type=int, default=2)
 parser.add_argument('--headers', help='add headers',
                     dest='add_headers', nargs='?', const=True)
+parser.add_argument('--cookies', help='add cookies',
+                    dest='add_cookies', nargs='?', const=True)
 parser.add_argument('-t', '--threads', help='number of threads',
                     dest='threadCount', type=int, default=core.config.threadCount)
 parser.add_argument('-d', '--delay', help='delay between requests',
@@ -96,6 +98,7 @@ args_file = args.args_file
 args_seeds = args.args_seeds
 level = args.level
 add_headers = args.add_headers
+add_cookies = args.add_cookies
 threadCount = args.threadCount
 delay = args.delay
 skip = args.skip
@@ -128,6 +131,9 @@ elif type(args.add_headers) == str:
     headers = extractHeaders(args.add_headers)
 else:
     from core.config import headers
+
+if args.add_cookies:
+    core.config.cookies = converter(add_cookies)
 
 if path:
     paramData = converter(target, target)

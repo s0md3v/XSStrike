@@ -8,6 +8,8 @@ xsschecker = 'v3dm0s'  # A non malicious string to check for reflections and stu
 #  More information on adding proxies: http://docs.python-requests.org/en/master/user/advanced/#proxies
 proxies = {'http': 'http://0.0.0.0:8080', 'https': 'http://0.0.0.0:8080'}
 
+cookies = ''
+
 minEfficiency = 90  # payloads below this efficiency will not be displayed
 
 delay = 0  # default delay between http requests

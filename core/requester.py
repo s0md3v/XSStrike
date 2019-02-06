@@ -35,13 +35,13 @@ def requester(url, data, headers, GET, delay, timeout):
     logger.debug_json('Requester headers:', headers)
     try:
         if GET:
-            response = requests.get(url, params=data, headers=headers,
+            response = requests.get(url, params=data, headers=headers, cookies=core.config.cookies,
                                     timeout=timeout, verify=False, proxies=core.config.proxies)
         elif core.config.globalVariables['jsonData']:
-            response = requests.get(url, json=data, headers=headers,
+            response = requests.get(url, json=data, headers=headers, cookies=core.config.cookies,
                                     timeout=timeout, verify=False, proxies=core.config.proxies)
         else:
-            response = requests.post(url, data=data, headers=headers,
+            response = requests.post(url, data=data, headers=headers, cookies=core.config.cookies,
                                      timeout=timeout, verify=False, proxies=core.config.proxies)
         return response
     except ProtocolError:
