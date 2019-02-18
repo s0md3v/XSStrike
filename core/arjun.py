@@ -29,7 +29,7 @@ def arjun(url, GET, headers, delay, timeout):
             foundParam = match[1]
         except UnicodeDecodeError:
             continue
-        logger.good('Heuristics found a potentially valid parameter: %s%s%s. Priortizing it.' % (
+        logger.good('Heuristics found a potentially valid parameter: %s%s%s. Prioritizing it.' % (
             green, foundParam, end))
         if foundParam not in blindParams:
             blindParams.insert(0, foundParam)
