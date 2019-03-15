@@ -32,6 +32,20 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
             target = 'http://' + target
     logger.debug('Scan target: {}'.format(target))
     response = requester(target, {}, headers, GET, delay, timeout).text
+
+
+    foundMethod = 'GET'
+    find_post_method = re.findall(
+        r'<form.*?method=\'(.*?)\'.*?>|<form.*?method="(.*?)".*?>', response)
+    for method in find_post_method:
+        try:
+            foundMethod = method[1]
+        except UnboundLocalError:
+            pass
+
+    if foundMethod.upper() == 'POST':
+        GET, POST = (False, True)
+
     if not skipDOM:
         logger.run('Checking for DOM vulnerabilities')
         highlighted = dom(response)
