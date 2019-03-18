@@ -14,7 +14,7 @@ def checky(param, paraNames, url, headers, GET, delay, timeout):
         logger.debug('Checking param: {}'.format(param))
         response = requester(url, {param: xsschecker},
                              headers, GET, delay, timeout).text
-        if '\'%s\'' % xsschecker in response or '"%s"' % xsschecker in response or ' %s ' % xsschecker in response:
+        if re.search(xsschecker, response):
             paraNames[param] = ''
             logger.good('Valid parameter found: %s%s', green, param)
 
