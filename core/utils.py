@@ -163,7 +163,7 @@ def getParams(url, data, GET):
         if data[:1] == '?':
             data = data[1:]
     elif data:
-        if core.config.globalVariables['jsonData'] or core.config.globalVariables['path']:
+        if getVar('jsonData') or getVar('path'):
             params = data
         else:
             try:
@@ -197,6 +197,51 @@ def writer(obj, path):
 
 def reader(path):
     with open(path, 'r') as f:
-        result = [line.strip(
+        result = [line.rstrip(
                     '\n').encode('utf-8').decode('utf-8') for line in f]
     return result
+
+def js_extractor(response):
+    """Extract js files from the response body"""
+    scripts = []
+    matches = re.findall(r'<(?:script|SCRIPT).*?(?:src|SRC)=([^\s>]+)', response)
+    for match in matches:
+        match = match.replace('\'', '').replace('"', '').replace('`', '')
+        scripts.append(match)
+    return scripts
+
+
+def handle_anchor(parent_url, url):
+    if parent_url.count('/') > 2:
+        replacable = re.search(r'/[^/]*?$', parent_url).group()
+        if replacable != '/':
+            parent_url = parent_url.replace(replacable, '')
+    scheme = urlparse(parent_url).scheme
+    if url[:4] == 'http':
+        return url
+    elif url[:2] == '//':
+        return scheme + ':' + url
+    elif url[:1] == '/':
+        return parent_url + url
+    else:
+        if parent_url.endswith('/') or url.startswith('/'):
+            return parent_url + url
+        else:
+            return parent_url + '/' + url
+
+
+def deJSON(data):
+    return data.replace('\\\\', '\\')
+
+
+def getVar(name):
+    return core.config.globalVariables[name]
+
+def updateVar(name, data, mode=None):
+    if mode:
+        if mode == 'append':
+            core.config.globalVariables[name].append(data)
+        elif mode == 'add':
+            core.config.globalVariables[name].add(data)
+    else:
+        core.config.globalVariables[name] = data

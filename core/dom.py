@@ -7,7 +7,7 @@ def dom(response):
     highlighted = []
     sources = r'''document\.(URL|documentURI|URLUnencoded|baseURI|cookie|referrer)|location\.(href|search|hash|pathname)|window\.name|history\.(pushState|replaceState)(local|session)Storage'''
     sinks = r'''eval|evaluate|execCommand|assign|navigate|getResponseHeaderopen|showModalDialog|Function|set(Timeout|Interval|Immediate)|execScript|crypto.generateCRMFRequest|ScriptElement\.(src|text|textContent|innerText)|.*?\.onEventName|document\.(write|writeln)|.*?\.innerHTML|Range\.createContextualFragment|(document|window)\.location'''
-    scripts = re.findall(r'(?i)(?s)<scrip[^>]*(.*?)</script>', response)
+    scripts = re.findall(r'(?i)(?s)<script[^>]*>(.*?)</script>', response)
     for script in scripts:
         script = script.split('\n')
         num = 1

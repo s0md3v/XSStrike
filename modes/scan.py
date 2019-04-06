@@ -3,7 +3,6 @@ import re
 from urllib.parse import urlparse, quote, unquote
 
 from core.arjun import arjun
-from core.browserEngine import browserEngine
 from core.checker import checker
 from core.colors import good, bad, end, info, green, red, que
 import core.config
@@ -32,7 +31,6 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
             target = 'http://' + target
     logger.debug('Scan target: {}'.format(target))
     response = requester(target, {}, headers, GET, delay, timeout).text
-
 
     if not skipDOM:
         logger.run('Checking for DOM vulnerabilities')
@@ -96,53 +94,36 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
         progress = 0
         for confidence, vects in vectors.items():
             for vect in vects:
-                if core.config.globalVariables['path']:
-                    vect = vect.replace('/', '%2F')
-                loggerVector = vect
                 progress += 1
+                loggerVector = vect
                 logger.run('Progress: %i/%i\r' % (progress, total))
-                if confidence == 10:
-                    if not GET:
-                        vect = unquote(vect)
-                    efficiencies = checker(
-                        url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
-                    if not efficiencies:
-                        for i in range(len(occurences)):
-                            efficiencies.append(0)
-                    bestEfficiency = max(efficiencies)
-                    if bestEfficiency == 100 or (vect[0] == '\\' and bestEfficiency >= 95):
-                        logger.red_line()
-                        logger.good('Payload: %s' % loggerVector)
-                        logger.info('Efficiency: %i' % bestEfficiency)
-                        logger.info('Confidence: %i' % confidence)
-                        if not skip:
-                            choice = input(
-                                '%s Would you like to continue scanning? [y/N] ' % que).lower()
-                            if choice != 'y':
-                                quit()
-                    elif bestEfficiency > minEfficiency:
-                        logger.red_line()
-                        logger.good('Payload: %s' % loggerVector)
-                        logger.info('Efficiency: %i' % bestEfficiency)
-                        logger.info('Confidence: %i' % confidence)
-                else:
-                    if re.search(r'<(a|d3|details)|lt;(a|d3|details)', vect.lower()):
-                        continue
+                if not GET:
                     vect = unquote(vect)
-                    if encoding:
-                        paramsCopy[paramName] = encoding(vect)
-                    else:
-                        paramsCopy[paramName] = vect
-                    response = requester(url, paramsCopy, headers, GET, delay, timeout).text
-                    success = browserEngine(response)
-                    if success:
-                        logger.red_line()
-                        logger.good('Payload: %s' % loggerVector)
-                        logger.info('Efficiency: %i' % 100)
-                        logger.info('Confidence: %i' % 10)
-                        if not skip:
-                            choice = input(
-                                '%s Would you like to continue scanning? [y/N] ' % que).lower()
-                            if choice != 'y':
-                                quit()
+                if encoding:
+                    paramsCopy[paramName] = encoding(vect)
+                else:
+                    paramsCopy[paramName] = vect
+                if not GET:
+                    vect = quote(vect)
+                efficiencies = checker(
+                    url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
+                if not efficiencies:
+                    for i in range(len(occurences)):
+                        efficiencies.append(0)
+                bestEfficiency = max(efficiencies)
+                if bestEfficiency == 100 or (vect[0] == '\\' and bestEfficiency >= 95):
+                    logger.red_line()
+                    logger.good('Payload: %s' %  loggerVector)
+                    logger.info('Efficiency: %i' % bestEfficiency)
+                    logger.info('Confidence: %i' % confidence)
+                    if not skip:
+                        choice = input(
+                            '%s Would you like to continue scanning? [y/N] ' % que).lower()
+                        if choice != 'y':
+                            quit()
+                elif bestEfficiency > minEfficiency:
+                    logger.red_line()
+                    logger.good('Payload: %s' %  loggerVector)
+                    logger.info('Efficiency: %i' % bestEfficiency)
+                    logger.info('Confidence: %i' % confidence)
         logger.no_format('')
