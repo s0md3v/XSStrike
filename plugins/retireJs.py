@@ -3,6 +3,7 @@ import json
 import hashlib
 from urllib.parse import urlparse
 
+from core.colors import green, end
 from core.requester import requester
 from core.utils import deJSON, js_extractor, handle_anchor, getVar, updateVar
 from core.log import setup_logger
@@ -206,5 +207,12 @@ def retireJs(url, response):
             result = main_scanner(uri, response)
             if result:
                 logger.red_line()
-                print (json.dumps(result, indent=4))
+                logger.good('Vulnerable component: ' + result['component'] + ' v' + result['version'])
+                logger.info('Component location: %s' % uri)
+                details = result['vulnerabilities']
+                logger.info('Total vulnerabilities: %i' % len(details))
+                for detail in details:
+                    logger.info('%sSummary:%s %s' % (green, end, detail['identifiers']['summary']))
+                    logger.info('Severity: %s' % detail['severity'])
+                    logger.info('CVE: %s' % detail['identifiers']['CVE'][0])
                 logger.red_line()
