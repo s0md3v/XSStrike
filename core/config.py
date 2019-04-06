@@ -1,4 +1,4 @@
-changes = '''better dom xss scanning;add headers from command line;many bug fixes'''
+changes = '''Removed browser engine emulation;Fixed a few bugs;Added a plugin to scan for outdated JS libraries;Improved crawling and DOM scanning'''
 globalVariables = {}  # it holds variables during runtime for collaboration across modules
 
 defaultEditor = 'nano'
