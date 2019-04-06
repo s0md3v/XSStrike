@@ -1,3 +1,9 @@
+### 3.1.3
+- Removed browser engine emulation
+- Fixed a few bugs
+- Added a plugin to scan for outdated JS libraries
+- Improved crawling and DOM scanning
+
 ### 3.1.2
 - Fixed POST data handling
 - Support for JSON POST data

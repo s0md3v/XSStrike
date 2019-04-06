@@ -6,7 +6,7 @@ from core.colors import end, red, white, bad, info
 
 # Just a fancy ass banner
 print('''%s
-\tXSStrike %sv3.1.2
+\tXSStrike %sv3.1.3
 %s''' % (red, white, end))
 
 try:
@@ -25,6 +25,8 @@ except ImportError:  # throws error in python2
     quit()
 
 # Let's import whatever we need from standard lib
+import sys
+import json
 import argparse
 
 # ... and configurations core lib
@@ -128,6 +130,10 @@ elif type(args.add_headers) == str:
     headers = extractHeaders(args.add_headers)
 else:
     from core.config import headers
+
+core.config.globalVariables['headers'] = headers
+core.config.globalVariables['checkedScripts'] = set()
+core.config.globalVariables['definitions'] = json.loads('\n'.join(reader(sys.path[0] + '/db/definitions.json')))
 
 if path:
     paramData = converter(target, target)

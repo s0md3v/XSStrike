@@ -3,6 +3,7 @@ from re import findall
 from urllib.parse import urlparse
 
 
+from plugins.retireJs import retireJs
 from core.utils import getUrl, getParams
 from core.requester import requester
 from core.zetanize import zetanize
@@ -36,6 +37,7 @@ def photon(seedUrl, headers, level, threadCount, delay, timeout):
                 inps.append({'name': name, 'value': value})
             forms.append({0: {'action': url, 'method': 'get', 'inputs': inps}})
         response = requester(url, params, headers, True, delay, timeout).text
+        retireJs(url, response)
         forms.append(zetanize(response))
         matches = findall(r'<[aA].*href=["\']{0,1}(.*?)["\']', response)
         for link in matches:  # iterate over the matches
@@ -53,9 +55,11 @@ def photon(seedUrl, headers, level, threadCount, delay, timeout):
                 storage.add(main_url + '/' + link)
     for x in range(level):
         urls = storage - processed  # urls to crawl = all urls - urls that have been crawled
+        # for url in urls:
+        #     rec(url)
         threadpool = concurrent.futures.ThreadPoolExecutor(
             max_workers=threadCount)
         futures = (threadpool.submit(rec, url) for url in urls)
-        for i, _ in enumerate(concurrent.futures.as_completed(futures)):
+        for i in concurrent.futures.as_completed(futures):
             pass
     return [forms, processed]
