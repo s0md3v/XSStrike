@@ -49,7 +49,7 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 - Context analysis
 - Configurable core
 - WAF detection & evasion
-- Browser engine integration for zero false positive rate
+- Outdated JS lib scanning
 - Intelligent payload generator
 - Handmade HTML & JavaScript parser
 - Powerful fuzzing engine
@@ -65,7 +65,6 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 - [Compatibility & Dependencies](https://github.com/s0md3v/XSStrike/wiki/Compatibility-&-Dependencies)
 
 ### FAQ
-- [There's some error related to `geckodriver`.](https://github.com/s0md3v/XSStrike/wiki/FAQ#theres-some-error-related-to-geckodriver)
 - [It says fuzzywuzzy isn't installed but it is.](https://github.com/s0md3v/XSStrike/wiki/FAQ#it-says-fuzzywuzzy-is-not-installed-but-its)
 - [What's up with Blind XSS?](https://github.com/s0md3v/XSStrike/wiki/FAQ#whats-up-with-blind-xss)
 - [Why XSStrike boasts that it is the most advanced XSS detection suite?](https://github.com/s0md3v/XSStrike/wiki/FAQ#why-xsstrike-boasts-that-it-is-the-most-advanced-xss-detection-suite)
@@ -103,4 +102,5 @@ Ways to contribute
 
 Licensed under the GNU GPLv3, see [LICENSE](LICENSE) for more information.
 
-The WAF signatures in `/db/wafSignatures.json` are taken & modified from [sqlmap](https://github.com/sqlmapproject/sqlmap). I extracted them from sqlmap's waf detection modules which can found [here](https://github.com/sqlmapproject/sqlmap/blob/master/waf/) and converted them to JSON.
+The WAF signatures in `/db/wafSignatures.json` are taken & modified from [sqlmap](https://github.com/sqlmapproject/sqlmap). I extracted them from sqlmap's waf detection modules which can found [here](https://github.com/sqlmapproject/sqlmap/blob/master/waf/) and converted them to JSON.\
+`/plugins/retireJS.py` is a modified version of [retirejslib](https://github.com/FallibleInc/retirejslib/).
