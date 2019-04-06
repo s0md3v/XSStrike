@@ -12,7 +12,7 @@ from core.filterChecker import filterChecker
 from core.generator import generator
 from core.htmlParser import htmlParser
 from core.requester import requester
-from core.utils import getUrl, getParams
+from core.utils import getUrl, getParams, getVar
 from core.wafDetector import wafDetector
 from core.log import setup_logger
 
@@ -94,17 +94,13 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
         progress = 0
         for confidence, vects in vectors.items():
             for vect in vects:
-                progress += 1
+                if core.config.globalVariables['path']:
+                    vect = vect.replace('/', '%2F')
                 loggerVector = vect
+                progress += 1
                 logger.run('Progress: %i/%i\r' % (progress, total))
                 if not GET:
                     vect = unquote(vect)
-                if encoding:
-                    paramsCopy[paramName] = encoding(vect)
-                else:
-                    paramsCopy[paramName] = vect
-                if not GET:
-                    vect = quote(vect)
                 efficiencies = checker(
                     url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
                 if not efficiencies:
@@ -113,7 +109,7 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
                 bestEfficiency = max(efficiencies)
                 if bestEfficiency == 100 or (vect[0] == '\\' and bestEfficiency >= 95):
                     logger.red_line()
-                    logger.good('Payload: %s' %  loggerVector)
+                    logger.good('Payload: %s' % loggerVector)
                     logger.info('Efficiency: %i' % bestEfficiency)
                     logger.info('Confidence: %i' % confidence)
                     if not skip:
@@ -123,7 +119,7 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
                             quit()
                 elif bestEfficiency > minEfficiency:
                     logger.red_line()
-                    logger.good('Payload: %s' %  loggerVector)
+                    logger.good('Payload: %s' % loggerVector)
                     logger.info('Efficiency: %i' % bestEfficiency)
                     logger.info('Confidence: %i' % confidence)
         logger.no_format('')
