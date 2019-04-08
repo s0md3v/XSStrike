@@ -1,3 +1,9 @@
+### 3.1.4
+- Negligible DOM XSS false positives
+- x10 Faster crawling by
+    - Removing additional request for detecting DOM XSS
+    - Skipping testing of a parameter multiple times
+
 ### 3.1.3
 - Removed browser engine emulation
 - Fixed a few bugs

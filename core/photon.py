@@ -1,18 +1,18 @@
+import re
 import concurrent.futures
-from re import findall
 from urllib.parse import urlparse
 
-
-from plugins.retireJs import retireJs
+from core.dom import dom
+from core.log import setup_logger
 from core.utils import getUrl, getParams
 from core.requester import requester
 from core.zetanize import zetanize
-from core.log import setup_logger
+from plugins.retireJs import retireJs
 
 logger = setup_logger(__name__)
 
 
-def photon(seedUrl, headers, level, threadCount, delay, timeout):
+def photon(seedUrl, headers, level, threadCount, delay, timeout, skipDOM):
     forms = []  # web forms
     processed = set()  # urls that have been crawled
     storage = set()  # urls that belong to the target i.e. in-scope
@@ -20,6 +20,7 @@ def photon(seedUrl, headers, level, threadCount, delay, timeout):
     host = urlparse(seedUrl).netloc  # extract the host e.g. example.com
     main_url = schema + '://' + host  # join scheme and host to make the root url
     storage.add(seedUrl)  # add the url to storage
+    checkedDOMs = []
 
     def rec(target):
         processed.add(target)
@@ -38,8 +39,18 @@ def photon(seedUrl, headers, level, threadCount, delay, timeout):
             forms.append({0: {'action': url, 'method': 'get', 'inputs': inps}})
         response = requester(url, params, headers, True, delay, timeout).text
         retireJs(url, response)
+        if not skipDOM:
+            highlighted = dom(response)
+            clean_highlighted = ''.join([re.sub(r'^\d+\s+', '', line) for line in highlighted])
+            if highlighted and clean_highlighted not in checkedDOMs:
+                checkedDOMs.append(clean_highlighted)
+                logger.good('Potentially vulnerable objects found at %s' % url)
+                logger.red_line(level='good')
+                for line in highlighted:
+                    logger.no_format(line, level='good')
+                logger.red_line(level='good')
         forms.append(zetanize(response))
-        matches = findall(r'<[aA].*href=["\']{0,1}(.*?)["\']', response)
+        matches = re.findall(r'<[aA].*href=["\']{0,1}(.*?)["\']', response)
         for link in matches:  # iterate over the matches
             # remove everything after a "#" to deal with in-page anchors
             link = link.split('#')[0]

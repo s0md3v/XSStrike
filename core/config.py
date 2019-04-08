@@ -1,4 +1,4 @@
-changes = '''Removed browser engine emulation;Fixed a few bugs;Added a plugin to scan for outdated JS libraries;Improved crawling and DOM scanning'''
+changes = '''Negligible DOM XSS false positives;x10 faster crawling'''
 globalVariables = {}  # it holds variables during runtime for collaboration across modules
 
 defaultEditor = 'nano'
