@@ -49,4 +49,7 @@ def dom(response):
                 num += 1
         except MemoryError:
             pass
-    return highlighted
+    if (yellow and red) in highlighted:
+        return highlighted
+    else:
+        return []

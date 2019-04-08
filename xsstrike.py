@@ -6,7 +6,7 @@ from core.colors import end, red, white, bad, info
 
 # Just a fancy ass banner
 print('''%s
-\tXSStrike %sv3.1.3
+\tXSStrike %sv3.1.4
 %s''' % (red, white, end))
 
 try:
@@ -133,6 +133,7 @@ else:
 
 core.config.globalVariables['headers'] = headers
 core.config.globalVariables['checkedScripts'] = set()
+core.config.globalVariables['checkedForms'] = {}
 core.config.globalVariables['definitions'] = json.loads('\n'.join(reader(sys.path[0] + '/db/definitions.json')))
 
 if path:
@@ -181,7 +182,7 @@ else:
         host = urlparse(target).netloc
         main_url = scheme + '://' + host
         crawlingResult = photon(target, headers, level,
-                                threadCount, delay, timeout)
+                                threadCount, delay, timeout, skipDOM)
         forms = crawlingResult[0]
         domURLs = list(crawlingResult[1])
         difference = abs(len(domURLs) - len(forms))
@@ -192,8 +193,8 @@ else:
             for i in range(difference):
                 domURLs.append(0)
         threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-        futures = (threadpool.submit(crawl, scheme, host, main_url, form, domURL,
-                                     blindXSS, blindPayload, headers, delay, timeout, skipDOM, encoding) for form, domURL in zip(forms, domURLs))
+        futures = (threadpool.submit(crawl, scheme, host, main_url, form,
+                                     blindXSS, blindPayload, headers, delay, timeout, encoding) for form, domURL in zip(forms, domURLs))
         for i, _ in enumerate(concurrent.futures.as_completed(futures)):
             if i + 1 == len(forms) or (i + 1) % threadCount == 0:
                 logger.info('Progress: %i/%i\r' % (i + 1, len(forms)))

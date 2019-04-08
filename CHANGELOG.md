@@ -1,3 +1,6 @@
+### 3.1.4
+
+
 ### 3.1.3
 - Removed browser engine emulation
 - Fixed a few bugs
