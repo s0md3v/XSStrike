@@ -1,6 +1,7 @@
 import re
 
 from core.config import badTags, xsschecker
+from core.utils import isBadContext
 
 
 def htmlParser(response, encoding):
@@ -49,8 +50,11 @@ def htmlParser(response, encoding):
                 location = 'html'
         locations.append(location)  # add location to locations list
 
+    bad_contexts = re.finditer(r'''(?s)(?i)<(style|template|textarea|title|noembed|noscript)>[.\s\S]*(%s)[.\s\S]*</\1>''' % xsschecker, response)
+    non_executable_contexts = []
+    for each in bad_contexts:
+        non_executable_contexts.append([each.start(), each.end(), each.group(1)])
 #  Finds the "environment" of reflections. is it within double quotes? Which tag contains the reflection?
-
     num = 0  # dummy value to keep record of occurence being processed
     # find xsschecker in response and return matches
     for occ in re.finditer(xsschecker, response, re.IGNORECASE):
@@ -86,22 +90,15 @@ def htmlParser(response, encoding):
                         tag = 'null'
                 tags.append(tag)  # add the tag to the tags list
                 break
-            elif toLook[loc] == '<':  # if we encounter a closing angular brackt
+            else:  # if we encounter a closing angular brackt
                 # check if the next character to it is a / to make sure its a closing tag
-                if toLook[loc + 1] == '/':
-                    tag = ''.join(toLook).split('</')[1].split('>')[0]
-                    if tag in badTags:  # if the tag is a non-executable context e.g. noscript, textarea
-                        # add it to environments because we need to break out of it
-                        environments.append('</' + tag + '/>')
-                    else:
-                        environments.append('')
-                    tags.append('')  # add the tag to tags list
-                    # since it's a closing tag, it can't have any attributes
-                    attributes.append('')
+                badContext = isBadContext(positions[num], non_executable_contexts)
+                if badContext:
+                    environments.append('</' + badContext + '>')
                 else:
-                    tags.append('x')
-                    attributes.append('')
                     environments.append('')
+                tags.append('')
+                attributes.append('')
                 break
             loc += 1
         num += 1
