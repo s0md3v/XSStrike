@@ -245,3 +245,11 @@ def updateVar(name, data, mode=None):
             core.config.globalVariables[name].add(data)
     else:
         core.config.globalVariables[name] = data
+
+def isBadContext(position, non_executable_contexts):
+    badContext = ''
+    for each in non_executable_contexts:
+        if each[0] < position < each[1]:
+            badContext = each[2]
+            break
+    return badContext
