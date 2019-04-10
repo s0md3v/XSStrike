@@ -27,7 +27,7 @@ def htmlParser(response, encoding):
         deep = part.split('>')
         if '</script' in deep[0]:
             location = 'script'
-        elif '</' in deep[0]:
+        elif '</' in deep[0] or len(parts) == 1:
             location = 'html'
         else:
             num = 0
