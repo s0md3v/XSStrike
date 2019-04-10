@@ -58,7 +58,7 @@ def htmlParser(response, encoding):
         toLook = list(response[occ.end():])
         for loc in range(len(toLook)):  # interate over the chars
             if toLook[loc] in ('\'', '"', '`'):  # if the char is a quote
-                environments.append(toLook[loc])  # add it to enviornemts list
+                environments.append(toLook[loc])  # add it to environments list
                 tokens = response.split('<')
                 goodTokens = []  # tokens which contain xsschecker
                 for token in tokens:  # iterate over tokens
@@ -95,9 +95,13 @@ def htmlParser(response, encoding):
                         environments.append('</' + tag + '/>')
                     else:
                         environments.append('')
-                    tags.append(tag)  # add the tag to tags list
+                    tags.append('')  # add the tag to tags list
                     # since it's a closing tag, it can't have any attributes
                     attributes.append('')
+                else:
+                    tags.append('x')
+                    attributes.append('')
+                    environments.append('')
                 break
             loc += 1
         num += 1
