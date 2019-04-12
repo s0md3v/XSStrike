@@ -37,7 +37,7 @@ def requester(url, data, headers, GET, delay, timeout):
             response = requests.get(url, params=data, headers=headers,
                                     timeout=timeout, verify=False, proxies=core.config.proxies)
         elif getVar('jsonData'):
-            response = requests.get(url, json=data, headers=headers,
+            response = requests.post(url, json=data, headers=headers,
                                     timeout=timeout, verify=False, proxies=core.config.proxies)
         else:
             response = requests.post(url, data=data, headers=headers,
