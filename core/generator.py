@@ -104,7 +104,7 @@ def generator(occurences, response):
             ends = ['//']
             if greatBracketEfficiency == 100:
                 ends.append('>')
-            if lessBracketEfficiency == breakerEfficiency == 100:
+            if lessBracketEfficiency == 100:
                 payloads = genGen(fillings, eFillings, lFillings,
                                   eventHandlers, tags, functions, ends)
                 for payload in payloads:
