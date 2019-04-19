@@ -1,7 +1,7 @@
 import re
 
 from core.config import badTags, xsschecker
-from core.utils import isBadContext
+from core.utils import isBadContext, equalize
 
 
 def htmlParser(response, encoding):
@@ -9,104 +9,70 @@ def htmlParser(response, encoding):
     response = response.text  # response content
     if encoding:  # if the user has specified an encoding, encode the probe in that
         response = response.replace(encoding(xsschecker), xsschecker)
-    tags = []  # tags in which the input is reflected
-    locations = []  # contexts in which the input is reflected
-    attributes = []  # attribute names
-    environments = []  # strings needed to break out of the context
-    positions = []  # postions of all the reflections of the xsschecker
-    for match in re.finditer(xsschecker, response):
-        positions.append(match.start())
+    reflections = response.count(xsschecker)
+    position_and_context = {}
+    environment_details = {}
+    clean_response = re.sub(r'<!--[.\s\S]*?-->', '', response)
+    script_context = re.finditer(r'(?i)<script[^>]*>.*?(%s).*?</script>' % xsschecker, clean_response)
+    for occurence in script_context:
+        thisPosition = occurence.start(1)
+        position_and_context[thisPosition] = 'script'
+        environment_details[thisPosition] = {}
+        environment_details[thisPosition]['details'] = {} 
+    attribute_context = re.finditer(r'<[^>]*?(%s)[^>]*?>' % xsschecker, clean_response)
+    for occurence in attribute_context:
+        match = occurence.group(0)
+        thisPosition = occurence.start(1)
+        parts = re.split(r'\s', match)
+        tag = parts[0][1:]
+        for part in parts:
+            if xsschecker in part:
+                Type, quote, name, value = '', '', '', ''
+                if '=' in part:
+                    quote = re.search(r'=([\'`"])?', part).group(1)
+                    name_and_value = part.split('=')[0], '='.join(part.split('=')[1:])
+                    if xsschecker == name_and_value[0]:
+                        Type = 'name'
+                    else:
+                        Type = 'value'
+                    name = name_and_value[0]
+                    value = name_and_value[1].rstrip('>').rstrip(quote).lstrip(quote)
+                else:
+                    Type = 'flag'
+                position_and_context[thisPosition] = 'attribute'
+                environment_details[thisPosition] = {}
+                environment_details[thisPosition]['details'] = {'tag' : tag, 'type' : Type, 'quote' : quote, 'value' : value, 'name' : name}
+    html_context = re.finditer(xsschecker, clean_response)
+    for occurence in html_context:
+        thisPosition = occurence.start()
+        if thisPosition not in position_and_context:
+            position_and_context[occurence.start()] = 'html'
+            environment_details[thisPosition] = {}
+            environment_details[thisPosition]['details'] = {} 
+    comment_context = re.finditer(r'<!--(?![.\s\S]*-->)[.\s\S]*(%s)[.\s\S]*?-->' % xsschecker, response)
+    for occurence in comment_context:
+        thisPosition = occurence.start(1)
+        position_and_context[thisPosition] = 'comment'
+        environment_details[thisPosition] = {}
+        environment_details[thisPosition]['details'] = {}
+    database = {}
+    for i in sorted(position_and_context):
+        database[i] = {}
+        database[i]['position'] = i
+        database[i]['context'] = position_and_context[i]
+        database[i]['details'] = environment_details[i]['details']
 
-#  It finds the contexts of the reflections
-
-    parts = response.split(xsschecker)
-    # remove first element since it doesn't contain xsschecker
-    parts.remove(parts[0])
-    # add xsschecker in front of all elements
-    parts = [xsschecker + s for s in parts]
-    for part in parts:  # iterate over the parts
-        deep = part.split('>')
-        if '</script' in deep[0]:
-            location = 'script'
-        elif '</' in deep[0] or len(parts) == 1:
-            location = 'html'
-        else:
-            num = 0
-            for i in deep:
-                if i[-2:] == '--':
-                    if '<!--' not in ''.join(deep[:num + 1]):
-                        location = 'comment'
-                        break
-                        continue
-                location = 'script'
-                for char in part:
-                    # the only way to find out if it's attribute context is to see if '<' is present.
-                    if char == '<':
-                        location = 'attribute'  # no, it doesn't match '<script>'
-                        break
-                num += 1
-        if '<' not in response:
-            if rawResponse.headers['Content-Type'].startswith('text/html'):
-                location = 'html'
-        locations.append(location)  # add location to locations list
-
-    bad_contexts = re.finditer(r'''(?s)(?i)<(style|template|textarea|title|noembed|noscript)>[.\s\S]*(%s)[.\s\S]*</\1>''' % xsschecker, response)
+    bad_contexts = re.finditer(r'(?s)(?i)<(style|template|textarea|title|noembed|noscript)>[.\s\S]*(%s)[.\s\S]*</\1>' % xsschecker, response)
     non_executable_contexts = []
     for each in bad_contexts:
         non_executable_contexts.append([each.start(), each.end(), each.group(1)])
-#  Finds the "environment" of reflections. is it within double quotes? Which tag contains the reflection?
-    num = 0  # dummy value to keep record of occurence being processed
-    # find xsschecker in response and return matches
-    for occ in re.finditer(xsschecker, response, re.IGNORECASE):
-        # convert "xsschecker to EOF" into a list
-        toLook = list(response[occ.end():])
-        for loc in range(len(toLook)):  # interate over the chars
-            if toLook[loc] in ('\'', '"', '`'):  # if the char is a quote
-                environments.append(toLook[loc])  # add it to environments list
-                tokens = response.split('<')
-                goodTokens = []  # tokens which contain xsschecker
-                for token in tokens:  # iterate over tokens
-                    if xsschecker in token:  # if xsschecker is in token
-                        goodTokens.append(token)  # add it to goodTokens list
-                        # attributes and their values are generally seperated with space so...
-                        attrs = token.split(' ')
-                        for attr in attrs:  # iterate over the attribute
-                            if xsschecker in attr:  # is xsschecker in this attribute?
-                                # alright, this is the one we need
-                                attributeName = attr.split('=')[0]
-                                attributeValue = ''.join(attr.split('=')[1:])
-                                if attributeValue.startswith('\'') or attributeValue.startswith('"'):
-                                    attributeValue = attributeValue[1:-1]
-                                attributes.append({attributeName:attributeValue})
-                                break
-                try:
-                    # finds the tag "inside" which input is refelcted
-                    tag = re.search(r'\w+', goodTokens[num]).group()
-                except IndexError:
-                    try:
-                        # finds the tag "inside" which input is refelcted
-                        tag = re.search(r'\w+', goodTokens[num - 1]).group()
-                    except IndexError:
-                        tag = 'null'
-                tags.append(tag)  # add the tag to the tags list
-                break
-            else:  # if we encounter a closing angular brackt
-                # check if the next character to it is a / to make sure its a closing tag
-                badContext = isBadContext(positions[num], non_executable_contexts)
-                if badContext:
-                    environments.append('</' + badContext + '>')
-                else:
-                    environments.append('')
-                tags.append('')
-                attributes.append('')
-                break
-            loc += 1
-        num += 1
-    occurences = {}  # a dict to store all the collected information about the reflections
-    for i, loc, env, tag, attr, position in zip(range(len(locations)), locations, environments, tags, attributes, positions):
-        occurences[i] = {}
-        occurences[i]['position'] = position
-        if loc == 'comment':  # if context is html comment
-            env = '-->'  # add --> as environment as we need this to break out
-        occurences[i]['context'] = [loc, env, tag, attr]
-    return [occurences, positions]
+
+    if non_executable_contexts:
+        for key in database.keys():
+            position = database[key]['position']
+            badTag = isBadContext(position, non_executable_contexts)
+            if badTag:
+                database[key]['details']['badTag'] = badTag
+            else:
+                database[key]['details']['badTag'] = ''
+    return database
