@@ -260,3 +260,17 @@ def isBadContext(position, non_executable_contexts):
 def equalize(array, number):
     if len(array) < number:
         array.append('')
+
+def escaped(position, string):
+    usable = string[:position][::-1]
+    match = re.search(r'^\\*', usable)
+    if match:
+        match = match.group()
+        if len(match) == 1:
+            return True
+        elif len(match) % 2 == 0:
+            return False
+        else:
+            return True
+    else:
+        return False
