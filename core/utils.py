@@ -131,7 +131,7 @@ def flattenParams(currentParam, params, payload):
     return '?' + '&'.join(flatted)
 
 
-def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special):
+def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, badTag=None):
     vectors = []
     r = randomUpper  # randomUpper randomly converts chars of a string to uppercase
     for tag in tags:
@@ -150,7 +150,10 @@ def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends,
                                     if tag == 'd3v' or tag == 'a':
                                         if '>' in ends:
                                             end = '>'  # we can't use // as > with "a" or "d3v" tag
-                                    vector = vector = r(breaker) + special + '<' + r(tag) + filling + r(
+                                    breaker = ''
+                                    if badTag:
+                                        breaker = '</' + r(badTag) + '>'
+                                    vector = breaker + '<' + r(tag) + filling + r(
                                         eventHandler) + eFilling + '=' + eFilling + function + lFilling + end + bait
                                     vectors.append(vector)
     return vectors
@@ -253,3 +256,7 @@ def isBadContext(position, non_executable_contexts):
             badContext = each[2]
             break
     return badContext
+
+def equalize(array, number):
+    if len(array) < number:
+        array.append('')
