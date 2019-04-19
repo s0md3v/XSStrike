@@ -101,7 +101,6 @@ def generator(occurences, response):
         elif context == 'comment':
             lessBracketEfficiency = occurences[i]['score']['<']
             greatBracketEfficiency = occurences[i]['score']['>']
-            breakerEfficiency = occurences[i]['score'][breaker]
             ends = ['//']
             if greatBracketEfficiency == 100:
                 ends.append('>')
