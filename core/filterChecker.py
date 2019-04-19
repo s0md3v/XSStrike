@@ -14,6 +14,7 @@ def filterChecker(url, params, headers, GET, delay, occurences, timeout, encodin
         if context == 'comment':
             environments.add('-->')
         elif context == 'script':
+            environments.add(occurences[i]['details']['quote'])
             environments.add('</scRipT/>')
         elif context == 'attribute':
             if occurences[i]['details']['type'] == 'value':
