@@ -119,9 +119,12 @@ def generator(occurences, response):
             else:
                 continue
             closer = jsContexter(script)
+            quote = occurences[i]['details']['quote']
             scriptEfficiency = occurences[i]['score']['</scRipT/>']
             greatBracketEfficiency = occurences[i]['score']['>']
-            breakerEfficiency = occurences[i]['score'][breaker]
+            breakerEfficiency = 100
+            if quote:
+                breakerEfficiency = occurences[i]['score'][quote]
             ends = ['//']
             if greatBracketEfficiency == 100:
                 ends.append('>')
@@ -133,13 +136,9 @@ def generator(occurences, response):
                     vectors[10].add(payload)
             if closer:
                 suffix = '//\\'
-                if not breaker:
-                    closer = closer[1:]
-                if breakerEfficiency != 100:
-                    breaker = ''
                 for filling in jFillings:
                     for function in functions:
-                        vector = breaker + closer + filling + function + suffix
+                        vector = quote + closer + filling + function + suffix
                         vectors[7].add(vector)
             elif breakerEfficiency > 83:
                 suffix = '//'
@@ -147,9 +146,9 @@ def generator(occurences, response):
                     for function in functions:
                         if '=' in function:
                             function = '(' + function + ')'
-                        if breaker == '':
+                        if quote == '':
                             filling = ''
-                        vector = '\\' + breaker + closer + filling + function + suffix
+                        vector = '\\' + quote + closer + filling + function + suffix
                         vectors[6].add(vector)
             index += 1
     return vectors
