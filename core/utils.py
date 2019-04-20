@@ -180,6 +180,8 @@ def getParams(url, data, GET):
         parts = data.split('&')
         for part in parts:
             each = part.split('=')
+            if len(each) < 2:
+                each.append('')
             try:
                 params[each[0]] = each[1]
             except IndexError:
