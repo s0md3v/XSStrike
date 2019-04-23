@@ -18,6 +18,7 @@
   <a href="https://github.com/s0md3v/XSStrike/issues?q=is%3Aissue+is%3Aclosed">
       <img src="https://img.shields.io/github/issues-closed-raw/s0md3v/XSStrike.svg">
   </a>
+  [![](https://images.microbadger.com/badges/image/xshuden/xsstrike.svg)](https://microbadger.com/images/xshuden/xsstrike "Get your own image badge on microbadger.com")
 </p>
 
 ![multi xss](https://image.ibb.co/gOCV5L/Screenshot-2018-11-19-13-33-49.png)
