@@ -221,14 +221,14 @@ def handle_anchor(parent_url, url):
         return url
     elif url[:2] == '//':
         return scheme + ':' + url
-    elif url.startswith('/') and parent_url.endswith('/'):
-        return parent_url[:-1] + url
-    elif url.startswith('/') or parent_url.endswith('/'):
-        return parent_url + url
-    else:
+    elif url.startswith('/'):
         host = urlparse(parent_url).netloc
         scheme = urlparse(parent_url).scheme
         parent_url = scheme + '://' + host
+        return parent_url + url
+    elif parent_url.endswith('/'):
+        return parent_url + url
+    else:
         return parent_url + '/' + url
 
 
