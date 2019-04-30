@@ -217,6 +217,7 @@ def js_extractor(response):
 
 
 def handle_anchor(parent_url, url):
+    scheme = urlparse(parent_url).scheme
     if url[:4] == 'http':
         return url
     elif url[:2] == '//':
