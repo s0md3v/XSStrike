@@ -3,7 +3,7 @@ import re
 from urllib.parse import urlparse, quote, unquote
 
 from core.arjun import arjun
-from core.browserEngine import browserEngine, killBrowser
+from core.browserEngine import browser_engine, kill_browser
 from core.checker import checker
 from core.colors import good, bad, end, info, green, red, que
 import core.config
@@ -101,14 +101,14 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
                     vect = unquote(vect)
                 logger.info('Validating in Browser')
                 response = requester(url, paramsCopy, headers, GET, delay, timeout).text
-                success = browserEngine(response)
+                success = browser_engine(response)
                 if success:
-                    logger.info('Payload: %s' % vect)
-                    logger.info('Browser Validated: %s' % success)
+                    logger.good('Payload: %s' % vect)
+                    logger.good('Browser Validated: %s' % success)
                     if not skip:
                         choice = input('%s Would you like to continue scanning? [y/N] ' % que).lower()
                         if choice != 'y':
-                            killBrowser()
+                            kill_browser()
                             quit()
         logger.no_format('')
-    killBrowser()
+    kill_browser()
