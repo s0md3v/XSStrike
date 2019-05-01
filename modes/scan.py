@@ -99,12 +99,10 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
                 logger.run('Progress: %i/%i\r' % (progress, total))
                 if not GET:
                     vect = unquote(vect)
-                logger.info('Validating in Browser')
                 response = requester(url, paramsCopy, headers, GET, delay, timeout).text
                 success = browser_engine(response)
                 if success:
                     logger.good('Payload: %s' % vect)
-                    logger.good('Browser Validated: %s' % success)
                     if not skip:
                         choice = input('%s Would you like to continue scanning? [y/N] ' % que).lower()
                         if choice != 'y':
