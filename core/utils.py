@@ -217,22 +217,20 @@ def js_extractor(response):
 
 
 def handle_anchor(parent_url, url):
-    if parent_url.count('/') > 2:
-        replacable = re.search(r'/[^/]*?$', parent_url).group()
-        if replacable != '/':
-            parent_url = parent_url.replace(replacable, '')
     scheme = urlparse(parent_url).scheme
     if url[:4] == 'http':
         return url
     elif url[:2] == '//':
         return scheme + ':' + url
-    elif url[:1] == '/':
+    elif url.startswith('/'):
+        host = urlparse(parent_url).netloc
+        scheme = urlparse(parent_url).scheme
+        parent_url = scheme + '://' + host
+        return parent_url + url
+    elif parent_url.endswith('/'):
         return parent_url + url
     else:
-        if parent_url.endswith('/') or url.startswith('/'):
-            return parent_url + url
-        else:
-            return parent_url + '/' + url
+        return parent_url + '/' + url
 
 
 def deJSON(data):

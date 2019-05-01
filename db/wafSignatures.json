@@ -290,7 +290,7 @@
 		"headers" : "Secure Entry Server"
 	},
 	"Varnish FireWall (OWASP)" : {
-		"code" : "404",
+		"code" : "",
 		"page" : "Request rejected by xVarnish-WAF|\\bXID: \\d+",
 		"headers" : ""
 	},
