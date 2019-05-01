@@ -1,5 +1,9 @@
 language: python
 cache: pip
+env:
+  - MOZ_HEADLESS=1
+addons:
+  firefox: latest
 os:
   - linux
 python:
