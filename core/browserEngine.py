@@ -11,6 +11,12 @@ options = Options()
 options.add_argument('--headless')
 browser = webdriver.Firefox(options=options)
 
+
+def killBrowser():
+    if browser is not None:
+        browser.quit()
+
+
 def browserEngine(response):
     response = re.sub(r'<script.*?src=.*?>', '<script src=#>', response, re.I)
     response = re.sub(r'href=.*?>', 'href=#>', response, re.I)
@@ -25,9 +31,8 @@ def browserEngine(response):
         actions.perform()
         if EC.alert_is_present():
             popUp = True
-        browser.quit()
 
     except UnexpectedAlertPresentException:
         popUp = True
-        browser.quit()
+
     return popUp

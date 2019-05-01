@@ -3,7 +3,7 @@ import re
 from urllib.parse import urlparse, quote, unquote
 
 from core.arjun import arjun
-from core.browserEngine import browserEngine
+from core.browserEngine import browserEngine, killBrowser
 from core.checker import checker
 from core.colors import good, bad, end, info, green, red, que
 import core.config
@@ -108,5 +108,7 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
                     if not skip:
                         choice = input('%s Would you like to continue scanning? [y/N] ' % que).lower()
                         if choice != 'y':
+                            killBrowser()
                             quit()
         logger.no_format('')
+    killBrowser()
