@@ -3,7 +3,7 @@ import re
 from urllib.parse import urlparse, quote, unquote
 
 from core.arjun import arjun
-from core.browserEngine import browser_engine, kill_browser
+from core.browserEngine import browser_engine, kill_browser, init_browser
 from core.checker import checker
 from core.colors import good, bad, end, info, green, red, que
 import core.config
@@ -32,6 +32,9 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
             target = 'http://' + target
     logger.debug('Scan target: {}'.format(target))
     response = requester(target, {}, headers, GET, delay, timeout).text
+
+    # initialize browser
+    init_browser()
 
     if not skipDOM:
         logger.run('Checking for DOM vulnerabilities')

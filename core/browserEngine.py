@@ -53,4 +53,4 @@ def navigate_to(uri):
         browser.get(uri)
 
 
-init_browser()
+
