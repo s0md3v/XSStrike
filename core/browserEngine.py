@@ -50,7 +50,4 @@ def _write_response_to_file(response):
 def navigate_to(uri):
     if browser is None:
         init_browser()
-        browser.get(uri)
-
-
-
+    browser.get(uri)
