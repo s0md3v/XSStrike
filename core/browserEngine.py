@@ -9,21 +9,17 @@ from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver.support import expected_conditions as EC
 
-logger = setup_logger(__name__)
-
 
 def init_browser():
     global browser
     options = Options()
     options.add_argument('--headless')
     browser = webdriver.Firefox(options=options)
-    logger.debug('Browser initialized')
 
 
 def kill_browser():
     if browser is not None:
         browser.quit()
-        logger.debug('Killed browser')
 
 
 def browser_engine(response):
@@ -38,11 +34,9 @@ def browser_engine(response):
         actions.perform()
         if EC.alert_is_present():
             popUp = True
-            logger.good('Found alert during browser validation')
 
     except UnexpectedAlertPresentException:
         popUp = True
-        logger.good('Found alert during browser validation')
 
     return popUp
 
