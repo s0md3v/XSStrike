@@ -96,6 +96,15 @@
 				},
 				"severity": "medium",
 				"info" : [ "https://bugs.jquery.com/ticket/11974", "https://nvd.nist.gov/vuln/detail/CVE-2015-9251", "http://research.insecurelabs.org/jquery/test/" ]
+			},
+			{
+				"below" : "3.4.0",
+				"identifiers": {
+					"CVE" : [ "CVE-2019-11358" ],
+					"summary": "jQuery before 3.4.0, as used in Drupal, Backdrop CMS, and other products, mishandles jQuery.extend(true, {}, ...) because of Object.prototype pollution"
+				},
+				"severity" : "low",
+				"info" : [ "https://blog.jquery.com/2019/04/10/jquery-3-4-0-released/", "https://nvd.nist.gov/vuln/detail/CVE-2019-11358", "https://github.com/jquery/jquery/commit/753d591aea698e57d6db58c9f722cd0808619b1b" ]
 			}
 
 
@@ -1321,6 +1330,27 @@
 					"summary": "cross-site scripting vulnerability"
 				},
 				"info" : [ "https://github.com/twbs/bootstrap/pull/3421" ]
+			},
+			{
+				"below" : "4.3.1",
+				"atOrAbove" : "4.0.0",
+				"identifiers": {
+					"issue" : "28236",
+					"summary": "XSS in data-template, data-content and data-title properties of tooltip/popover",
+					"CVE" : ["CVE-2019-8331"]
+				},
+				"severity" : "high",
+				"info" : [ "https://github.com/twbs/bootstrap/issues/28236" ]
+			},
+			{
+				"below" : "3.4.1",
+				"identifiers": {
+					"issue" : "28236",
+					"summary": "XSS in data-template, data-content and data-title properties of tooltip/popover",
+					"CVE" : ["CVE-2019-8331"]
+				},
+				"severity" : "high",
+				"info" : [ "https://github.com/twbs/bootstrap/issues/28236" ]
 			}
 		],
 		"extractors" : {
