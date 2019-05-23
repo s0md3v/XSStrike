@@ -2,27 +2,41 @@ import re
 import os
 import sys
 
-from core.log import setup_logger
 from core.utils import writer
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
-from selenium.common.exceptions import UnexpectedAlertPresentException
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
 
 
 def init_browser():
     global browser
     options = Options()
-    options.add_argument('--headless')
+    # options.add_argument('--headless')
     browser = webdriver.Firefox(options=options)
 
 
 def kill_browser():
+    global browser
     if browser is not None:
         browser.quit()
 
 
+def is_alert_present():
+    global browser
+    try:
+        print(browser.switch_to.alert.text)
+        browser.switch_to.alert.dismiss()
+        return True
+    except NoAlertPresentException:
+        return False
+    except UnexpectedAlertPresentException:
+        return True
+    except Exception as e:
+        print(e)
+
+
 def browser_engine(response):
+    global browser
     _write_response_to_file(response)
     navigate_to('file://' + sys.path[0] + '/test.html')
     os.remove('test.html')
@@ -31,13 +45,15 @@ def browser_engine(response):
 
     try:
         actions.move_by_offset(2, 2)
+        actions.move_by_offset(-2, -2)
         actions.perform()
-        if EC.alert_is_present():
+        if is_alert_present():
             popUp = True
 
     except UnexpectedAlertPresentException:
         popUp = True
-
+    except Exception as e:
+        print(e)
     return popUp
 
 
@@ -48,9 +64,7 @@ def _write_response_to_file(response):
 
 
 def navigate_to(uri):
+    global browser
     if browser is None:
         init_browser()
-        browser.get(uri)
-
-
-
+    browser.get(uri)
