@@ -3,7 +3,6 @@ import re
 from urllib.parse import urlparse, quote, unquote
 
 from core.arjun import arjun
-from core.browserEngine import browser_engine, kill_browser, init_browser
 from core.checker import checker
 from core.colors import good, bad, end, info, green, red, que
 import core.config
@@ -32,9 +31,6 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
             target = 'http://' + target
     logger.debug('Scan target: {}'.format(target))
     response = requester(target, {}, headers, GET, delay, timeout).text
-
-    # initialize browser
-    init_browser()
 
     if not skipDOM:
         logger.run('Checking for DOM vulnerabilities')
@@ -98,18 +94,30 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
             for vect in vects:
                 if core.config.globalVariables['path']:
                     vect = vect.replace('/', '%2F')
+                loggerVector = vect
                 progress += 1
                 logger.run('Progress: %i/%i\r' % (progress, total))
                 if not GET:
                     vect = unquote(vect)
-                response = requester(url, paramsCopy, headers, GET, delay, timeout).text
-                success = browser_engine(response)
-                if success:
-                    logger.good('Payload: %s' % vect)
+                efficiencies = checker(
+                    url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
+                if not efficiencies:
+                    for i in range(len(occurences)):
+                        efficiencies.append(0)
+                bestEfficiency = max(efficiencies)
+                if bestEfficiency == 100 or (vect[0] == '\\' and bestEfficiency >= 95):
+                    logger.red_line()
+                    logger.good('Payload: %s' % loggerVector)
+                    logger.info('Efficiency: %i' % bestEfficiency)
+                    logger.info('Confidence: %i' % confidence)
                     if not skip:
-                        choice = input('%s Would you like to continue scanning? [y/N] ' % que).lower()
+                        choice = input(
+                            '%s Would you like to continue scanning? [y/N] ' % que).lower()
                         if choice != 'y':
-                            kill_browser()
                             quit()
+                elif bestEfficiency > minEfficiency:
+                    logger.red_line()
+                    logger.good('Payload: %s' % loggerVector)
+                    logger.info('Efficiency: %i' % bestEfficiency)
+                    logger.info('Confidence: %i' % confidence)
         logger.no_format('')
-    kill_browser()
