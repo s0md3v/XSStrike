@@ -26,7 +26,7 @@ def generator(occurences, response):
             found = False
             tag = occurences[i]['details']['tag']
             Type = occurences[i]['details']['type']
-            quote = occurences[i]['details']['quote']
+            quote = occurences[i]['details']['quote'] or ''
             attributeName = occurences[i]['details']['name']
             attributeValue = occurences[i]['details']['value']
             quoteEfficiency = occurences[i]['score'][quote] if quote in occurences[i]['score'] else 100
