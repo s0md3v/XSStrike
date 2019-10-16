@@ -34,12 +34,12 @@ def dom(response):
                                         controlledVariables.add(re.search(r'[a-zA-Z$_][a-zA-Z0-9$_]+', part).group().replace('$', '\$'))
                                         sourceFound = True
                             line = line.replace(source, yellow + source + end)
-                for controlledVariable in controlledVariables:
-                    allControlledVariables.add(controlledVariable)
-                for controlledVariable in allControlledVariables:
-                    matches = list(filter(None, re.findall(r'\b%s\b' % controlledVariable, line)))
-                    if matches:
-                        line = re.sub(r'\b%s\b' % controlledVariable, yellow + controlledVariable + end, line)
+                    for controlledVariable in controlledVariables:
+                        allControlledVariables.add(controlledVariable)
+                    for controlledVariable in allControlledVariables:
+                        matches = list(filter(None, re.findall(r'\b%s\b' % controlledVariable, line)))
+                        if matches:
+                            line = re.sub(r'\b%s\b' % controlledVariable, yellow + controlledVariable + end, line)
                 pattern = re.finditer(sinks, newLine)
                 for grp in pattern:
                     if grp:
