@@ -74,6 +74,21 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 - [Can I copy it's code?](https://github.com/s0md3v/XSStrike/wiki/FAQ#can-i-copy-its-code)
 - [What if I want to embed it into a proprietary software?](https://github.com/s0md3v/XSStrike/wiki/FAQ#what-if-i-want-to-embed-it-into-a-proprietary-software)
 
+### Docker Build
+
+ ```
+ $ docker build -t <IMAGE NAME> .
+ OR
+ $ docker build -t xshuden/xsstrike .
+ ```
+
+### Docker Usage
+
+ ```
+ $ docker run --rm -it xshuden/xsstrike
+ $ docker run --rm -it xshuden/xsstrike -u https://xss-game.appspot.com/level1/frame?query=
+ ```
+
 ### Gallery
 #### DOM XSS
 ![dom xss](https://image.ibb.co/bQaQ5L/Screenshot-2018-11-19-13-48-19.png)
