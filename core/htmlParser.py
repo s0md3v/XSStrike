@@ -61,7 +61,7 @@ def htmlParser(response, encoding):
                 environment_details[thisPosition] = {}
                 environment_details[thisPosition]['details'] = {}
     if len(position_and_context) < reflections:
-        comment_context = re.finditer(r'<!--(?![.\s\S]*-->)[.\s\S]*(%s)[.\s\S]*?-->' % xsschecker, response)
+        comment_context = re.finditer(r'<!--[\s\S]*?(%s)[\s\S]*?-->' % xsschecker, response)
         for occurence in comment_context:
             thisPosition = occurence.start(1)
             position_and_context[thisPosition] = 'comment'
