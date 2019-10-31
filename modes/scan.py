@@ -67,11 +67,9 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
         else:
             paramsCopy[paramName] = xsschecker
         response = requester(url, paramsCopy, headers, GET, delay, timeout)
-        parsedResponse = htmlParser(response, encoding)
-        occurences = parsedResponse[0]
+        occurences = htmlParser(response, encoding)
+        positions = occurences.keys()
         logger.debug('Scan occurences: {}'.format(occurences))
-        positions = parsedResponse[1]
-        logger.debug('Scan positions: {}'.format(positions))
         if not occurences:
             logger.error('No reflection found')
             continue

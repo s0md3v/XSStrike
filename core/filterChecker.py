@@ -2,44 +2,32 @@ from core.checker import checker
 
 
 def filterChecker(url, params, headers, GET, delay, occurences, timeout, encoding):
-    positions = {}
+    positions = occurences.keys()
     sortedEfficiencies = {}
     # adding < > to environments anyway because they can be used in all contexts
     environments = set(['<', '>'])
-    for i in range(len(occurences)):
+    for i in range(len(positions)):
         sortedEfficiencies[i] = {}
-    for i, occurence in zip(range(len(occurences)), occurences.values()):
-        environments.add(occurence['context'][1])
-        location = occurence['context'][0]
-        try:
-            attributeName = list(occurence['context'][3].keys())[0]
-            attributeValue = list(occurence['context'][3].values())[0]
-        except AttributeError:
-            attributeName = occurence['context'][3]
-        positions[str(i)] = occurence['position']
-        if location == 'comment':
+    for i in occurences:
+        occurences[i]['score'] = {}
+        context = occurences[i]['context']
+        if context == 'comment':
             environments.add('-->')
-        elif location == 'script':
+        elif context == 'script':
+            environments.add(occurences[i]['details']['quote'])
             environments.add('</scRipT/>')
-        elif attributeName == 'srcdoc':  # srcdoc attribute accepts html data with html entity encoding
-            environments.add('&lt;')  # so let's add the html entity
-            environments.add('&gt;')  # encoded versions of < and >
-
+        elif context == 'attribute':
+            if occurences[i]['details']['type'] == 'value':
+                if occurences[i]['details']['name'] == 'srcdoc':  # srcdoc attribute accepts html data with html entity encoding
+                    environments.add('&lt;')  # so let's add the html entity
+                    environments.add('&gt;')  # encoded versions of < and >
+            if occurences[i]['details']['quote']:
+                environments.add(occurences[i]['details']['quote'])
     for environment in environments:
-        if environment == '':
-            efficiencies = [100 for i in range(len(occurences))]
-        else:
+        if environment:
             efficiencies = checker(
                 url, params, headers, GET, delay, environment, positions, timeout, encoding)
-            if len(efficiencies) < len(occurences):
-                for i in range(len(occurences) - len(efficiencies)):
-                    efficiencies.append(0)
-        for i, efficiency in zip(range(len(efficiencies)), efficiencies):
-            try:
-                sortedEfficiencies[i][environment] = efficiency
-            except:
-                sortedEfficiencies[i] = {}
-                sortedEfficiencies[i][environment] = efficiency
-    for efficiency, occurence in zip(sortedEfficiencies.values(), occurences.values()):
-        occurence['score'] = efficiency
+            efficiencies.extend([0] * (len(occurences) - len(efficiencies)))
+            for occurence, efficiency in zip(occurences, efficiencies):
+                occurences[occurence]['score'][environment] = efficiency
     return occurences

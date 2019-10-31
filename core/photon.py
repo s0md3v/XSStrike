@@ -54,16 +54,19 @@ def photon(seedUrl, headers, level, threadCount, delay, timeout, skipDOM):
         for link in matches:  # iterate over the matches
             # remove everything after a "#" to deal with in-page anchors
             link = link.split('#')[0]
-            if link[:4] == 'http':
-                if link.startswith(main_url):
-                    storage.add(link)
-            elif link[:2] == '//':
-                if link.split('/')[2].startswith(host):
-                    storage.add(schema + link)
-            elif link[:1] == '/':
-                storage.add(main_url + link)
+            if link.endswith(('.pdf', '.png', '.jpg', '.jpeg', '.xls', '.xml', '.docx', '.doc')):
+                pass
             else:
-                storage.add(main_url + '/' + link)
+                if link[:4] == 'http':
+                    if link.startswith(main_url):
+                        storage.add(link)
+                elif link[:2] == '//':
+                    if link.split('/')[2].startswith(host):
+                        storage.add(schema + link)
+                elif link[:1] == '/':
+                    storage.add(main_url + link)
+                else:
+                    storage.add(main_url + '/' + link)
     for x in range(level):
         urls = storage - processed  # urls to crawl = all urls - urls that have been crawled
         # for url in urls:

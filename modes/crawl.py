@@ -41,9 +41,8 @@ def crawl(scheme, host, main_url, form, blindXSS, blindPayload, headers, delay, 
                             paramsCopy[paramName] = xsschecker
                             response = requester(
                                 url, paramsCopy, headers, GET, delay, timeout)
-                            parsedResponse = htmlParser(response, encoding)
-                            occurences = parsedResponse[0]
-                            positions = parsedResponse[1]
+                            occurences = htmlParser(response, encoding)
+                            positions = occurences.keys()
                             efficiencies = filterChecker(
                                 url, paramsCopy, headers, GET, delay, occurences, timeout, encoding)
                             vectors = generator(occurences, response.text)
