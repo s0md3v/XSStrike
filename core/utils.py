@@ -131,7 +131,7 @@ def flattenParams(currentParam, params, payload):
     return '?' + '&'.join(flatted)
 
 
-def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, badTag=None):
+def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends, breaker, special):
     vectors = []
     r = randomUpper  # randomUpper randomly converts chars of a string to uppercase
     for tag in tags:
@@ -150,10 +150,7 @@ def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends,
                                     if tag == 'd3v' or tag == 'a':
                                         if '>' in ends:
                                             end = '>'  # we can't use // as > with "a" or "d3v" tag
-                                    breaker = ''
-                                    if badTag:
-                                        breaker = '</' + r(badTag) + '>'
-                                    vector = breaker + '<' + r(tag) + filling + r(
+                                    vector = vector = r(breaker) + special + '<' + r(tag) + filling + r(
                                         eventHandler) + eFilling + '=' + eFilling + function + lFilling + end + bait
                                     vectors.append(vector)
     return vectors
@@ -180,8 +177,6 @@ def getParams(url, data, GET):
         parts = data.split('&')
         for part in parts:
             each = part.split('=')
-            if len(each) < 2:
-                each.append('')
             try:
                 params[each[0]] = each[1]
             except IndexError:
@@ -217,20 +212,22 @@ def js_extractor(response):
 
 
 def handle_anchor(parent_url, url):
+    if parent_url.count('/') > 2:
+        replacable = re.search(r'/[^/]*?$', parent_url).group()
+        if replacable != '/':
+            parent_url = parent_url.replace(replacable, '')
     scheme = urlparse(parent_url).scheme
     if url[:4] == 'http':
         return url
     elif url[:2] == '//':
         return scheme + ':' + url
-    elif url.startswith('/'):
-        host = urlparse(parent_url).netloc
-        scheme = urlparse(parent_url).scheme
-        parent_url = scheme + '://' + host
-        return parent_url + url
-    elif parent_url.endswith('/'):
+    elif url[:1] == '/':
         return parent_url + url
     else:
-        return parent_url + '/' + url
+        if parent_url.endswith('/') or url.startswith('/'):
+            return parent_url + url
+        else:
+            return parent_url + '/' + url
 
 
 def deJSON(data):
@@ -256,21 +253,3 @@ def isBadContext(position, non_executable_contexts):
             badContext = each[2]
             break
     return badContext
-
-def equalize(array, number):
-    if len(array) < number:
-        array.append('')
-
-def escaped(position, string):
-    usable = string[:position][::-1]
-    match = re.search(r'^\\*', usable)
-    if match:
-        match = match.group()
-        if len(match) == 1:
-            return True
-        elif len(match) % 2 == 0:
-            return False
-        else:
-            return True
-    else:
-        return False
