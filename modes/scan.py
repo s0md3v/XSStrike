@@ -48,7 +48,8 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
     params = getParams(target, paramData, GET)
     logger.debug_json('Scan parameters:', params)
     if find:
-        params = arjun(url, GET, headers, delay, timeout)
+        parameter_findes = arjun(url, GET, headers, delay, timeout)
+        params.update(parameter_findes)
     if not params:
         logger.error('No parameters to test.')
         quit()

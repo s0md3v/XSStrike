@@ -33,6 +33,7 @@ def arjun(url, GET, headers, delay, timeout):
             green, foundParam, end))
         if foundParam not in blindParams:
             blindParams.insert(0, foundParam)
+        paraNames[foundParam] = "null"
     threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
     futures = (threadpool.submit(checky, param, paraNames, url,
                                  headers, GET, delay, timeout) for param in blindParams)
