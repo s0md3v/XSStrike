@@ -1,7 +1,9 @@
 import re
 
-from core.colors import red, end, yellow
+from core.colors import end, red, yellow
 
+if len(end) < 1:
+    end = red = yellow = '*'
 
 def dom(response):
     highlighted = []

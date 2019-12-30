@@ -4,7 +4,7 @@ from urllib.parse import urlparse, quote, unquote
 
 from core.arjun import arjun
 from core.checker import checker
-from core.colors import good, bad, end, info, green, red, que
+from core.colors import end, green, que
 import core.config
 from core.config import xsschecker, minEfficiency
 from core.dom import dom
