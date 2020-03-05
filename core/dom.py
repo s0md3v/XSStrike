@@ -12,12 +12,12 @@ def dom(response):
     for script in scripts:
         script = script.split('\n')
         num = 1
+        allControlledVariables = set()
         try:
             for newLine in script:
                 line = newLine
                 parts = line.split('var ')
                 controlledVariables = set()
-                allControlledVariables = set()
                 if len(parts) > 1:
                     for part in parts:
                         for controlledVariable in allControlledVariables:
