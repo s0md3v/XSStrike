@@ -17,7 +17,10 @@ try:
     except ImportError:
         import os
         print ('%s fuzzywuzzy isn\'t installed, installing now.' % info)
-        os.system('pip3 install fuzzywuzzy')
+        ret_code = os.system('pip3 install fuzzywuzzy')
+        if(ret_code != 0):
+            print('%s fuzzywuzzy installation failed.' % bad)
+            quit()
         print ('%s fuzzywuzzy has been installed, restart XSStrike.' % info)
         quit()
 except ImportError:  # throws error in python2
