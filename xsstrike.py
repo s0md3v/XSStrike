@@ -79,6 +79,7 @@ parser.add_argument('--file-log-level', help='File logging level', dest='file_lo
                     choices=core.log.log_config.keys(), default=None)
 parser.add_argument('--log-file', help='Name of the file to log', dest='log_file',
                     default=core.log.log_file)
+parser.add_argument('--write-payloads', dest="payloads_file", help='Write generated payloads to given file', default=None)
 args = parser.parse_args()
 
 # Pull all parameter values of dict from argparse namespace into local variables of name == key
@@ -103,6 +104,7 @@ delay = args.delay
 skip = args.skip
 skipDOM = args.skipDOM
 blindXSS = args.blindXSS
+payloads_file = args.payloads_file
 core.log.console_log_level = args.console_log_level
 core.log.file_log_level = args.file_log_level
 core.log.log_file = args.log_file
@@ -171,7 +173,7 @@ elif not recursive and not args_seeds:
     if args_file:
         bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
     else:
-        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, skip)
+        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, skip, payloads_file)
 else:
     if target:
         seedList.append(target)
