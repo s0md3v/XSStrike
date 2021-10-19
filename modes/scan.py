@@ -11,7 +11,7 @@ from core.dom import dom
 from core.filterChecker import filterChecker
 from core.generator import generator
 from core.htmlParser import htmlParser
-from core.requester import requester, requesterJs
+from core.requester import requester
 from core.utils import getUrl, getParams, getVar
 from core.wafDetector import wafDetector
 from core.log import setup_logger
