@@ -79,11 +79,13 @@ parser.add_argument('--file-log-level', help='File logging level', dest='file_lo
                     choices=core.log.log_config.keys(), default=None)
 parser.add_argument('--log-file', help='Name of the file to log', dest='log_file',
                     default=core.log.log_file)
+parser.add_argument('--js', '--javascript', help='render javascript', dest='js', action='store_true')
 args = parser.parse_args()
 
 # Pull all parameter values of dict from argparse namespace into local variables of name == key
 # The following works, but the static checkers are too static ;-) locals().update(vars(args))
 target = args.target
+js = args.js
 path = args.path
 jsonData = args.jsonData
 paramData = args.paramData

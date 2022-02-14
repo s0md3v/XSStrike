@@ -1,5 +1,6 @@
 import random
 import requests
+from requests_html import HTMLSession
 import time
 from urllib3.exceptions import ProtocolError
 import warnings
@@ -7,6 +8,7 @@ import warnings
 import core.config
 from core.utils import converter, getVar
 from core.log import setup_logger
+from core.types import CustomResponse
 
 logger = setup_logger(__name__)
 
@@ -33,16 +35,33 @@ def requester(url, data, headers, GET, delay, timeout):
     logger.debug_json('Requester data:', data)
     logger.debug_json('Requester headers:', headers)
     try:
-        if GET:
-            response = requests.get(url, params=data, headers=headers,
-                                    timeout=timeout, verify=False, proxies=core.config.proxies)
-        elif getVar('jsonData'):
-            response = requests.post(url, json=data, headers=headers,
-                                    timeout=timeout, verify=False, proxies=core.config.proxies)
+        if core.config.globalVariables["js"]: # if js argument specified, render javascript
+            session = HTMLSession() # start the session
+            if GET:
+                response = session.get(url, params=data, headers=headers,
+                                        timeout=timeout, verify=False, proxies=core.config.proxies)
+                response.html.render() # render js
+            elif getVar('jsonData'):
+                response = session.post(url, json=data, headers=headers,
+                                        timeout=timeout, verify=False, proxies=core.config.proxies)
+                response.html.render()
+            else:
+                response = session.post(url, data=data, headers=headers,
+                                        timeout=timeout, verify=False, proxies=core.config.proxies)
+                response.html.render()
+            session.close() # close the response
+            return CustomResponse(response.html.html) # return only the html(which is needed for outer scope) with a custom type
         else:
-            response = requests.post(url, data=data, headers=headers,
-                                     timeout=timeout, verify=False, proxies=core.config.proxies)
-        return response
+            if GET:
+                response = requests.get(url, params=data, headers=headers,
+                                        timeout=timeout, verify=False, proxies=core.config.proxies)
+            elif getVar('jsonData'):
+                response = requests.post(url, json=data, headers=headers,
+                                        timeout=timeout, verify=False, proxies=core.config.proxies)
+            else:
+                response = requests.post(url, data=data, headers=headers,
+                                        timeout=timeout, verify=False, proxies=core.config.proxies)
+            return response
     except ProtocolError:
         logger.warning('WAF is dropping suspicious requests.')
         logger.warning('Scanning will continue after 10 minutes.')
