@@ -36,49 +36,29 @@ import core.log
 # Processing command line arguments, where dest var names will be mapped to local vars with the same name
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--url', help='url', dest='target')
+parser.add_argument('-uL', '--urls-lists', help='list of urls', dest='target list')
 parser.add_argument('--data', help='post data', dest='paramData')
 parser.add_argument('-e', '--encode', help='encode payloads', dest='encode')
-parser.add_argument('--fuzzer', help='fuzzer',
-                    dest='fuzz', action='store_true')
-parser.add_argument('--update', help='update',
-                    dest='update', action='store_true')
-parser.add_argument('--timeout', help='timeout',
-                    dest='timeout', type=int, default=core.config.timeout)
-parser.add_argument('--proxy', help='use prox(y|ies)',
-                    dest='proxy', action='store_true')
-parser.add_argument('--params', help='find params',
-                    dest='find', action='store_true')
-parser.add_argument('--crawl', help='crawl',
-                    dest='recursive', action='store_true')
-parser.add_argument('--json', help='treat post data as json',
-                    dest='jsonData', action='store_true')
-parser.add_argument('--path', help='inject payloads in the path',
-                    dest='path', action='store_true')
-parser.add_argument(
-    '--seeds', help='load crawling seeds from a file', dest='args_seeds')
-parser.add_argument(
-    '-f', '--file', help='load payloads from a file', dest='args_file')
-parser.add_argument('-l', '--level', help='level of crawling',
-                    dest='level', type=int, default=2)
-parser.add_argument('--headers', help='add headers',
-                    dest='add_headers', nargs='?', const=True)
-parser.add_argument('-t', '--threads', help='number of threads',
-                    dest='threadCount', type=int, default=core.config.threadCount)
-parser.add_argument('-d', '--delay', help='delay between requests',
-                    dest='delay', type=int, default=core.config.delay)
-parser.add_argument('--skip', help='don\'t ask to continue',
-                    dest='skip', action='store_true')
-parser.add_argument('--skip-dom', help='skip dom checking',
-                    dest='skipDOM', action='store_true')
-parser.add_argument('--blind', help='inject blind XSS payload while crawling',
-                    dest='blindXSS', action='store_true')
-parser.add_argument('--console-log-level', help='Console logging level',
-                    dest='console_log_level', default=core.log.console_log_level,
-                    choices=core.log.log_config.keys())
-parser.add_argument('--file-log-level', help='File logging level', dest='file_log_level',
-                    choices=core.log.log_config.keys(), default=None)
-parser.add_argument('--log-file', help='Name of the file to log', dest='log_file',
-                    default=core.log.log_file)
+parser.add_argument('--fuzzer', help='fuzzer', dest='fuzz', action='store_true')
+parser.add_argument('--update', help='update', dest='update', action='store_true')
+parser.add_argument('--timeout', help='timeout', dest='timeout', type=int, default=core.config.timeout)
+parser.add_argument('--proxy', help='use prox(y|ies)', dest='proxy', action='store_true')
+parser.add_argument('--params', help='find params', dest='find', action='store_true')
+parser.add_argument('--crawl', help='crawl', dest='recursive', action='store_true')
+parser.add_argument('--json', help='treat post data as json', dest='jsonData', action='store_true')
+parser.add_argument('--path', help='inject payloads in the path', dest='path', action='store_true')
+parser.add_argument('--seeds', help='load crawling seeds from a file', dest='args_seeds')
+parser.add_argument('-f', '--file', help='load payloads from a file', dest='args_file')
+parser.add_argument('-l', '--level', help='level of crawling',dest='level', type=int, default=2)
+parser.add_argument('--headers', help='add headers', dest='add_headers', nargs='?', const=True)
+parser.add_argument('-t', '--threads', help='number of threads', dest='threadCount', type=int, default=core.config.threadCount)
+parser.add_argument('-d', '--delay', help='delay between requests', dest='delay', type=int, default=core.config.delay)
+parser.add_argument('--skip', help='don\'t ask to continue', dest='skip', action='store_true')
+parser.add_argument('--skip-dom', help='skip dom checking', dest='skipDOM', action='store_true')
+parser.add_argument('--blind', help='inject blind XSS payload while crawling', dest='blindXSS', action='store_true')
+parser.add_argument('--console-log-level', help='Console logging level', dest='console_log_level', default=core.log.console_log_level, choices=core.log.log_config.keys())
+parser.add_argument('--file-log-level', help='File logging level', dest='file_log_level', choices=core.log.log_config.keys(), default=None)
+parser.add_argument('--log-file', help='Name of the file to log', dest='log_file', default=core.log.log_file)
 args = parser.parse_args()
 
 # Import everything else required from core lib
@@ -125,10 +105,10 @@ def main():
 
     core.config.globalVariables = vars(args)
 
-    if type(args.add_headers) == bool:
+    if type(add_headers) == bool:
         headers = extractHeaders(prompt())
-    elif type(args.add_headers) == str:
-        headers = extractHeaders(args.add_headers)
+    elif type(add_headers) == str:
+        headers = extractHeaders(add_headers)
     else:
         from core.config import headers
 
