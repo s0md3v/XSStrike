@@ -1,0 +1,2 @@
+https://xss-game.appspot.com/level1/frame?query=sda
+https://xss-game.appspot.com/level2/frame?query=sda

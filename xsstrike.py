@@ -36,7 +36,7 @@ import core.log
 # Processing command line arguments, where dest var names will be mapped to local vars with the same name
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--url', help='url', dest='target')
-parser.add_argument('-uL', '--urls-lists', help='list of urls', dest='target list')
+parser.add_argument('-ul', '--urls-lists', help='list of urls', dest='target_wordlist')
 parser.add_argument('--data', help='post data', dest='paramData')
 parser.add_argument('-e', '--encode', help='encode payloads', dest='encode')
 parser.add_argument('--fuzzer', help='fuzzer', dest='fuzz', action='store_true')
@@ -78,6 +78,7 @@ def main():
     # Pull all parameter values of dict from argparse namespace into local variables of name == key
     # The following works, but the static checkers are too static ;-) locals().update(vars(args))
     target = args.target
+    target_wordlist = args.target_wordlist
     path = args.path
     jsonData = args.jsonData
     paramData = args.paramData
@@ -142,44 +143,53 @@ def main():
         updater()
         quit()  # quitting because files have been changed
 
-    if not target and not args_seeds:  # if the user hasn't supplied a url
+    if not target and not args_seeds and not target_wordlist:  # if the user hasn't supplied a target or list of targets
         logger.no_format('\n' + parser.format_help().lower())
         quit()
-
-    if fuzz:
-        singleFuzz(target, paramData, encoding, headers, delay, timeout)
-    elif not recursive and not args_seeds:
-        if args_file:
-            bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
-        else:
-            scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, skip)
+    
+    targets_list = list()
+    if target_wordlist:
+        with open(target_wordlist,'r') as targets_file:
+            targets_list = targets_file.readlines()
     else:
-        if target:
-            seedList.append(target)
-        for target in seedList:
-            logger.run('Crawling the target')
-            scheme = urlparse(target).scheme
-            logger.debug('Target scheme: {}'.format(scheme))
-            host = urlparse(target).netloc
-            main_url = scheme + '://' + host
-            crawlingResult = photon(target, headers, level,
-                                    threadCount, delay, timeout, skipDOM)
-            forms = crawlingResult[0]
-            domURLs = list(crawlingResult[1])
-            difference = abs(len(domURLs) - len(forms))
-            if len(domURLs) > len(forms):
-                for i in range(difference):
-                    forms.append(0)
-            elif len(forms) > len(domURLs):
-                for i in range(difference):
-                    domURLs.append(0)
-            threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-            futures = (threadpool.submit(crawl, scheme, host, main_url, form,
-                                        blindXSS, blindPayload, headers, delay, timeout, encoding) for form, domURL in zip(forms, domURLs))
-            for i, _ in enumerate(concurrent.futures.as_completed(futures)):
-                if i + 1 == len(forms) or (i + 1) % threadCount == 0:
-                    logger.info('Progress: %i/%i\r' % (i + 1, len(forms)))
-            logger.no_format('')
+        targets_list.append(target)
+
+    for target in targets_list:
+        logger.run(f'Target {target}')
+        if fuzz:
+            singleFuzz(target, paramData, encoding, headers, delay, timeout)
+        elif not recursive and not args_seeds:
+            if args_file:
+                bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
+            else:
+                scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, skip)
+        else:
+            if target:
+                seedList.append(target)
+            for target in seedList:
+                logger.run('Crawling...')
+                scheme = urlparse(target).scheme
+                logger.debug(f'Target scheme: {scheme}')
+                host = urlparse(target).netloc
+                main_url = scheme + '://' + host
+                crawlingResult = photon(target, headers, level,
+                                        threadCount, delay, timeout, skipDOM)
+                forms = crawlingResult[0]
+                domURLs = list(crawlingResult[1])
+                difference = abs(len(domURLs) - len(forms))
+                if len(domURLs) > len(forms):
+                    for i in range(difference):
+                        forms.append(0)
+                elif len(forms) > len(domURLs):
+                    for i in range(difference):
+                        domURLs.append(0)
+                threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
+                futures = (threadpool.submit(crawl, scheme, host, main_url, form,
+                                            blindXSS, blindPayload, headers, delay, timeout, encoding) for form, domURL in zip(forms, domURLs))
+                for i, _ in enumerate(concurrent.futures.as_completed(futures)):
+                    if i + 1 == len(forms) or (i + 1) % threadCount == 0:
+                        logger.info(f'Progress: {i + 1}/{len(forms)}\r')
+                logger.no_format('')
 
 if __name__ == '__main__':
     try:
