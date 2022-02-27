@@ -2,6 +2,10 @@ import random
 import requests
 import time
 from urllib3.exceptions import ProtocolError
+
+from urllib.error import HTTPError, URLError
+import socket
+
 import warnings
 
 import core.config
@@ -47,3 +51,11 @@ def requester(url, data, headers, GET, delay, timeout):
         logger.warning('WAF is dropping suspicious requests.')
         logger.warning('Scanning will continue after 10 minutes.')
         time.sleep(600)
+    except (HTTPError, URLError) as e:
+        if isinstance(e.reason, socket.timeout):
+                         print('Timeout')
+        else:
+            print("Error trace:\n", str(e))
+    except requests.exceptions.ConnectTimeout as e:
+        print("requests lib time out. Trace:\n", str(e))
+
