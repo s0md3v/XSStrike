@@ -95,8 +95,6 @@ Ways to contribute
 - Suggest a feature
 - Report a bug
 - Fix something and open a pull request
-- Create a browser extension
-- Create a burp suite/zaproxy plugin
 - Help me document the code
 - Spread the word
 
