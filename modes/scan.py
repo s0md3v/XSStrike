@@ -2,7 +2,6 @@ import copy
 import re
 from urllib.parse import urlparse, quote, unquote
 
-from core.arjun import arjun
 from core.checker import checker
 from core.colors import end, green, que
 import core.config
@@ -19,7 +18,7 @@ from core.log import setup_logger
 logger = setup_logger(__name__)
 
 
-def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, skip):
+def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip):
     GET, POST = (False, True) if paramData else (True, False)
     # If the user hasn't supplied the root url with http(s), we will handle it
     if not target.startswith('http'):
@@ -47,8 +46,6 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, find, sk
     logger.debug('Url to scan: {}'.format(url))
     params = getParams(target, paramData, GET)
     logger.debug_json('Scan parameters:', params)
-    if find:
-        params = arjun(url, GET, headers, delay, timeout)
     if not params:
         logger.error('No parameters to test.')
         quit()
