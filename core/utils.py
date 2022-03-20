@@ -161,7 +161,7 @@ def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends,
 
 def getParams(url, data, GET):
     params = {}
-    if '=' in url:
+    if '?' in url and '=' in url:
         data = url.split('?')[1]
         if data[:1] == '?':
             data = data[1:]
