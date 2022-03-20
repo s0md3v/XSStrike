@@ -47,8 +47,6 @@ def requester(url, data, headers, GET, delay, timeout):
         logger.warning('WAF is dropping suspicious requests.')
         logger.warning('Scanning will continue after 10 minutes.')
         time.sleep(600)
-    except requests.exceptions.ConnectionError as e:
-        logger.error('Error Connecting to Host')
-        logger.error('Scanning will continue after 2 minutes')
-        time.sleep(120)
-    return requests.Response()
+    except Exception as e:
+        logger.warning('Unable to connect to the target.')
+        return requests.Response()
