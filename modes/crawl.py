@@ -2,7 +2,7 @@ import copy
 import re
 
 import core.config
-from core.colors import red, good, green, end
+from core.colors import green, end
 from core.config import xsschecker
 from core.filterChecker import filterChecker
 from core.generator import generator
