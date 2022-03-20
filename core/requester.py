@@ -51,3 +51,4 @@ def requester(url, data, headers, GET, delay, timeout):
         logger.error('Error Connecting to Host')
         logger.error('Scanning will continue after 2 minutes')
         time.sleep(120)
+    return requests.Response()

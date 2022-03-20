@@ -67,13 +67,16 @@ def photon(seedUrl, headers, level, threadCount, delay, timeout, skipDOM):
                     storage.add(main_url + link)
                 else:
                     storage.add(main_url + '/' + link)
-    for x in range(level):
-        urls = storage - processed  # urls to crawl = all urls - urls that have been crawled
-        # for url in urls:
-        #     rec(url)
-        threadpool = concurrent.futures.ThreadPoolExecutor(
-            max_workers=threadCount)
-        futures = (threadpool.submit(rec, url) for url in urls)
-        for i in concurrent.futures.as_completed(futures):
-            pass
+    try:
+        for x in range(level):
+            urls = storage - processed  # urls to crawl = all urls - urls that have been crawled
+            # for url in urls:
+            #     rec(url)
+            threadpool = concurrent.futures.ThreadPoolExecutor(
+                max_workers=threadCount)
+            futures = (threadpool.submit(rec, url) for url in urls)
+            for i in concurrent.futures.as_completed(futures):
+                pass
+    except KeyboardInterrupt:
+        return [forms, processed]
     return [forms, processed]
