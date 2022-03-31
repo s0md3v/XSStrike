@@ -82,35 +82,6 @@ parser.add_argument('--log-file', help='Name of the file to log', dest='log_file
                     default=core.log.log_file)
 args = parser.parse_args()
 
-# Pull all parameter values of dict from argparse namespace into local variables of name == key
-# The following works, but the static checkers are too static ;-) locals().update(vars(args))
-target = args.target
-path = args.path
-jsonData = args.jsonData
-paramData = args.paramData
-encode = args.encode
-fuzz = args.fuzz
-update = args.update
-timeout = args.timeout
-proxy = args.proxy
-recursive = args.recursive
-args_file = args.args_file
-args_seeds = args.args_seeds
-level = args.level
-add_headers = args.add_headers
-threadCount = args.threadCount
-delay = args.delay
-skip = args.skip
-skipDOM = args.skipDOM
-blindXSS = args.blindXSS
-core.log.console_log_level = args.console_log_level
-core.log.file_log_level = args.file_log_level
-core.log.log_file = args.log_file
-
-logger = core.log.setup_logger()
-
-core.config.globalVariables = vars(args)
-
 # Import everything else required from core lib
 from core.config import blindPayload
 from core.encoders import base64
@@ -124,78 +95,116 @@ from modes.crawl import crawl
 from modes.scan import scan
 from modes.singleFuzz import singleFuzz
 
-if type(args.add_headers) == bool:
-    headers = extractHeaders(prompt())
-elif type(args.add_headers) == str:
-    headers = extractHeaders(args.add_headers)
-else:
-    from core.config import headers
+def main():
+    # Pull all parameter values of dict from argparse namespace into local variables of name == key
+    # The following works, but the static checkers are too static ;-) locals().update(vars(args))
+    target = args.target
+    path = args.path
+    jsonData = args.jsonData
+    paramData = args.paramData
+    encode = args.encode
+    fuzz = args.fuzz
+    update = args.update
+    timeout = args.timeout
+    proxy = args.proxy
+    recursive = args.recursive
+    args_file = args.args_file
+    args_seeds = args.args_seeds
+    level = args.level
+    add_headers = args.add_headers
+    threadCount = args.threadCount
+    delay = args.delay
+    skip = args.skip
+    skipDOM = args.skipDOM
+    blindXSS = args.blindXSS
+    core.log.console_log_level = args.console_log_level
+    core.log.file_log_level = args.file_log_level
+    core.log.log_file = args.log_file
 
-core.config.globalVariables['headers'] = headers
-core.config.globalVariables['checkedScripts'] = set()
-core.config.globalVariables['checkedForms'] = {}
-core.config.globalVariables['definitions'] = json.loads('\n'.join(reader(sys.path[0] + '/db/definitions.json')))
+    logger = core.log.setup_logger()
 
-if path:
-    paramData = converter(target, target)
-elif jsonData:
-    headers['Content-type'] = 'application/json'
-    paramData = converter(paramData)
+    core.config.globalVariables = vars(args)
 
-if args_file:
-    if args_file == 'default':
-        payloadList = core.config.payloads
+    if type(add_headers) == bool:
+        headers = extractHeaders(prompt())
+    elif type(add_headers) == str:
+        headers = extractHeaders(add_headers)
     else:
-        payloadList = list(filter(None, reader(args_file)))
+        from core.config import headers
 
-seedList = []
-if args_seeds:
-    seedList = list(filter(None, reader(args_seeds)))
+    core.config.globalVariables['headers'] = headers
+    core.config.globalVariables['checkedScripts'] = set()
+    core.config.globalVariables['checkedForms'] = {}
+    core.config.globalVariables['definitions'] = json.loads('\n'.join(reader(sys.path[0] + '/db/definitions.json')))
 
-encoding = base64 if encode and encode == 'base64' else False
+    if path:
+        paramData = converter(target, target)
+    elif jsonData:
+        headers['Content-type'] = 'application/json'
+        paramData = converter(paramData)
 
-if not proxy:
-    core.config.proxies = {}
-
-if update:  # if the user has supplied --update argument
-    updater()
-    quit()  # quitting because files have been changed
-
-if not target and not args_seeds:  # if the user hasn't supplied a url
-    logger.no_format('\n' + parser.format_help().lower())
-    quit()
-
-if fuzz:
-    singleFuzz(target, paramData, encoding, headers, delay, timeout)
-elif not recursive and not args_seeds:
     if args_file:
-        bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
+        if args_file == 'default':
+            payloadList = core.config.payloads
+        else:
+            payloadList = list(filter(None, reader(args_file)))
+
+    seedList = []
+    if args_seeds:
+        seedList = list(filter(None, reader(args_seeds)))
+
+    encoding = base64 if encode and encode == 'base64' else False
+
+    if not proxy:
+        core.config.proxies = {}
+
+    if update:  # if the user has supplied --update argument
+        updater()
+        quit()  # quitting because files have been changed
+
+    if not target and not args_seeds:  # if the user hasn't supplied a url
+        logger.no_format('\n' + parser.format_help().lower())
+        quit()
+
+    if fuzz:
+        singleFuzz(target, paramData, encoding, headers, delay, timeout)
+    elif not recursive and not args_seeds:
+        if args_file:
+            bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
+        else:
+            scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip)
     else:
-        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip)
-else:
-    if target:
-        seedList.append(target)
-    for target in seedList:
-        logger.run('Crawling the target')
-        scheme = urlparse(target).scheme
-        logger.debug('Target scheme: {}'.format(scheme))
-        host = urlparse(target).netloc
-        main_url = scheme + '://' + host
-        crawlingResult = photon(target, headers, level,
-                                threadCount, delay, timeout, skipDOM)
-        forms = crawlingResult[0]
-        domURLs = list(crawlingResult[1])
-        difference = abs(len(domURLs) - len(forms))
-        if len(domURLs) > len(forms):
-            for i in range(difference):
-                forms.append(0)
-        elif len(forms) > len(domURLs):
-            for i in range(difference):
-                domURLs.append(0)
-        threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-        futures = (threadpool.submit(crawl, scheme, host, main_url, form,
-                                     blindXSS, blindPayload, headers, delay, timeout, encoding) for form, domURL in zip(forms, domURLs))
-        for i, _ in enumerate(concurrent.futures.as_completed(futures)):
-            if i + 1 == len(forms) or (i + 1) % threadCount == 0:
-                logger.info('Progress: %i/%i\r' % (i + 1, len(forms)))
-        logger.no_format('')
+        if target:
+            seedList.append(target)
+        for target in seedList:
+            logger.run('Crawling the target')
+            scheme = urlparse(target).scheme
+            logger.debug('Target scheme: {}'.format(scheme))
+            host = urlparse(target).netloc
+            main_url = scheme + '://' + host
+            crawlingResult = photon(target, headers, level,
+                                    threadCount, delay, timeout, skipDOM)
+            forms = crawlingResult[0]
+            domURLs = list(crawlingResult[1])
+            difference = abs(len(domURLs) - len(forms))
+            if len(domURLs) > len(forms):
+                for i in range(difference):
+                    forms.append(0)
+            elif len(forms) > len(domURLs):
+                for i in range(difference):
+                    domURLs.append(0)
+            threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
+            futures = (threadpool.submit(crawl, scheme, host, main_url, form,
+                                        blindXSS, blindPayload, headers, delay, timeout, encoding) for form, domURL in zip(forms, domURLs))
+            for i, _ in enumerate(concurrent.futures.as_completed(futures)):
+                if i + 1 == len(forms) or (i + 1) % threadCount == 0:
+                    logger.info('Progress: %i/%i\r' % (i + 1, len(forms)))
+            logger.no_format('')
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Quit command execute by user. Quitting....')
+        quit() 
