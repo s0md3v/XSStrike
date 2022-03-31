@@ -125,10 +125,10 @@ def main():
 
     core.config.globalVariables = vars(args)
 
-    if type(args.add_headers) == bool:
+    if type(add_headers) == bool:
         headers = extractHeaders(prompt())
-    elif type(args.add_headers) == str:
-        headers = extractHeaders(args.add_headers)
+    elif type(add_headers) == str:
+        headers = extractHeaders(add_headers)
     else:
         from core.config import headers
 
