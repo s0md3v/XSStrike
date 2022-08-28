@@ -34,6 +34,6 @@ def bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeou
             if encoding:
                 payload = encoding(payload)
             if payload in response:
-                logger.info('%s %s' % (good, payload))
+                logger.good(payload)
             progress += 1
     logger.no_format('')
