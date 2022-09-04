@@ -181,9 +181,9 @@ elif not recursive and not args_seeds:
         logger.red_line()
         logger.info(f'Target: {target}  ({i + 1}/{len(target_list)})')
         if args_file:
-            bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
+            bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout, threadCount)
         else:
-            result = scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip)
+            result = scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip, threadCount)
             results.append(result) if result else 'The target is not vulnerable!'
 
     if results:
