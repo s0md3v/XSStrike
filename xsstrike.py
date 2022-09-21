@@ -12,16 +12,18 @@ print('''%s
 try:
     import concurrent.futures
     from urllib.parse import urlparse
+
     try:
         import fuzzywuzzy
     except ImportError:
         import os
-        print ('%s fuzzywuzzy isn\'t installed, installing now.' % info)
+
+        print('%s fuzzywuzzy isn\'t installed, installing now.' % info)
         ret_code = os.system('pip3 install fuzzywuzzy')
-        if(ret_code != 0):
+        if (ret_code != 0):
             print('%s fuzzywuzzy installation failed.' % bad)
             quit()
-        print ('%s fuzzywuzzy has been installed, restart XSStrike.' % info)
+        print('%s fuzzywuzzy has been installed, restart XSStrike.' % info)
         quit()
 except ImportError:  # throws error in python2
     print('%s XSStrike isn\'t compatible with python2.\n Use python > 3.4 to run XSStrike.' % bad)
@@ -39,6 +41,7 @@ import core.log
 # Processing command line arguments, where dest var names will be mapped to local vars with the same name
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--url', help='url', dest='target')
+parser.add_argument('-list', '--list', help='url lists', dest='list')  # added by aspasht
 parser.add_argument('--data', help='post data', dest='paramData')
 parser.add_argument('-e', '--encode', help='encode payloads', dest='encode')
 parser.add_argument('--fuzzer', help='fuzzer',
@@ -85,6 +88,7 @@ args = parser.parse_args()
 # Pull all parameter values of dict from argparse namespace into local variables of name == key
 # The following works, but the static checkers are too static ;-) locals().update(vars(args))
 target = args.target
+target_list = args.list
 path = args.path
 jsonData = args.jsonData
 paramData = args.paramData
@@ -122,6 +126,8 @@ from core.utils import extractHeaders, reader, converter
 from modes.bruteforcer import bruteforcer
 from modes.crawl import crawl
 from modes.scan import scan
+from modes.multi_scan import multi_scan
+
 from modes.singleFuzz import singleFuzz
 
 if type(args.add_headers) == bool:
@@ -161,9 +167,20 @@ if update:  # if the user has supplied --update argument
     updater()
     quit()  # quitting because files have been changed
 
-if not target and not args_seeds:  # if the user hasn't supplied a url
-    logger.no_format('\n' + parser.format_help().lower())
-    quit()
+if not args_seeds:
+        if target_list:
+            with open(target_list, 'r') as f:
+                urls = []
+                for url in f:
+                    urls.append(url.strip("\n"))
+                for line in urls:
+                    multi_scan(line,paramData,encoding,headers,delay,timeout,skipDOM,skip)
+        elif target:
+
+            scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip)
+        else:
+            logger.no_format('\n' + parser.format_help().lower())
+            quit()
 
 if fuzz:
     singleFuzz(target, paramData, encoding, headers, delay, timeout)
@@ -171,10 +188,12 @@ elif not recursive and not args_seeds:
     if args_file:
         bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
     else:
-        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip)
+        pass
+        # scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip)
 else:
     if target:
         seedList.append(target)
+
     for target in seedList:
         logger.run('Crawling the target')
         scheme = urlparse(target).scheme
@@ -194,7 +213,8 @@ else:
                 domURLs.append(0)
         threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
         futures = (threadpool.submit(crawl, scheme, host, main_url, form,
-                                     blindXSS, blindPayload, headers, delay, timeout, encoding) for form, domURL in zip(forms, domURLs))
+                                     blindXSS, blindPayload, headers, delay, timeout, encoding) for form, domURL in
+                   zip(forms, domURLs))
         for i, _ in enumerate(concurrent.futures.as_completed(futures)):
             if i + 1 == len(forms) or (i + 1) % threadCount == 0:
                 logger.info('Progress: %i/%i\r' % (i + 1, len(forms)))
