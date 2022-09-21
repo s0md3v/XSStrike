@@ -21,6 +21,8 @@ logger = setup_logger(__name__)
 
 def multi_scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip):
     GET, POST = (False, True) if paramData else (True, False)
+
+    response = requester(target, {}, headers, GET, delay, timeout).text
     if not skipDOM:
         logger.run('Checking for DOM vulnerabilities')
         highlighted = dom(response)
