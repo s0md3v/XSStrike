@@ -64,6 +64,12 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 - [Usage](https://github.com/s0md3v/XSStrike/wiki/Usage)
 - [Compatibility & Dependencies](https://github.com/s0md3v/XSStrike/wiki/Compatibility-&-Dependencies)
 
+### Newly Added Features
+ Now you can scan multiple urls from file by using -list flag.
+ ```
+  $ python xsstrike.py -list myUrls.txt
+ ```
+
 ### FAQ
 - [It says fuzzywuzzy isn't installed but it is.](https://github.com/s0md3v/XSStrike/wiki/FAQ#it-says-fuzzywuzzy-is-not-installed-but-its)
 - [What's up with Blind XSS?](https://github.com/s0md3v/XSStrike/wiki/FAQ#whats-up-with-blind-xss)
