@@ -118,3 +118,5 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip):
                     logger.info('Efficiency: %i' % bestEfficiency)
                     logger.info('Confidence: %i' % confidence)
         logger.no_format('')
+
+

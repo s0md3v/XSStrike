@@ -1,3 +1,9 @@
+### Newly Added Features
+ Now you can scan multiple urls from file by using -list flag.
+ ```
+  $ python xsstrike.py -list myUrls.txt
+ ```
+
 ### 3.1.5
 - Fix color bug that resulted in DOM XSS vulnerabilities not
   being reported on certain systems (Windows, macOS, iOS)
