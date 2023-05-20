@@ -60,6 +60,36 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 - Powered by [Photon](https://github.com/s0md3v/Photon), [Zetanize](https://github.com/s0md3v/zetanize) and [Arjun](https://github.com/s0md3v/Arjun)
 - Payload Encoding
 
+
+### INSTALLATION
+To install XSStrike, you can follow these steps:
+
+Step 1: Open a terminal on your system.
+
+Step 2: Clone the XSStrike repository from GitHub by running the following command:
+```
+git clone https://github.com/s0md3v/XSStrike.git
+```
+
+Step 3: Navigate to the XSStrike directory using the `cd` command:
+```
+cd XSStrike
+```
+
+Step 4: Install the required dependencies using pip (Python package installer). If you don't have pip installed, you can refer to the official pip documentation (https://pip.pypa.io/en/stable/installing/) for instructions on how to install pip on your system.
+
+```
+pip install -r requirements.txt
+```
+
+Step 5: XSStrike should now be installed on your system. You can run XSStrike by executing the following command:
+```
+python xsstrike.py
+```
+
+After executing the command, the XSStrike interface will be launched, and you can start using it to scan for XSS vulnerabilities.
+
+Please note that XSStrike is a command-line tool and requires Python to be installed on your system. Ensure that you have Python installed and the appropriate version required by XSStrike.
 ### Documentation
 - [Usage](https://github.com/s0md3v/XSStrike/wiki/Usage)
 - [Compatibility & Dependencies](https://github.com/s0md3v/XSStrike/wiki/Compatibility-&-Dependencies)
