@@ -7,7 +7,7 @@ machine = sys.platform  # Detecting the os of current system
 checkplatform = platform.platform() # Get current version of OS
 
 # Check for NO_COLOR environment variable, see https://no-color.org
-if 'NO_COLOR' in os.environ:
+if ('NO_COLOR' in os.environ) or ('--no-color' in sys.argv):
     colors = False
 
 else :
