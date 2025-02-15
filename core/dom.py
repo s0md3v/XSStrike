@@ -24,7 +24,7 @@ def dom(response):
                     for part in parts:
                         for controlledVariable in allControlledVariables:
                             if controlledVariable in part:
-                                controlledVariables.add(re.search(r'[a-zA-Z$_][a-zA-Z0-9$_]+', part).group().replace('$', '\$'))
+                                controlledVariables.add(re.search(r'[a-zA-Z$_][a-zA-Z0-9$_]+', part).group().replace('$', '\\$'))
                 pattern = re.finditer(sources, newLine)
                 for grp in pattern:
                     if grp:
@@ -33,7 +33,7 @@ def dom(response):
                             if len(parts) > 1:
                                for part in parts:
                                     if source in part:
-                                        controlledVariables.add(re.search(r'[a-zA-Z$_][a-zA-Z0-9$_]+', part).group().replace('$', '\$'))
+                                        controlledVariables.add(re.search(r'[a-zA-Z$_][a-zA-Z0-9$_]+', part).group().replace('$', '\\$'))
                             line = line.replace(source, yellow + source + end)
                 for controlledVariable in controlledVariables:
                     allControlledVariables.add(controlledVariable)
