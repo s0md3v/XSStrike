@@ -17,12 +17,11 @@ def wafDetector(url, params, headers, GET, delay, timeout):
     # Opens the noise injected payload
     response = requester(url, params, headers, GET, delay, timeout)
     page = response.text
-    code = str(response.status_code)
+    code = response.status_code
     headers = str(response.headers)
     logger.debug('Waf Detector code: {}'.format(code))
     logger.debug_json('Waf Detector headers:', response.headers)
-
-    if int(code) >= 400:
+    if code and code >= 400:
         bestMatch = [0, None]
         for wafName, wafSignature in wafSignatures.items():
             score = 0
@@ -33,7 +32,7 @@ def wafDetector(url, params, headers, GET, delay, timeout):
                 if re.search(pageSign, page, re.I):
                     score += 1
             if codeSign:
-                if re.search(codeSign, code, re.I):
+                if re.search(codeSign, str(code), re.I):
                     score += 0.5  # increase the overall score by a smaller amount because http codes aren't strong indicators
             if headersSign:
                 if re.search(headersSign, headers, re.I):

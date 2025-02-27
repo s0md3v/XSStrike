@@ -137,6 +137,12 @@ def log_red_line(self, amount=60, level='INFO'):
     _switch_to_default_loggers(self)
 
 
+def log_yellow_summary_line(self, amount=60, level='INFO'):
+    _switch_to_no_format_loggers(self)
+    _get_level_and_log(self,  f"{yellow}{'=' * amount}{end}", level)
+    _switch_to_default_loggers(self)
+
+
 def log_no_format(self, msg='', level='INFO'):
     _switch_to_no_format_loggers(self)
     _get_level_and_log(self, msg, level)
@@ -187,6 +193,8 @@ def setup_logger(name='xsstrike'):
 
     # Create logger method to only log a red line
     logger.red_line = MethodType(log_red_line, logger)
+    # Create logger method to only log a yellow line
+    logger.yellow_summary_line = MethodType(log_yellow_summary_line, logger)
     # Create logger method to log without format
     logger.no_format = MethodType(log_no_format, logger)
     # Create logger method to convert data to json and log with debug level
