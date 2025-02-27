@@ -5,26 +5,34 @@ from __future__ import print_function
 from core.colors import end, red, white, bad, info
 
 # Just a fancy ass banner
-print('''%s
+print(
+    """%s
 \tXSStrike %sv3.1.5
-%s''' % (red, white, end))
+%s"""
+    % (red, white, end)
+)
 
 try:
     import concurrent.futures
     from urllib.parse import urlparse
+
     try:
         import fuzzywuzzy
     except ImportError:
         import os
-        print ('%s fuzzywuzzy isn\'t installed, installing now.' % info)
-        ret_code = os.system('pip3 install fuzzywuzzy')
-        if(ret_code != 0):
-            print('%s fuzzywuzzy installation failed.' % bad)
+
+        print("%s fuzzywuzzy isn't installed, installing now." % info)
+        ret_code = os.system("pip3 install fuzzywuzzy")
+        if ret_code != 0:
+            print("%s fuzzywuzzy installation failed." % bad)
             quit()
-        print ('%s fuzzywuzzy has been installed, restart XSStrike.' % info)
+        print("%s fuzzywuzzy has been installed, restart XSStrike." % info)
         quit()
 except ImportError:  # throws error in python2
-    print('%s XSStrike isn\'t compatible with python2.\n Use python > 3.4 to run XSStrike.' % bad)
+    print(
+        "%s XSStrike isn't compatible with python2.\n Use python > 3.4 to run XSStrike."
+        % bad
+    )
     quit()
 
 # Let's import whatever we need from standard lib
@@ -38,48 +46,89 @@ import core.log
 
 # Processing command line arguments, where dest var names will be mapped to local vars with the same name
 parser = argparse.ArgumentParser()
-parser.add_argument('-u', '--url', help='url', dest='target')
-parser.add_argument('--data', help='post data', dest='paramData')
-parser.add_argument('-e', '--encode', help='encode payloads', dest='encode')
-parser.add_argument('--fuzzer', help='fuzzer',
-                    dest='fuzz', action='store_true')
-parser.add_argument('--update', help='update',
-                    dest='update', action='store_true')
-parser.add_argument('--timeout', help='timeout',
-                    dest='timeout', type=int, default=core.config.timeout)
-parser.add_argument('--proxy', help='use prox(y|ies)',
-                    dest='proxy', action='store_true')
-parser.add_argument('--crawl', help='crawl',
-                    dest='recursive', action='store_true')
-parser.add_argument('--json', help='treat post data as json',
-                    dest='jsonData', action='store_true')
-parser.add_argument('--path', help='inject payloads in the path',
-                    dest='path', action='store_true')
+parser.add_argument("-u", "--url", help="url", dest="target")
+parser.add_argument("--data", help="post data", dest="paramData")
+parser.add_argument("-e", "--encode", help="encode payloads", dest="encode")
+parser.add_argument("--fuzzer", help="fuzzer", dest="fuzz", action="store_true")
+parser.add_argument("--update", help="update", dest="update", action="store_true")
 parser.add_argument(
-    '--seeds', help='load crawling seeds from a file', dest='args_seeds')
+    "--timeout", help="timeout", dest="timeout", type=int, default=core.config.timeout
+)
 parser.add_argument(
-    '-f', '--file', help='load payloads from a file', dest='args_file')
-parser.add_argument('-l', '--level', help='level of crawling',
-                    dest='level', type=int, default=2)
-parser.add_argument('--headers', help='add headers',
-                    dest='add_headers', nargs='?', const=True)
-parser.add_argument('-t', '--threads', help='number of threads',
-                    dest='threadCount', type=int, default=core.config.threadCount)
-parser.add_argument('-d', '--delay', help='delay between requests',
-                    dest='delay', type=int, default=core.config.delay)
-parser.add_argument('--skip', help='don\'t ask to continue',
-                    dest='skip', action='store_true')
-parser.add_argument('--skip-dom', help='skip dom checking',
-                    dest='skipDOM', action='store_true')
-parser.add_argument('--blind', help='inject blind XSS payload while crawling',
-                    dest='blindXSS', action='store_true')
-parser.add_argument('--console-log-level', help='Console logging level',
-                    dest='console_log_level', default=core.log.console_log_level,
-                    choices=core.log.log_config.keys())
-parser.add_argument('--file-log-level', help='File logging level', dest='file_log_level',
-                    choices=core.log.log_config.keys(), default=None)
-parser.add_argument('--log-file', help='Name of the file to log', dest='log_file',
-                    default=core.log.log_file)
+    "--proxy", help="use prox(y|ies)", dest="proxy", action="store_true"
+)
+parser.add_argument("--crawl", help="crawl", dest="recursive", action="store_true")
+parser.add_argument(
+    "--json", help="treat post data as json", dest="jsonData", action="store_true"
+)
+parser.add_argument(
+    "--path", help="inject payloads in the path", dest="path", action="store_true"
+)
+parser.add_argument(
+    "--seeds", help="load crawling seeds from a file", dest="args_seeds"
+)
+parser.add_argument("-f", "--file", help="load payloads from a file", dest="args_file")
+parser.add_argument(
+    "-l", "--level", help="level of crawling", dest="level", type=int, default=2
+)
+parser.add_argument(
+    "--headers", help="add headers", dest="add_headers", nargs="?", const=True
+)
+parser.add_argument(
+    "-t",
+    "--threads",
+    help="number of threads",
+    dest="threadCount",
+    type=int,
+    default=core.config.threadCount,
+)
+parser.add_argument(
+    "-d",
+    "--delay",
+    help="delay between requests",
+    dest="delay",
+    type=int,
+    default=core.config.delay,
+)
+parser.add_argument(
+    "--skip", help="don't ask to continue", dest="skip", action="store_true"
+)
+parser.add_argument(
+    "--skip-dom", help="skip dom checking", dest="skipDOM", action="store_true"
+)
+parser.add_argument(
+    "--blind",
+    help="inject blind XSS payload while crawling",
+    dest="blindXSS",
+    action="store_true",
+)
+parser.add_argument(
+    "--stop-count",
+    help="stop after displaying n payloads",
+    dest="stop_count",
+    type=int,
+    default=None,
+)
+parser.add_argument(
+    "--console-log-level",
+    help="Console logging level",
+    dest="console_log_level",
+    default=core.log.console_log_level,
+    choices=core.log.log_config.keys(),
+)
+parser.add_argument(
+    "--file-log-level",
+    help="File logging level",
+    dest="file_log_level",
+    choices=core.log.log_config.keys(),
+    default=None,
+)
+parser.add_argument(
+    "--log-file",
+    help="Name of the file to log",
+    dest="log_file",
+    default=core.log.log_file,
+)
 args = parser.parse_args()
 
 # Pull all parameter values of dict from argparse namespace into local variables of name == key
@@ -103,6 +152,7 @@ delay = args.delay
 skip = args.skip
 skipDOM = args.skipDOM
 blindXSS = args.blindXSS
+stop_count = args.stop_count
 core.log.console_log_level = args.console_log_level
 core.log.file_log_level = args.file_log_level
 core.log.log_file = args.log_file
@@ -131,19 +181,21 @@ elif type(args.add_headers) == str:
 else:
     from core.config import headers
 
-core.config.globalVariables['headers'] = headers
-core.config.globalVariables['checkedScripts'] = set()
-core.config.globalVariables['checkedForms'] = {}
-core.config.globalVariables['definitions'] = json.loads('\n'.join(reader(sys.path[0] + '/db/definitions.json')))
+core.config.globalVariables["headers"] = headers
+core.config.globalVariables["checkedScripts"] = set()
+core.config.globalVariables["checkedForms"] = {}
+core.config.globalVariables["definitions"] = json.loads(
+    "\n".join(reader(sys.path[0] + "/db/definitions.json"))
+)
 
 if path:
     paramData = converter(target, target)
 elif jsonData:
-    headers['Content-type'] = 'application/json'
+    headers["Content-type"] = "application/json"
     paramData = converter(paramData)
 
 if args_file:
-    if args_file == 'default':
+    if args_file == "default":
         payloadList = core.config.payloads
     else:
         payloadList = list(filter(None, reader(args_file)))
@@ -152,7 +204,7 @@ seedList = []
 if args_seeds:
     seedList = list(filter(None, reader(args_seeds)))
 
-encoding = base64 if encode and encode == 'base64' else False
+encoding = base64 if encode and encode == "base64" else False
 
 if not proxy:
     core.config.proxies = {}
@@ -162,27 +214,47 @@ if update:  # if the user has supplied --update argument
     quit()  # quitting because files have been changed
 
 if not target and not args_seeds:  # if the user hasn't supplied a url
-    logger.no_format('\n' + parser.format_help().lower())
+    logger.no_format("\n" + parser.format_help().lower())
     quit()
 
 if fuzz:
     singleFuzz(target, paramData, encoding, headers, delay, timeout)
 elif not recursive and not args_seeds:
     if args_file:
-        bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
+        bruteforcer(
+            target,
+            paramData,
+            payloadList,
+            encoding,
+            headers,
+            delay,
+            timeout,
+            stop_count,
+        )
     else:
-        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip)
+        scan(
+            target,
+            paramData,
+            encoding,
+            headers,
+            delay,
+            timeout,
+            skipDOM,
+            skip,
+            stop_count,
+        )
 else:
     if target:
         seedList.append(target)
     for target in seedList:
-        logger.run('Crawling the target')
+        logger.run("Crawling the target")
         scheme = urlparse(target).scheme
-        logger.debug('Target scheme: {}'.format(scheme))
+        logger.debug("Target scheme: {}".format(scheme))
         host = urlparse(target).netloc
-        main_url = scheme + '://' + host
-        crawlingResult = photon(target, headers, level,
-                                threadCount, delay, timeout, skipDOM)
+        main_url = scheme + "://" + host
+        crawlingResult = photon(
+            target, headers, level, threadCount, delay, timeout, skipDOM
+        )
         forms = crawlingResult[0]
         domURLs = list(crawlingResult[1])
         difference = abs(len(domURLs) - len(forms))
@@ -193,9 +265,28 @@ else:
             for i in range(difference):
                 domURLs.append(0)
         threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-        futures = (threadpool.submit(crawl, scheme, host, main_url, form,
-                                     blindXSS, blindPayload, headers, delay, timeout, encoding) for form, domURL in zip(forms, domURLs))
+        futures = (
+            threadpool.submit(
+                crawl,
+                scheme,
+                host,
+                main_url,
+                form,
+                blindXSS,
+                blindPayload,
+                headers,
+                delay,
+                timeout,
+                encoding,
+            )
+            for form, domURL in zip(forms, domURLs)
+        )
         for i, _ in enumerate(concurrent.futures.as_completed(futures)):
             if i + 1 == len(forms) or (i + 1) % threadCount == 0:
-                logger.info('Progress: %i/%i\r' % (i + 1, len(forms)))
-        logger.no_format('')
+                logger.info("Progress: %i/%i\r" % (i + 1, len(forms)))
+        logger.no_format("")
+
+        for i, _ in enumerate(concurrent.futures.as_completed(futures)):
+            if i + 1 == len(forms) or (i + 1) % threadCount == 0:
+                logger.info("Progress: %i/%i\r" % (i + 1, len(forms)))
+        logger.no_format("")
