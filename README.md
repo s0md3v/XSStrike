@@ -65,6 +65,19 @@ Website: [https://iproyal.com/?r=800974](https://iproyal.com/?r=800974)
 - Powered by [Photon](https://github.com/s0md3v/Photon), [Zetanize](https://github.com/s0md3v/zetanize) and [Arjun](https://github.com/s0md3v/Arjun)
 - Payload Encoding
 
+### Installation
+Enter the following commands one by one in terminal:
+```
+git clone https://github.com/s0md3v/XSStrike
+cd XSStrike
+pip install -r requirements.txt --break-system-packages
+```
+
+Now, XSStrike can be used at any time as follows:
+```
+python xsstrike.py
+```
+
 ### Documentation
 - [Usage](https://github.com/s0md3v/XSStrike/wiki/Usage)
 - [Compatibility & Dependencies](https://github.com/s0md3v/XSStrike/wiki/Compatibility-&-Dependencies)
