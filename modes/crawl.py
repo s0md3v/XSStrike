@@ -58,6 +58,12 @@ def crawl(scheme, host, main_url, form, blindXSS, blindPayload, headers, delay, 
                                     except IndexError:
                                         pass
                             if blindXSS and blindPayload:
-                                paramsCopy[paramName] = blindPayload
-                                requester(url, paramsCopy, headers,
-                                          GET, delay, timeout)
+                                if type(blindPayload) is tuple:
+                                    for x in blindPayload:
+                                        paramsCopy[paramName] = x
+                                        requester(url, paramsCopy, headers,
+                                                  GET, delay, timeout)
+                                else:
+                                    paramsCopy[paramName] = blindPayload
+                                    requester(url, paramsCopy, headers,
+                                              GET, delay, timeout)
