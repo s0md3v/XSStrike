@@ -1,5 +1,7 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import copy
 import re
+from threading import Lock
 from urllib.parse import urlparse, quote, unquote
 
 from core.checker import checker
@@ -16,9 +18,10 @@ from core.wafDetector import wafDetector
 from core.log import setup_logger
 
 logger = setup_logger(__name__)
+lock = Lock()
 
 
-def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip):
+def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip, threadCount):
     GET, POST = (False, True) if paramData else (True, False)
     # If the user hasn't supplied the root url with http(s), we will handle it
     if not target.startswith('http'):
@@ -86,23 +89,23 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip):
             logger.error('No vectors were crafted.')
             continue
         logger.info('Payloads generated: %i' % total)
-        progress = 0
-        for confidence, vects in vectors.items():
-            for vect in vects:
-                if core.config.globalVariables['path']:
-                    vect = vect.replace('/', '%2F')
-                loggerVector = vect
-                progress += 1
-                logger.run('Progress: %i/%i\r' % (progress, total))
-                if not GET:
-                    vect = unquote(vect)
-                efficiencies = checker(
-                    url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
-                if not efficiencies:
-                    for i in range(len(occurences)):
-                        efficiencies.append(0)
-                bestEfficiency = max(efficiencies)
+        progress = {'lap': 0}
+        running_futures = []
+        with ThreadPoolExecutor(max_workers=threadCount) as executor:
+
+            #  Add all comb
+            for confidence, vects in vectors.items():
+                for vect in vects:
+                    running_futures.append(executor.submit(checky, target, url, paramsCopy, headers, GET, delay,
+        vect, positions, timeout, encoding, occurences, confidence, progress, total))
+            
+            for future in as_completed(running_futures):
+                
+                # retrieve the result
+                bestEfficiency, target, loggerVector, confidence = future.result()
+
                 if bestEfficiency == 100 or (vect[0] == '\\' and bestEfficiency >= 95):
+                    lock.acquire()
                     logger.red_line()
                     logger.good('Payload: %s' % loggerVector)
                     logger.info('Efficiency: %i' % bestEfficiency)
@@ -110,11 +113,37 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip):
                     if not skip:
                         choice = input(
                             '%s Would you like to continue scanning? [y/N] ' % que).lower()
-                        if choice != 'y':
-                            quit()
+                    lock.release()
+                    if skip or choice != 'y':
+                        [f.cancel() for f in running_futures]
+                        return target, loggerVector                       
                 elif bestEfficiency > minEfficiency:
+                    lock.acquire()
                     logger.red_line()
                     logger.good('Payload: %s' % loggerVector)
                     logger.info('Efficiency: %i' % bestEfficiency)
                     logger.info('Confidence: %i' % confidence)
+                    lock.release()
+                    
         logger.no_format('')
+
+
+def checky(
+    target, url, paramsCopy, headers, GET, delay,
+        vect, positions, timeout, encoding, occurences, confidence, progress, total):
+    if core.config.globalVariables['path']:
+        vect = vect.replace('/', '%2F')
+    loggerVector = vect
+    progress['lap'] += 1
+    lock.acquire()
+    logger.run(f'Progress: {progress["lap"]}/{total}                                      \r')
+    lock.release()
+    if not GET:
+        vect = unquote(vect)
+    efficiencies = checker(
+        url, paramsCopy, headers, GET, delay, vect, positions, timeout, encoding)
+    if not efficiencies:
+        for i in range(len(occurences)):
+            efficiencies.append(0)
+    bestEfficiency = max(efficiencies)
+    return bestEfficiency, target, loggerVector, confidence
