@@ -17,6 +17,10 @@ def wafDetector(url, params, headers, GET, delay, timeout):
     # Opens the noise injected payload
     response = requester(url, params, headers, GET, delay, timeout)
     page = response.text
+    code = response.status_code
+    if code is None:
+        logger.warning('WAF Detector: No response status code received.')
+        return None
     code = str(response.status_code)
     headers = str(response.headers)
     logger.debug('Waf Detector code: {}'.format(code))
