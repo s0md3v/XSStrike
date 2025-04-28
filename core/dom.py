@@ -5,7 +5,7 @@ from core.colors import end, red, yellow
 if len(end) < 1:
     end = red = yellow = '*'
 
-def dom(response):
+def dom(response, params):
     highlighted = []
     sources = r'''\b(?:document\.(URL|documentURI|URLUnencoded|baseURI|cookie|referrer)|location\.(href|search|hash|pathname)|window\.name|history\.(pushState|replaceState)(local|session)Storage)\b'''
     sinks = r'''\b(?:eval|evaluate|execCommand|assign|navigate|getResponseHeaderopen|showModalDialog|Function|set(Timeout|Interval|Immediate)|execScript|crypto.generateCRMFRequest|ScriptElement\.(src|text|textContent|innerText)|.*?\.onEventName|document\.(write|writeln)|.*?\.innerHTML|Range\.createContextualFragment|(document|window)\.location)\b'''
@@ -22,7 +22,7 @@ def dom(response):
                 controlledVariables = set()
                 if len(parts) > 1:
                     for part in parts:
-                        for controlledVariable in allControlledVariables:
+                        for controlledVariable in controlledVariables:
                             if controlledVariable in part:
                                 controlledVariables.add(re.search(r'[a-zA-Z$_][a-zA-Z0-9$_]+', part).group().replace('$', '\\$'))
                 pattern = re.finditer(sources, newLine)
@@ -35,9 +35,11 @@ def dom(response):
                                     if source in part:
                                         controlledVariables.add(re.search(r'[a-zA-Z$_][a-zA-Z0-9$_]+', part).group().replace('$', '\\$'))
                             line = line.replace(source, yellow + source + end)
+                for param in params:
+                    if param in line:
+                        line = line.replace(param, yellow + param + end)
+                        sourceFound = True
                 for controlledVariable in controlledVariables:
-                    allControlledVariables.add(controlledVariable)
-                for controlledVariable in allControlledVariables:
                     matches = list(filter(None, re.findall(r'\b%s\b' % controlledVariable, line)))
                     if matches:
                         sourceFound = True
