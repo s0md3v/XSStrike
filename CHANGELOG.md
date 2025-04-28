@@ -1,3 +1,8 @@
+### 3.1.6
+- Added scanning and brute-forcing of multiple targets
+- Scanned targets now have a summary output
+- Stop scanning if the "skip" parameter is provided
+
 ### 3.1.5
 - Fix color bug that resulted in DOM XSS vulnerabilities not
   being reported on certain systems (Windows, macOS, iOS)

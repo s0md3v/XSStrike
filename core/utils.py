@@ -201,7 +201,7 @@ def writer(obj, path):
 
 
 def reader(path):
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf-8', errors='ignore') as f:
         result = [line.rstrip(
                     '\n').encode('utf-8').decode('utf-8') for line in f]
     return result
