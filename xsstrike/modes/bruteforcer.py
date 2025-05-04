@@ -1,10 +1,10 @@
 import copy
 from urllib.parse import urlparse, unquote
 
-from core.colors import good, green, end
-from core.requester import requester
-from core.utils import getUrl, getParams
-from core.log import setup_logger
+from xsstrike.core.colors import good, green, end
+from xsstrike.core.requester import requester
+from xsstrike.core.utils import getUrl, getParams
+from xsstrike.core.log import setup_logger
 
 logger = setup_logger(__name__)
 

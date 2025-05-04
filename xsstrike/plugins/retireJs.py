@@ -3,10 +3,10 @@ import json
 import hashlib
 from urllib.parse import urlparse
 
-from core.colors import green, end
-from core.requester import requester
-from core.utils import deJSON, js_extractor, handle_anchor, getVar, updateVar
-from core.log import setup_logger
+from xsstrike.core.colors import green, end
+from xsstrike.core.requester import requester
+from xsstrike.core.utils import deJSON, js_extractor, handle_anchor, getVar, updateVar
+from xsstrike.core.log import setup_logger
 
 logger = setup_logger(__name__)
 

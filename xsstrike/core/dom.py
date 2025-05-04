@@ -1,6 +1,6 @@
 import re
 
-from core.colors import end, red, yellow
+from .colors import end, red, yellow
 
 if len(end) < 1:
     end = red = yellow = '*'

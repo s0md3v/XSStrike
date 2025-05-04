@@ -1,14 +1,14 @@
 import copy
 import re
 
-import core.config
-from core.colors import green, end
-from core.config import xsschecker
-from core.filterChecker import filterChecker
-from core.generator import generator
-from core.htmlParser import htmlParser
-from core.requester import requester
-from core.log import setup_logger
+from xsstrike import core
+from xsstrike.core.colors import green, end
+from xsstrike.core.config import xsschecker
+from xsstrike.core.filterChecker import filterChecker
+from xsstrike.core.generator import generator
+from xsstrike.core.htmlParser import htmlParser
+from xsstrike.core.requester import requester
+from xsstrike.core.log import setup_logger
 
 logger = setup_logger(__name__)
 

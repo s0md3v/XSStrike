@@ -4,9 +4,9 @@ import time
 from urllib3.exceptions import ProtocolError
 import warnings
 
-import core.config
-from core.utils import converter, getVar
-from core.log import setup_logger
+from . import config
+from .utils import converter, getVar
+from .log import setup_logger
 
 logger = setup_logger(__name__)
 
@@ -35,13 +35,13 @@ def requester(url, data, headers, GET, delay, timeout):
     try:
         if GET:
             response = requests.get(url, params=data, headers=headers,
-                                    timeout=timeout, verify=False, proxies=core.config.proxies)
+                                    timeout=timeout, verify=False, proxies=config.proxies)
         elif getVar('jsonData'):
             response = requests.post(url, json=data, headers=headers,
-                                    timeout=timeout, verify=False, proxies=core.config.proxies)
+                                    timeout=timeout, verify=False, proxies=config.proxies)
         else:
             response = requests.post(url, data=data, headers=headers,
-                                     timeout=timeout, verify=False, proxies=core.config.proxies)
+                                     timeout=timeout, verify=False, proxies=config.proxies)
         return response
     except ProtocolError:
         logger.warning('WAF is dropping suspicious requests.')

@@ -1,19 +1,18 @@
 import copy
-import re
 from urllib.parse import urlparse, quote, unquote
 
-from core.checker import checker
-from core.colors import end, green, que
-import core.config
-from core.config import xsschecker, minEfficiency
-from core.dom import dom
-from core.filterChecker import filterChecker
-from core.generator import generator
-from core.htmlParser import htmlParser
-from core.requester import requester
-from core.utils import getUrl, getParams, getVar
-from core.wafDetector import wafDetector
-from core.log import setup_logger
+from xsstrike.core import config
+from xsstrike.core.checker import checker
+from xsstrike.core.colors import end, green, que
+from xsstrike.core.config import xsschecker, minEfficiency
+from xsstrike.core.dom import dom
+from xsstrike.core.filterChecker import filterChecker
+from xsstrike.core.generator import generator
+from xsstrike.core.htmlParser import htmlParser
+from xsstrike.core.requester import requester
+from xsstrike.core.utils import getUrl, getParams
+from xsstrike.core.wafDetector import wafDetector
+from xsstrike.core.log import setup_logger
 
 logger = setup_logger(__name__)
 
@@ -89,7 +88,7 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip):
         progress = 0
         for confidence, vects in vectors.items():
             for vect in vects:
-                if core.config.globalVariables['path']:
+                if config.globalVariables['path']:
                     vect = vect.replace('/', '%2F')
                 loggerVector = vect
                 progress += 1

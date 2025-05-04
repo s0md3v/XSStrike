@@ -61,16 +61,18 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 - Payload Encoding
 
 ### Installation
-Enter the following commands one by one in terminal:
+Enter the following command in terminal:
 ```
-git clone https://github.com/s0md3v/XSStrike
-cd XSStrike
-pip install -r requirements.txt --break-system-packages
+pip install --user git+https://github.com/s0md3v/XSStrike.git
+```
+Or, using [pipx](https://github.com/pypa/pipx):
+```
+pipx install git+https://github.com/s0md3v/XSStrike.git
 ```
 
 Now, XSStrike can be used at any time as follows:
 ```
-python xsstrike.py
+xsstrike
 ```
 
 ### Documentation
@@ -113,5 +115,5 @@ Ways to contribute
 
 Licensed under the GNU GPLv3, see [LICENSE](LICENSE) for more information.
 
-The WAF signatures in `/db/wafSignatures.json` are taken & modified from [sqlmap](https://github.com/sqlmapproject/sqlmap). I extracted them from sqlmap's waf detection modules which can found [here](https://github.com/sqlmapproject/sqlmap/blob/master/waf/) and converted them to JSON.\
-`/plugins/retireJS.py` is a modified version of [retirejslib](https://github.com/FallibleInc/retirejslib/).
+The WAF signatures in `/xsstrike/db/wafSignatures.json` are taken & modified from [sqlmap](https://github.com/sqlmapproject/sqlmap). I extracted them from sqlmap's waf detection modules which can found [here](https://github.com/sqlmapproject/sqlmap/blob/master/waf/) and converted them to JSON.\
+`/xsstrike/plugins/retireJS.py` is a modified version of [retirejslib](https://github.com/FallibleInc/retirejslib/).
