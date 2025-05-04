@@ -2,9 +2,9 @@ import os
 import re
 from requests import get
 
-from core.config import changes
-from core.colors import que, info, end, green
-from core.log import setup_logger
+from .config import changes
+from .colors import que, info, end, green
+from .log import setup_logger
 
 logger = setup_logger(__name__)
 

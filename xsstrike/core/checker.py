@@ -3,9 +3,9 @@ from fuzzywuzzy import fuzz
 import re
 from urllib.parse import unquote
 
-from core.config import xsschecker
-from core.requester import requester
-from core.utils import replaceValue, fillHoles
+from .config import xsschecker
+from .requester import requester
+from .utils import replaceValue, fillHoles
 
 
 def checker(url, params, headers, GET, delay, payload, positions, timeout, encoding):

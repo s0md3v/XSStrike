@@ -1,6 +1,6 @@
-from core.config import xsschecker, badTags, fillings, eFillings, lFillings, jFillings, eventHandlers, tags, functions
-from core.jsContexter import jsContexter
-from core.utils import randomUpper as r, genGen, extractScripts
+from .config import xsschecker, badTags, fillings, eFillings, lFillings, jFillings, eventHandlers, tags, functions
+from .jsContexter import jsContexter
+from .utils import randomUpper as r, genGen, extractScripts
 
 
 def generator(occurences, response):

@@ -1,9 +1,9 @@
 import os
 import tempfile
 
-from core.config import defaultEditor
-from core.colors import white, yellow
-from core.log import setup_logger
+from .config import defaultEditor
+from .colors import white, yellow
+from .log import setup_logger
 
 logger = setup_logger(__name__)
 

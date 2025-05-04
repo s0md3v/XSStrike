@@ -159,6 +159,8 @@ def setup_logger(name='xsstrike'):
     from types import MethodType
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
+    logger.propagate = False 
+
     console_handler = CustomStreamHandler(sys.stdout)
     console_handler.setLevel(log_config[console_log_level]['value'])
     console_handler.setFormatter(CustomFormatter('%(message)s'))
