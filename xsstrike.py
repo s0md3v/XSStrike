@@ -17,7 +17,7 @@ try:
     except ImportError:
         import os
         print ('%s fuzzywuzzy isn\'t installed, installing now.' % info)
-        ret_code = os.system('pip3 install fuzzywuzzy')
+        ret_code = os.system('pip3 install fuzzywuzzy --break-system-packages')
         if(ret_code != 0):
             print('%s fuzzywuzzy installation failed.' % bad)
             quit()
