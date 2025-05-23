@@ -18,7 +18,7 @@ from core.log import setup_logger
 logger = setup_logger(__name__)
 
 
-def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip):
+def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip, stop_count):
     GET, POST = (False, True) if paramData else (True, False)
     # If the user hasn't supplied the root url with http(s), we will handle it
     if not target.startswith('http'):
@@ -87,6 +87,7 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip):
             continue
         logger.info('Payloads generated: %i' % total)
         progress = 0
+        payloads_displayed_count = 0
         for confidence, vects in vectors.items():
             for vect in vects:
                 if core.config.globalVariables['path']:
@@ -107,6 +108,9 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip):
                     logger.good('Payload: %s' % loggerVector)
                     logger.info('Efficiency: %i' % bestEfficiency)
                     logger.info('Confidence: %i' % confidence)
+                    payloads_displayed_count += 1
+                    if stop_count and payloads_displayed_count >= stop_count:
+                        return
                     if not skip:
                         choice = input(
                             '%s Would you like to continue scanning? [y/N] ' % que).lower()

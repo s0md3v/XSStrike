@@ -71,6 +71,8 @@ parser.add_argument('--skip', help='don\'t ask to continue',
                     dest='skip', action='store_true')
 parser.add_argument('--skip-dom', help='skip dom checking',
                     dest='skipDOM', action='store_true')
+parser.add_argument("--stop-count",help="stop after displaying n payloads",
+                    dest="stop_count",type=int,default=None)
 parser.add_argument('--blind', help='inject blind XSS payload while crawling',
                     dest='blindXSS', action='store_true')
 parser.add_argument('--console-log-level', help='Console logging level',
@@ -103,6 +105,7 @@ delay = args.delay
 skip = args.skip
 skipDOM = args.skipDOM
 blindXSS = args.blindXSS
+stop_count = args.stop_count
 core.log.console_log_level = args.console_log_level
 core.log.file_log_level = args.file_log_level
 core.log.log_file = args.log_file
@@ -171,7 +174,7 @@ elif not recursive and not args_seeds:
     if args_file:
         bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
     else:
-        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip)
+        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip, stop_count)
 else:
     if target:
         seedList.append(target)
