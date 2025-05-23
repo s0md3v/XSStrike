@@ -47,8 +47,8 @@ parser.add_argument('--update', help='update',
                     dest='update', action='store_true')
 parser.add_argument('--timeout', help='timeout',
                     dest='timeout', type=int, default=core.config.timeout)
-parser.add_argument('--proxy', help='use prox(y|ies)',
-                    dest='proxy', action='store_true')
+parser.add_argument("--proxy", help="use a proxy (e.g. http://127.0.0.1:8081)",
+                    dest="proxy", type=str)
 parser.add_argument('--crawl', help='crawl',
                     dest='recursive', action='store_true')
 parser.add_argument('--json', help='treat post data as json',
@@ -71,6 +71,8 @@ parser.add_argument('--skip', help='don\'t ask to continue',
                     dest='skip', action='store_true')
 parser.add_argument('--skip-dom', help='skip dom checking',
                     dest='skipDOM', action='store_true')
+parser.add_argument("--stop-count",help="stop after displaying n payloads",
+                    dest="stop_count",type=int,default=None)
 parser.add_argument('--blind', help='inject blind XSS payload while crawling',
                     dest='blindXSS', action='store_true')
 parser.add_argument('--console-log-level', help='Console logging level',
@@ -93,6 +95,7 @@ fuzz = args.fuzz
 update = args.update
 timeout = args.timeout
 proxy = args.proxy
+proxy = args.proxy
 recursive = args.recursive
 args_file = args.args_file
 args_seeds = args.args_seeds
@@ -103,6 +106,7 @@ delay = args.delay
 skip = args.skip
 skipDOM = args.skipDOM
 blindXSS = args.blindXSS
+stop_count = args.stop_count
 core.log.console_log_level = args.console_log_level
 core.log.file_log_level = args.file_log_level
 core.log.log_file = args.log_file
@@ -154,7 +158,10 @@ if args_seeds:
 
 encoding = base64 if encode and encode == 'base64' else False
 
-if not proxy:
+if proxy:
+    core.config.proxies = {"http": proxy, "https": proxy}
+    logger.info(f"proxy modified: {core.config.proxies}")
+else:
     core.config.proxies = {}
 
 if update:  # if the user has supplied --update argument
@@ -171,7 +178,7 @@ elif not recursive and not args_seeds:
     if args_file:
         bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
     else:
-        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip)
+        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip, stop_count)
 else:
     if target:
         seedList.append(target)
