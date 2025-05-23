@@ -47,8 +47,8 @@ parser.add_argument('--update', help='update',
                     dest='update', action='store_true')
 parser.add_argument('--timeout', help='timeout',
                     dest='timeout', type=int, default=core.config.timeout)
-parser.add_argument('--proxy', help='use prox(y|ies)',
-                    dest='proxy', action='store_true')
+parser.add_argument("--proxy", help="use a proxy (e.g. http://127.0.0.1:8081)",
+                    dest="proxy", type=str)
 parser.add_argument('--crawl', help='crawl',
                     dest='recursive', action='store_true')
 parser.add_argument('--json', help='treat post data as json',
@@ -94,6 +94,7 @@ encode = args.encode
 fuzz = args.fuzz
 update = args.update
 timeout = args.timeout
+proxy = args.proxy
 proxy = args.proxy
 recursive = args.recursive
 args_file = args.args_file
@@ -157,7 +158,10 @@ if args_seeds:
 
 encoding = base64 if encode and encode == 'base64' else False
 
-if not proxy:
+if proxy:
+    core.config.proxies = {"http": proxy, "https": proxy}
+    logger.info(f"proxy modified: {core.config.proxies}")
+else:
     core.config.proxies = {}
 
 if update:  # if the user has supplied --update argument
