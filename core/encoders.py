@@ -7,3 +7,9 @@ def base64(string):
         return b64.b64decode(string.encode('utf-8')).decode('utf-8')
     else:
         return b64.b64encode(string.encode('utf-8')).decode('utf-8')
+
+def urlencode(string):
+    return ''.join(
+        c if c.isalnum() or c in '-_.~' else '%%%02X' % ord(c)
+        for c in string
+    )
