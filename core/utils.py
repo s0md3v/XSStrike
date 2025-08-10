@@ -161,32 +161,34 @@ def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends,
 
 def getParams(url, data, GET):
     params = {}
-    if '?' in url and '=' in url:
-        data = url.split('?')[1]
-        if data[:1] == '?':
-            data = data[1:]
-    elif data:
-        if getVar('jsonData') or getVar('path'):
-            params = data
-        else:
-            try:
-                params = json.loads(data.replace('\'', '"'))
-                return params
-            except json.decoder.JSONDecodeError:
-                pass
-    else:
-        return None
-    if not params:
-        parts = data.split('&')
-        for part in parts:
-            each = part.split('=')
-            if len(each) < 2:
-                each.append('')
-            try:
-                params[each[0]] = each[1]
-            except IndexError:
-                params = None
+    
+    if GET and '?' in url and '=' in url:
+        params = extract_query_params(urlparse(url).query)
+        
+    elif not GET and '?' in url and '=' in url and (data.replace(' ', '') == '' or data is None):
+        params = extract_query_params(urlparse(url).query)
+        
+    elif not GET and is_json(data):
+        params = json.loads(data)
+        
+    elif not GET and len(extract_query_params(data)) > 0:
+        params = extract_query_params(data)
+        if '?' in url and '=' in url:
+            params.update(extract_query_params(urlparse(url).query))
+        
     return params
+
+
+def extract_query_params(query: str) -> dict:
+    params = {}
+    for v in query.split("&"):
+        params[v.split("=")[0]] = v.split("=")[1]
+    return params
+
+
+def is_json(data: str) -> bool:
+    try: json.loads(data); return True
+    except: return False
 
 
 def writer(obj, path):
