@@ -80,6 +80,8 @@ parser.add_argument('--file-log-level', help='File logging level', dest='file_lo
                     choices=core.log.log_config.keys(), default=None)
 parser.add_argument('--log-file', help='Name of the file to log', dest='log_file',
                     default=core.log.log_file)
+parser.add_argument('--no-color', help='disable colored output', dest='no_color', 
+                    action='store_true')
 args = parser.parse_args()
 
 # Pull all parameter values of dict from argparse namespace into local variables of name == key
