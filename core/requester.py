@@ -1,52 +1,75 @@
-import random
 import requests
 import time
-from urllib3.exceptions import ProtocolError
-import warnings
+import random
+import urllib3
+from typing import Dict, Any, Optional, Union
+from core.config import ScanContext
 
-import core.config
-from core.utils import converter, getVar
-from core.log import setup_logger
+# Disable insecure request warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-logger = setup_logger(__name__)
+class Requester:
+    def __init__(self, context: ScanContext):
+        self.context = context
+        self.session = requests.Session()
+        # Apply Session Cookies
+        if self.context.config.cookies:
+            self.session.cookies.update(self.context.config.cookies)
+        
+        self.user_agents = [
+            'Mozilla/5.0 (X11; Linux i686; rv:60.0) Gecko/20100101 Firefox/60.0',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
+        ]
 
-warnings.filterwarnings('ignore')  # Disable SSL related warnings
+    def request(self, url: str, data: Any = None, method: str = "GET") -> requests.Response:
+        """
+        Performs an HTTP request with automatic retries and delay management.
+        """
+        headers = self.context.headers.copy()
+        if headers.get('User-Agent') == '$':
+            headers['User-Agent'] = random.choice(self.user_agents)
 
+        # Apply global delay
+        if self.context.config.delay > 0:
+            time.sleep(self.context.config.delay)
 
+        try:
+            if method.upper() == "GET":
+                response = self.session.get(
+                    url, 
+                    params=data, 
+                    headers=headers, 
+                    timeout=self.context.config.timeout,
+                    proxies=self.context.config.proxies,
+                    verify=False
+                )
+            else:
+                # Handle JSON data automatically if configured
+                is_json = headers.get('Content-type') == 'application/json'
+                response = self.session.post(
+                    url, 
+                    json=data if is_json else None,
+                    data=data if not is_json else None,
+                    headers=headers, 
+                    timeout=self.context.config.timeout,
+                    proxies=self.context.config.proxies,
+                    verify=False
+                )
+            
+            response.raise_for_status()
+            return response
+        except requests.exceptions.RequestException as e:
+            # For XSStrike, we often want the response even if it's 403 (WAF)
+            if hasattr(e, 'response') and e.response is not None:
+                return e.response
+            raise e
+
+# Legacy function wrapper for compatibility during migration
 def requester(url, data, headers, GET, delay, timeout):
-    if getVar('jsonData'):
-        data = converter(data)
-    elif getVar('path'):
-        url = converter(data, url)
-        data = []
-        GET, POST = True, False
-    time.sleep(delay)
-    user_agents = ['Mozilla/5.0 (X11; Linux i686; rv:60.0) Gecko/20100101 Firefox/60.0',
-                   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36',
-                   'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36 OPR/43.0.2442.991']
-    if 'User-Agent' not in headers:
-        headers['User-Agent'] = random.choice(user_agents)
-    elif headers['User-Agent'] == '$':
-        headers['User-Agent'] = random.choice(user_agents)
-    logger.debug('Requester url: {}'.format(url))
-    logger.debug('Requester GET: {}'.format(GET))
-    logger.debug_json('Requester data:', data)
-    logger.debug_json('Requester headers:', headers)
-    try:
-        if GET:
-            response = requests.get(url, params=data, headers=headers,
-                                    timeout=timeout, verify=False, proxies=core.config.proxies)
-        elif getVar('jsonData'):
-            response = requests.post(url, json=data, headers=headers,
-                                    timeout=timeout, verify=False, proxies=core.config.proxies)
-        else:
-            response = requests.post(url, data=data, headers=headers,
-                                     timeout=timeout, verify=False, proxies=core.config.proxies)
-        return response
-    except ProtocolError:
-        logger.warning('WAF is dropping suspicious requests.')
-        logger.warning('Scanning will continue after 10 minutes.')
-        time.sleep(600)
-    except Exception as e:
-        logger.warning('Unable to connect to the target.')
-        return requests.Response()
+    from core.config import XSSConfig
+    config = XSSConfig(delay=delay, timeout=timeout)
+    context = ScanContext(config=config, headers=headers)
+    r = Requester(context)
+    return r.request(url, data, method="GET" if GET else "POST")

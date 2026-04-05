@@ -1,82 +1,110 @@
 import re
-import concurrent.futures
+import requests
 from urllib.parse import urlparse
-
-from core.dom import dom
+from typing import List, Set, Tuple, Any, Dict
+from core.requester import Requester
+from core.config import ScanContext
 from core.log import setup_logger
-from core.utils import getUrl, getParams
-from core.requester import requester
-from core.zetanize import zetanize
-from plugins.retireJs import retireJs
 
-logger = setup_logger(__name__)
+logger = setup_logger()
 
+class PhotonCrawler:
+    def __init__(self, context: ScanContext):
+        self.context = context
+        self.requester = Requester(context)
+        self.visited: Set[str] = set()
+        self.forms: List[Dict[str, Any]] = []
+        self.urls: Set[str] = set()
 
-def photon(seedUrl, headers, level, threadCount, delay, timeout, skipDOM):
-    forms = []  # web forms
-    processed = set()  # urls that have been crawled
-    storage = set()  # urls that belong to the target i.e. in-scope
-    schema = urlparse(seedUrl).scheme  # extract the scheme e.g. http or https
-    host = urlparse(seedUrl).netloc  # extract the host e.g. example.com
-    main_url = schema + '://' + host  # join scheme and host to make the root url
-    storage.add(seedUrl)  # add the url to storage
-    checkedDOMs = []
+    def crawl(self, seed_url: str, depth: int = 2) -> Tuple[List[Dict[str, Any]], Set[str]]:
+        """
+        Crawls the target URL recursively up to a specified depth.
+        Extracts forms and internal URLs.
+        """
+        logger.run(f"Photon Crawler started for {seed_url} (Depth: {depth})")
+        
+        queue = [(seed_url, 1)]
+        parsed_seed = urlparse(seed_url)
+        domain = parsed_seed.netloc
+        
+        while queue:
+            url, current_depth = queue.pop(0)
+            if url in self.visited or current_depth > depth:
+                continue
+                
+            self.visited.add(url)
+            logger.debug(f"Crawling: {url}")
+            
+            try:
+                response = self.requester.request(url)
+                response_text = response.text
+                
+                # Extract Forms (Simplified)
+                self._extract_forms(url, response_text)
+                
+                # Extract URLs
+                new_urls = self._extract_urls(url, response_text, domain)
+                for new_url in new_urls:
+                    if new_url not in self.visited:
+                        queue.append((new_url, current_depth + 1))
+                        self.urls.add(new_url)
+                        
+            except Exception as e:
+                logger.error(f"Failed to crawl {url}: {e}")
+                
+        logger.good(f"Crawl finished. Found {len(self.forms)} forms and {len(self.urls)} internal URLs.")
+        return self.forms, self.urls
 
-    def rec(target):
-        processed.add(target)
-        printableTarget = '/'.join(target.split('/')[3:])
-        if len(printableTarget) > 40:
-            printableTarget = printableTarget[-40:]
-        else:
-            printableTarget = (printableTarget + (' ' * (40 - len(printableTarget))))
-        logger.run('Parsing %s\r' % printableTarget)
-        url = getUrl(target, True)
-        params = getParams(target, '', True)
-        if '=' in target:  # if there's a = in the url, there should be GET parameters
-            inps = []
-            for name, value in params.items():
-                inps.append({'name': name, 'value': value})
-            forms.append({0: {'action': url, 'method': 'get', 'inputs': inps}})
-        response = requester(url, params, headers, True, delay, timeout).text
-        retireJs(url, response)
-        if not skipDOM:
-            highlighted = dom(response)
-            clean_highlighted = ''.join([re.sub(r'^\d+\s+', '', line) for line in highlighted])
-            if highlighted and clean_highlighted not in checkedDOMs:
-                checkedDOMs.append(clean_highlighted)
-                logger.good('Potentially vulnerable objects found at %s' % url)
-                logger.red_line(level='good')
-                for line in highlighted:
-                    logger.no_format(line, level='good')
-                logger.red_line(level='good')
-        forms.append(zetanize(response))
-        matches = re.findall(r'<[aA].*href=["\']{0,1}(.*?)["\']', response)
-        for link in matches:  # iterate over the matches
-            # remove everything after a "#" to deal with in-page anchors
-            link = link.split('#')[0]
-            if link.endswith(('.pdf', '.png', '.jpg', '.jpeg', '.xls', '.xml', '.docx', '.doc')):
-                pass
-            else:
-                if link[:4] == 'http':
-                    if link.startswith(main_url):
-                        storage.add(link)
-                elif link[:2] == '//':
-                    if link.split('/')[2].startswith(host):
-                        storage.add(schema + link)
-                elif link[:1] == '/':
-                    storage.add(main_url + link)
-                else:
-                    storage.add(main_url + '/' + link)
-    try:
-        for x in range(level):
-            urls = storage - processed  # urls to crawl = all urls - urls that have been crawled
-            # for url in urls:
-            #     rec(url)
-            threadpool = concurrent.futures.ThreadPoolExecutor(
-                max_workers=threadCount)
-            futures = (threadpool.submit(rec, url) for url in urls)
-            for i in concurrent.futures.as_completed(futures):
-                pass
-    except KeyboardInterrupt:
-        return [forms, processed]
-    return [forms, processed]
+    def _extract_forms(self, url: str, html: str):
+        """Extracts HTML forms and their input fields."""
+        # Find forms
+        form_pattern = re.compile(r'<form[^>]*?>(.*?)</form>', re.IGNORECASE | re.DOTALL)
+        for form_match in form_pattern.finditer(html):
+            form_content = form_match.group(1)
+            
+            # Extract action
+            action_match = re.search(r'action=["\']([^"\']*?)["\']', html[form_match.start():form_match.end()], re.IGNORECASE)
+            action = action_match.group(1) if action_match else url
+            
+            # Extract method
+            method_match = re.search(r'method=["\'](POST|GET)["\']', html[form_match.start():form_match.end()], re.IGNORECASE)
+            method = method_match.group(1).upper() if method_match else 'GET'
+            
+            # Extract input fields
+            inputs = []
+            input_pattern = re.compile(r'<(?:input|textarea|select)[^>]*?name=["\']([^"\']*?)["\']', re.IGNORECASE)
+            for input_match in input_pattern.finditer(form_content):
+                inputs.append(input_match.group(1))
+            
+            if inputs:
+                self.forms.append({
+                    'action': action,
+                    'origin': url,
+                    'method': method,
+                    'inputs': inputs
+                })
+
+    def _extract_urls(self, url: str, html: str, domain: str) -> Set[str]:
+        """Extracts internal URLs from a page."""
+        internal_urls = set()
+        url_pattern = re.compile(r'href=["\'](https?://[^"\']*?|/[^"\']*?)["\']', re.IGNORECASE)
+        
+        for match in url_pattern.finditer(html):
+            extracted = match.group(1)
+            if extracted.startswith('/'):
+                # Relative to domain root
+                parsed = urlparse(url)
+                extracted = f"{parsed.scheme}://{parsed.netloc}{extracted}"
+            
+            # Check if internal
+            if domain in extracted:
+                internal_urls.add(extracted)
+        return internal_urls
+
+# Legacy wrapper for compatibility
+def photon(seed_url, headers, depth, threads, delay, timeout, skipDOM):
+    from core.config import XSSConfig
+    config = XSSConfig(delay=delay, timeout=timeout, threadCount=threads)
+    context = ScanContext(config=config, headers=headers)
+    crawler = PhotonCrawler(context)
+    return crawler.crawl(seed_url, depth)

@@ -1,0 +1,8 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+include requirements.txt
+recursive-include db *.json
+recursive-exclude __pycache__ *
+recursive-exclude *.py[cod] *
+recursive-exclude * __pycache__

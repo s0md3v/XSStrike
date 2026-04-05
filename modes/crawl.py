@@ -1,63 +1,110 @@
-import copy
-import re
-
-import core.config
-from core.colors import green, end
-from core.config import xsschecker
-from core.filterChecker import filterChecker
-from core.generator import generator
-from core.htmlParser import htmlParser
-from core.requester import requester
+import concurrent.futures
+import uuid
+from urllib.parse import urlparse
+from typing import List, Set, Dict, Any, Tuple
+from core.config import ScanContext, blindPayload
+from core.photon import PhotonCrawler
+from modes.scan import Scanner
 from core.log import setup_logger
+from core.requester import Requester
 
-logger = setup_logger(__name__)
+logger = setup_logger()
 
+class XSScrawler:
+    def __init__(self, context: ScanContext):
+        self.context = context
+        self.crawler = PhotonCrawler(context)
+        self.requester = Requester(context)
+        self.stored_payloads: List[Tuple[str, Dict[str, Any], str]] = [] # (url, params, id)
 
-def crawl(scheme, host, main_url, form, blindXSS, blindPayload, headers, delay, timeout, encoding):
-    if form:
-        for each in form.values():
-            url = each['action']
-            if url:
-                if url.startswith(main_url):
-                    pass
-                elif url.startswith('//') and url[2:].startswith(host):
-                    url = scheme + '://' + url[2:]
-                elif url.startswith('/'):
-                    url = scheme + '://' + host + url
-                elif re.match(r'\w', url[0]):
-                    url = scheme + '://' + host + '/' + url
-                if url not in core.config.globalVariables['checkedForms']:
-                    core.config.globalVariables['checkedForms'][url] = []
-                method = each['method']
-                GET = True if method == 'get' else False
-                inputs = each['inputs']
-                paramData = {}
-                for one in inputs:
-                    paramData[one['name']] = one['value']
-                    for paramName in paramData.keys():
-                        if paramName not in core.config.globalVariables['checkedForms'][url]:
-                            core.config.globalVariables['checkedForms'][url].append(paramName)
-                            paramsCopy = copy.deepcopy(paramData)
-                            paramsCopy[paramName] = xsschecker
-                            response = requester(
-                                url, paramsCopy, headers, GET, delay, timeout)
-                            occurences = htmlParser(response, encoding)
-                            positions = occurences.keys()
-                            occurences = filterChecker(
-                                url, paramsCopy, headers, GET, delay, occurences, timeout, encoding)
-                            vectors = generator(occurences, response.text)
-                            if vectors:
-                                for confidence, vects in vectors.items():
-                                    try:
-                                        payload = list(vects)[0]
-                                        logger.vuln('Vulnerable webpage: %s%s%s' %
-                                                    (green, url, end))
-                                        logger.vuln('Vector for %s%s%s: %s' %
-                                                    (green, paramName, end, payload))
-                                        break
-                                    except IndexError:
-                                        pass
-                            if blindXSS and blindPayload:
-                                paramsCopy[paramName] = blindPayload
-                                requester(url, paramsCopy, headers,
-                                          GET, delay, timeout)
+    def run(self, level: int = 2, stored: bool = True):
+        """
+        Runs the crawling process, scans for Reflected XSS, and performs Stored XSS checks.
+        """
+        target = self.context.target
+        if not target:
+            logger.error("No target specified for crawler.")
+            return
+
+        # 1. Start Crawling
+        forms, urls = self.crawler.crawl(target, depth=level)
+        
+        # 2. Reflected XSS Scan (Current logic)
+        self._scan_reflected(forms, urls)
+        
+        # 3. Stored XSS Injections
+        if stored:
+            logger.run("Starting Stored XSS injection phase...")
+            self._inject_stored_payloads(forms)
+            
+            # 4. Stored XSS Verification (Re-visit all URLs)
+            logger.run("Starting Stored XSS verification phase (re-visiting all pages)...")
+            self._verify_stored_xss(urls)
+
+    def _scan_reflected(self, forms, urls):
+        """Standard concurrent scan for reflected XSS."""
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.context.config.threadCount) as executor:
+            futures = []
+            for form in forms:
+                form_context = self.context.model_copy()
+                form_context.target = self._get_full_url(form['action'])
+                scanner = Scanner(form_context)
+                futures.append(executor.submit(scanner.scan, skip_confirm=True))
+            
+            for url in urls:
+                url_context = self.context.model_copy()
+                url_context.target = url
+                scanner = Scanner(url_context)
+                futures.append(executor.submit(scanner.scan, skip_confirm=True))
+
+    def _inject_stored_payloads(self, forms):
+        """Injects unique payloads into every input field of every form found."""
+        for form in forms:
+            action_url = self._get_full_url(form['action'])
+            method = form.get('method', 'POST')
+            inputs = form.get('inputs', [])
+            
+            # Prepare params: inject the same unique ID in all fields of this form submission
+            unique_id = f"v3dm0s_stored_{uuid.uuid4().hex[:6]}"
+            params = {name: unique_id for name in inputs}
+            
+            try:
+                self.requester.request(action_url, data=params, method=method)
+                self.stored_payloads.append((action_url, params, unique_id))
+                logger.info(f"Injected stored payload [bold blue]{unique_id}[/bold blue] into {len(inputs)} fields at {action_url}")
+            except Exception as e:
+                logger.debug(f"Stored injection failed at {action_url}: {e}")
+
+    def _verify_stored_xss(self, urls):
+        """Re-visits every URL to see if any stored payload is reflected and executable."""
+        for url in urls:
+            try:
+                response = self.requester.request(url)
+                for inj_url, params, unique_id in self.stored_payloads:
+                    if unique_id in response.text:
+                        logger.vuln(f"[bold red]Stored XSS Reflection Found![/bold red] Injected at {inj_url}, Triggered at {url}")
+                        # Dynamic confirmation for Stored XSS
+                        from core.validator import run_dynamic_validation
+                        is_confirmed = run_dynamic_validation(url, {}, unique_id, self.context)
+                        
+                        # Add to findings
+                        from core.config import Finding
+                        self.context.findings.append(Finding(
+                            url=url,
+                            type="Stored",
+                            payload=unique_id,
+                            parameter="Form Injection",
+                            confirmed=is_confirmed,
+                            level=10
+                        ))
+
+                        if is_confirmed:
+                            logger.vuln(f"[bold green]STORED XSS CONFIRMED BY BROWSER![/bold green] (Injected: {inj_url} | Triggered: {url})")
+            except Exception as e:
+                logger.debug(f"Verification visit failed for {url}: {e}")
+
+    def _get_full_url(self, action: str) -> str:
+        if action.startswith('http'):
+            return action
+        parsed = urlparse(self.context.target)
+        return f"{parsed.scheme}://{parsed.netloc}{action if action.startswith('/') else '/' + action}"

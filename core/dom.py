@@ -1,60 +1,81 @@
 import re
+from typing import List, Dict, Any, Set
+from core.config import ScanContext
+from core.log import setup_logger
 
-from core.colors import end, red, yellow
+logger = setup_logger()
 
-if len(end) < 1:
-    end = red = yellow = '*'
+class DOMScanner:
+    def __init__(self, context: ScanContext):
+        self.context = context
+        # Sources: Places where user-controlled data enters the script
+        self.sources = r'\b(?:document\.(URL|documentURI|URLUnencoded|baseURI|cookie|referrer)|location\.(href|search|hash|pathname)|window\.name|history\.(pushState|replaceState)(local|session)Storage)\b'
+        # Sinks: Dangerous functions that can execute code
+        self.sinks = r'\b(?:eval|evaluate|execCommand|assign|navigate|getResponseHeaderopen|showModalDialog|Function|set(Timeout|Interval|Immediate)|execScript|crypto.generateCRMFRequest|ScriptElement\.(src|text|textContent|innerText)|.*?\.onEventName|document\.(write|writeln)|.*?\.innerHTML|Range\.createContextualFragment|(document|window)\.location)\b'
 
-def dom(response):
-    highlighted = []
-    sources = r'''\b(?:document\.(URL|documentURI|URLUnencoded|baseURI|cookie|referrer)|location\.(href|search|hash|pathname)|window\.name|history\.(pushState|replaceState)(local|session)Storage)\b'''
-    sinks = r'''\b(?:eval|evaluate|execCommand|assign|navigate|getResponseHeaderopen|showModalDialog|Function|set(Timeout|Interval|Immediate)|execScript|crypto.generateCRMFRequest|ScriptElement\.(src|text|textContent|innerText)|.*?\.onEventName|document\.(write|writeln)|.*?\.innerHTML|Range\.createContextualFragment|(document|window)\.location)\b'''
-    scripts = re.findall(r'(?i)(?s)<script[^>]*>(.*?)</script>', response)
-    sinkFound, sourceFound = False, False
-    for script in scripts:
-        script = script.split('\n')
-        num = 1
-        allControlledVariables = set()
-        try:
-            for newLine in script:
-                line = newLine
-                parts = line.split('var ')
-                controlledVariables = set()
-                if len(parts) > 1:
-                    for part in parts:
-                        for controlledVariable in allControlledVariables:
-                            if controlledVariable in part:
-                                controlledVariables.add(re.search(r'[a-zA-Z$_][a-zA-Z0-9$_]+', part).group().replace('$', '\\$'))
-                pattern = re.finditer(sources, newLine)
-                for grp in pattern:
-                    if grp:
-                        source = newLine[grp.start():grp.end()].replace(' ', '')
-                        if source:
-                            if len(parts) > 1:
-                               for part in parts:
-                                    if source in part:
-                                        controlledVariables.add(re.search(r'[a-zA-Z$_][a-zA-Z0-9$_]+', part).group().replace('$', '\\$'))
-                            line = line.replace(source, yellow + source + end)
-                for controlledVariable in controlledVariables:
-                    allControlledVariables.add(controlledVariable)
-                for controlledVariable in allControlledVariables:
-                    matches = list(filter(None, re.findall(r'\b%s\b' % controlledVariable, line)))
-                    if matches:
-                        sourceFound = True
-                        line = re.sub(r'\b%s\b' % controlledVariable, yellow + controlledVariable + end, line)
-                pattern = re.finditer(sinks, newLine)
-                for grp in pattern:
-                    if grp:
-                        sink = newLine[grp.start():grp.end()].replace(' ', '')
-                        if sink:
-                            line = line.replace(sink, red + sink + end)
-                            sinkFound = True
-                if line != newLine:
-                    highlighted.append('%-3s %s' % (str(num), line.lstrip(' ')))
-                num += 1
-        except MemoryError:
-            pass
-    if sinkFound or sourceFound:
+    def scan(self, response_text: str) -> List[str]:
+        """
+        Analyzes the HTML response for potential DOM XSS vulnerabilities by identifying sources and sinks.
+        Returns a list of highlighted lines with potential vulnerabilities.
+        """
+        highlighted = []
+        # Extract scripts
+        scripts = re.findall(r'(?i)(?s)<script[^>]*>(.*?)</script>', response_text)
+        
+        sink_found = False
+        source_found = False
+        
+        for script in scripts:
+            lines = script.split('\n')
+            all_controlled_vars: Set[str] = set()
+            
+            for i, line in enumerate(lines, 1):
+                original_line = line
+                # 1. Track variables assigned from sources or other controlled variables
+                if 'var ' in line or 'let ' in line or 'const ' in line:
+                    for var in all_controlled_vars:
+                        if var in line:
+                            match = re.search(r'[a-zA-Z$_][a-zA-Z0-9$_]+', line.split('=')[0])
+                            if match:
+                                all_controlled_vars.add(match.group().replace('$', '\\$'))
+
+                # 2. Identify Sources
+                source_matches = list(re.finditer(self.sources, line))
+                if source_matches:
+                    source_found = True
+                    for match in source_matches:
+                        # Colorize for console if needed, but here we track
+                        source_str = line[match.start():match.end()]
+                        # If a variable is assigned from a source, track it
+                        var_match = re.search(r'(?:var|let|const)\s+([a-zA-Z$_][a-zA-Z0-9$_]+)\s*=', line)
+                        if var_match:
+                            all_controlled_vars.add(var_match.group(1).replace('$', '\\$'))
+                        line = line.replace(source_str, f"[bold yellow]{source_str}[/bold yellow]")
+
+                # 3. Track controlled variables usage
+                for var in all_controlled_vars:
+                    if re.search(r'\b%s\b' % var, line):
+                        source_found = True
+                        line = re.sub(r'\b%s\b' % var, f"[yellow]{var}[/yellow]", line)
+
+                # 4. Identify Sinks
+                sink_matches = list(re.finditer(self.sinks, line))
+                if sink_matches:
+                    for match in sink_matches:
+                        sink_str = line[match.start():match.end()]
+                        line = line.replace(sink_str, f"[bold red]{sink_str}[/bold red]")
+                        # If a controlled variable is passed to a sink, it's a high potential DOM XSS
+                        for var in all_controlled_vars:
+                            if re.search(r'\b%s\b' % var, original_line):
+                                sink_found = True
+
+                if line != original_line:
+                    highlighted.append(f"{i}: {line.strip()}")
+
+        if sink_found and source_found:
+            logger.vuln("[bold red]Potential DOM XSS detected![/bold red] Source data reaches a dangerous sink.")
+        
         return highlighted
-    else:
-        return []
+
+# Legacy alias
+dom = lambda response: DOMScanner(ScanContext()).scan(response)

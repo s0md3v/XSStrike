@@ -1,39 +1,67 @@
 import copy
 from urllib.parse import urlparse, unquote
+from typing import List, Optional, Any
 
-from core.colors import good, green, end
-from core.requester import requester
-from core.utils import getUrl, getParams
+from core.requester import Requester
+from core.utils import get_url, get_params
+from core.config import ScanContext
 from core.log import setup_logger
 
-logger = setup_logger(__name__)
+logger = setup_logger()
 
+class XSSBruteforcer:
+    def __init__(self, context: ScanContext):
+        self.context = context
+        self.requester = Requester(context)
 
+    def run(self, payload_list: List[str]):
+        """
+        Bruteforces parameters using a provided list of payloads.
+        """
+        target = self.context.target
+        if not target:
+            logger.error("No target specified for bruteforcer.")
+            return
+
+        is_get = not self.context.paramData
+        url = get_url(target, is_get)
+        params = get_params(target, self.context.paramData, is_get)
+        
+        if not params:
+            logger.error("No parameters found to bruteforce.")
+            return
+
+        logger.run(f"Starting bruteforce on {target} with {len(payload_list)} payloads.")
+        
+        for param_name in params.keys():
+            logger.info(f"Bruteforcing parameter: [bold cyan]{param_name}[/bold cyan]")
+            
+            for i, payload in enumerate(payload_list, 1):
+                if i % 10 == 0 or i == len(payload_list):
+                    logger.debug(f"Progress for {param_name}: {i}/{len(payload_list)}")
+                
+                current_payload = payload
+                if self.context.encoding:
+                    current_payload = self.context.encoding(unquote(payload))
+                
+                # Prepare params with payload
+                current_params = copy.deepcopy(params)
+                current_params[param_name] = current_payload
+                
+                try:
+                    response = self.requester.request(url, data=current_params, method="GET" if is_get else "POST")
+                    
+                    if current_payload in response.text:
+                        logger.vuln(f"Payload reflected! Parameter: {param_name}, Payload: {payload}")
+                except Exception as e:
+                    logger.error(f"Request failed for payload {payload}: {e}")
+
+        logger.good("Bruteforce completed.")
+
+# Legacy wrapper
 def bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout):
-    GET, POST = (False, True) if paramData else (True, False)
-    host = urlparse(target).netloc  # Extracts host out of the url
-    logger.debug('Parsed host to bruteforce: {}'.format(host))
-    url = getUrl(target, GET)
-    logger.debug('Parsed url to bruteforce: {}'.format(url))
-    params = getParams(target, paramData, GET)
-    logger.debug_json('Bruteforcer params:', params)
-    if not params:
-        logger.error('No parameters to test.')
-        quit()
-    for paramName in params.keys():
-        progress = 1
-        paramsCopy = copy.deepcopy(params)
-        for payload in payloadList:
-            logger.run('Bruteforcing %s[%s%s%s]%s: %i/%i\r' %
-                       (green, end, paramName, green, end, progress, len(payloadList)))
-            if encoding:
-                payload = encoding(unquote(payload))
-            paramsCopy[paramName] = payload
-            response = requester(url, paramsCopy, headers,
-                                 GET, delay, timeout).text
-            if encoding:
-                payload = encoding(payload)
-            if payload in response:
-                logger.info('%s %s' % (good, payload))
-            progress += 1
-    logger.no_format('')
+    from core.config import XSSConfig
+    config = XSSConfig(delay=delay, timeout=timeout)
+    context = ScanContext(config=config, target=target, paramData=paramData, headers=headers, encoding=encoding)
+    engine = XSSBruteforcer(context)
+    engine.run(payloadList)

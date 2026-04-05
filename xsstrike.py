@@ -1,201 +1,132 @@
 #!/usr/bin/env python3
 
-from __future__ import print_function
-
-from core.colors import end, red, white, bad, info
-
-# Just a fancy ass banner
-print('''%s
-\tXSStrike %sv3.1.5
-%s''' % (red, white, end))
-
-try:
-    import concurrent.futures
-    from urllib.parse import urlparse
-    try:
-        import fuzzywuzzy
-    except ImportError:
-        import os
-        print ('%s fuzzywuzzy isn\'t installed, installing now.' % info)
-        ret_code = os.system('pip3 install fuzzywuzzy')
-        if(ret_code != 0):
-            print('%s fuzzywuzzy installation failed.' % bad)
-            quit()
-        print ('%s fuzzywuzzy has been installed, restart XSStrike.' % info)
-        quit()
-except ImportError:  # throws error in python2
-    print('%s XSStrike isn\'t compatible with python2.\n Use python > 3.4 to run XSStrike.' % bad)
-    quit()
-
-# Let's import whatever we need from standard lib
 import sys
+import signal
 import json
-import argparse
+import typer
+from typing import Optional
+from rich.console import Console
+from rich.panel import Panel
 
-# ... and configurations core lib
-import core.config
+# Local imports
+from core.config import XSSConfig, ScanContext, default_headers, default_payloads
+from core.utils import extractHeaders, extract_cookies, reader, find_db_file
 import core.log
+console = Console()
+app = typer.Typer(help="XSStrike Advanced XSS Scanner (Modernized)")
 
-# Processing command line arguments, where dest var names will be mapped to local vars with the same name
-parser = argparse.ArgumentParser()
-parser.add_argument('-u', '--url', help='url', dest='target')
-parser.add_argument('--data', help='post data', dest='paramData')
-parser.add_argument('-e', '--encode', help='encode payloads', dest='encode')
-parser.add_argument('--fuzzer', help='fuzzer',
-                    dest='fuzz', action='store_true')
-parser.add_argument('--update', help='update',
-                    dest='update', action='store_true')
-parser.add_argument('--timeout', help='timeout',
-                    dest='timeout', type=int, default=core.config.timeout)
-parser.add_argument('--proxy', help='use prox(y|ies)',
-                    dest='proxy', action='store_true')
-parser.add_argument('--crawl', help='crawl',
-                    dest='recursive', action='store_true')
-parser.add_argument('--json', help='treat post data as json',
-                    dest='jsonData', action='store_true')
-parser.add_argument('--path', help='inject payloads in the path',
-                    dest='path', action='store_true')
-parser.add_argument(
-    '--seeds', help='load crawling seeds from a file', dest='args_seeds')
-parser.add_argument(
-    '-f', '--file', help='load payloads from a file', dest='args_file')
-parser.add_argument('-l', '--level', help='level of crawling',
-                    dest='level', type=int, default=2)
-parser.add_argument('--headers', help='add headers',
-                    dest='add_headers', nargs='?', const=True)
-parser.add_argument('-t', '--threads', help='number of threads',
-                    dest='threadCount', type=int, default=core.config.threadCount)
-parser.add_argument('-d', '--delay', help='delay between requests',
-                    dest='delay', type=int, default=core.config.delay)
-parser.add_argument('--skip', help='don\'t ask to continue',
-                    dest='skip', action='store_true')
-parser.add_argument('--skip-dom', help='skip dom checking',
-                    dest='skipDOM', action='store_true')
-parser.add_argument('--blind', help='inject blind XSS payload while crawling',
-                    dest='blindXSS', action='store_true')
-parser.add_argument('--console-log-level', help='Console logging level',
-                    dest='console_log_level', default=core.log.console_log_level,
-                    choices=core.log.log_config.keys())
-parser.add_argument('--file-log-level', help='File logging level', dest='file_log_level',
-                    choices=core.log.log_config.keys(), default=None)
-parser.add_argument('--log-file', help='Name of the file to log', dest='log_file',
-                    default=core.log.log_file)
-args = parser.parse_args()
+def show_banner():
+    banner_text = """
+    XSStrike v3.1.7 (Modernized)
+    Advanced XSS Detection Suite
+    """
+    console.print(Panel(banner_text, style="bold red", subtitle="Refactored with Pydantic & Typer"))
 
-# Pull all parameter values of dict from argparse namespace into local variables of name == key
-# The following works, but the static checkers are too static ;-) locals().update(vars(args))
-target = args.target
-path = args.path
-jsonData = args.jsonData
-paramData = args.paramData
-encode = args.encode
-fuzz = args.fuzz
-update = args.update
-timeout = args.timeout
-proxy = args.proxy
-recursive = args.recursive
-args_file = args.args_file
-args_seeds = args.args_seeds
-level = args.level
-add_headers = args.add_headers
-threadCount = args.threadCount
-delay = args.delay
-skip = args.skip
-skipDOM = args.skipDOM
-blindXSS = args.blindXSS
-core.log.console_log_level = args.console_log_level
-core.log.file_log_level = args.file_log_level
-core.log.log_file = args.log_file
+@app.command()
+def main(
+    url: Optional[str] = typer.Option(None, "-u", "--url", help="Target URL"),
+    data: Optional[str] = typer.Option(None, "--data", help="POST data"),
+    fuzzer: bool = typer.Option(False, "--fuzzer", help="Fuzzer mode"),
+    update: bool = typer.Option(False, "--update", help="Update XSStrike"),
+    timeout: int = typer.Option(10, "--timeout", help="Timeout in seconds"),
+    threads: int = typer.Option(10, "-t", "--threads", help="Number of threads"),
+    delay: int = typer.Option(0, "-d", "--delay", help="Delay between requests"),
+    crawl: bool = typer.Option(False, "--crawl", help="Crawl mode"),
+    level: int = typer.Option(2, "-l", "--level", help="Crawl depth"),
+    headers: Optional[str] = typer.Option(None, "--headers", help="Custom headers"),
+    cookies: Optional[str] = typer.Option(None, "--cookies", help="Custom session cookies"),
+    seeds: Optional[str] = typer.Option(None, "--seeds", help="Seeds file"),
+    payload_file: Optional[str] = typer.Option(None, "-f", "--file", help="Custom payloads file"),
+    skip_dom: bool = typer.Option(False, "--skip-dom", help="Skip DOM checking"),
+    blind: bool = typer.Option(False, "--blind", help="Blind XSS mode"),
+    json_data: bool = typer.Option(False, "--json", help="POST data is JSON"),
+    path: bool = typer.Option(False, "--path", help="Inject in path"),
+    console_log_level: str = typer.Option("INFO", "--console-log-level"),
+):
+    show_banner()
+    
+    # Initialize Configuration
+    config = XSSConfig(
+        delay=delay,
+        threadCount=threads,
+        timeout=timeout
+    )
+    
+    if cookies:
+        config.cookies = extract_cookies(cookies)
+    
+    # Initialize Scan Context
+    context = ScanContext(config=config)
+    context.target = url
+    context.headers = default_headers.copy()
+    
+    if headers:
+        context.headers.update(extractHeaders(headers))
+        
+    # Load definitions
+    definitions_file = find_db_file('definitions.json')
+    if definitions_file:
+        with open(definitions_file, 'r') as f:
+            context.definitions = json.load(f)
 
-logger = core.log.setup_logger()
+    # Payload Logic
+    context.payloads = default_payloads
+    if payload_file:
+        context.payloads = list(filter(None, reader(payload_file)))
 
-core.config.globalVariables = vars(args)
+    if not url and not seeds:
+        console.print("[yellow]No target specified.[/yellow] Use --help for usage.")
+        raise typer.Exit(code=1)
 
-# Import everything else required from core lib
-from core.config import blindPayload
-from core.encoders import base64
-from core.photon import photon
-from core.prompt import prompt
-from core.updater import updater
-from core.utils import extractHeaders, reader, converter
-
-from modes.bruteforcer import bruteforcer
-from modes.crawl import crawl
-from modes.scan import scan
-from modes.singleFuzz import singleFuzz
-
-if type(args.add_headers) == bool:
-    headers = extractHeaders(prompt())
-elif type(args.add_headers) == str:
-    headers = extractHeaders(args.add_headers)
-else:
-    from core.config import headers
-
-core.config.globalVariables['headers'] = headers
-core.config.globalVariables['checkedScripts'] = set()
-core.config.globalVariables['checkedForms'] = {}
-core.config.globalVariables['definitions'] = json.loads('\n'.join(reader(sys.path[0] + '/db/definitions.json')))
-
-if path:
-    paramData = converter(target, target)
-elif jsonData:
-    headers['Content-type'] = 'application/json'
-    paramData = converter(paramData)
-
-if args_file:
-    if args_file == 'default':
-        payloadList = core.config.payloads
+    # Log setup
+    core.log.console_log_level = console_log_level
+    logger = core.log.setup_logger()
+    
+    # 1. WAF Detection
+    from core.wafDetector import WAFDetector
+    waf_detector = WAFDetector(context)
+    waf_name = waf_detector.detect()
+    
+    # 2. Main Execution Flow
+    if fuzzer:
+        from modes.fuzzer import XSSFuzzer
+        fuzzer_engine = XSSFuzzer(context)
+        fuzzer_engine.fuzz()
+        
+    elif crawl:
+        from modes.crawl import XSScrawler
+        crawler_engine = XSScrawler(context)
+        crawler_engine.run(level=level)
+        
     else:
-        payloadList = list(filter(None, reader(args_file)))
+        # Standard Scan using the modernized Scanner class
+        from modes.scan import Scanner
+        scanner = Scanner(context)
+        scanner.scan(skip_dom=skip_dom, skip_confirm=False)
 
-seedList = []
-if args_seeds:
-    seedList = list(filter(None, reader(args_seeds)))
+    # --- FINAL SUMMARY ---
+    if context.findings:
+        from rich.table import Table
+        table = Table(title="XSStrike Scan Summary", show_header=True, header_style="bold magenta")
+        table.add_column("Type", style="dim")
+        table.add_column("Target URL", no_wrap=False)
+        table.add_column("Payload", style="cyan")
+        table.add_column("Status", justify="center")
 
-encoding = base64 if encode and encode == 'base64' else False
-
-if not proxy:
-    core.config.proxies = {}
-
-if update:  # if the user has supplied --update argument
-    updater()
-    quit()  # quitting because files have been changed
-
-if not target and not args_seeds:  # if the user hasn't supplied a url
-    logger.no_format('\n' + parser.format_help().lower())
-    quit()
-
-if fuzz:
-    singleFuzz(target, paramData, encoding, headers, delay, timeout)
-elif not recursive and not args_seeds:
-    if args_file:
-        bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
+        for f in context.findings:
+            status = "[bold green]CONFIRMED[/bold green]" if f.confirmed else "[yellow]POTENTIAL[/yellow]"
+            table.add_row(f.type, f.url, f.payload, status)
+        
+        console.print("\n")
+        console.print(table)
+        console.print(f"\n[bold green]Scan finished. Total vulnerabilities confirmed: {len([f for f in context.findings if f.confirmed])}[/bold green]")
     else:
-        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip)
-else:
-    if target:
-        seedList.append(target)
-    for target in seedList:
-        logger.run('Crawling the target')
-        scheme = urlparse(target).scheme
-        logger.debug('Target scheme: {}'.format(scheme))
-        host = urlparse(target).netloc
-        main_url = scheme + '://' + host
-        crawlingResult = photon(target, headers, level,
-                                threadCount, delay, timeout, skipDOM)
-        forms = crawlingResult[0]
-        domURLs = list(crawlingResult[1])
-        difference = abs(len(domURLs) - len(forms))
-        if len(domURLs) > len(forms):
-            for i in range(difference):
-                forms.append(0)
-        elif len(forms) > len(domURLs):
-            for i in range(difference):
-                domURLs.append(0)
-        threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=threadCount)
-        futures = (threadpool.submit(crawl, scheme, host, main_url, form,
-                                     blindXSS, blindPayload, headers, delay, timeout, encoding) for form, domURL in zip(forms, domURLs))
-        for i, _ in enumerate(concurrent.futures.as_completed(futures)):
-            if i + 1 == len(forms) or (i + 1) % threadCount == 0:
-                logger.info('Progress: %i/%i\r' % (i + 1, len(forms)))
-        logger.no_format('')
+        console.print("\n[bold yellow]Scan finished. No vulnerabilities found.[/bold yellow]")
+
+def handle_sigint(sig, frame):
+    console.print("\n[bold yellow]Aborted by user.[/bold yellow]")
+    sys.exit(0)
+
+if __name__ == "__main__":
+    signal.signal(signal.SIGINT, handle_sigint)
+    app()
