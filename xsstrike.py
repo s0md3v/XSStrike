@@ -138,7 +138,7 @@ core.config.globalVariables['definitions'] = json.loads('\n'.join(reader(sys.pat
 
 if path:
     paramData = converter(target, target)
-elif jsonData:
+elif jsonData and paramData:
     headers['Content-type'] = 'application/json'
     paramData = converter(paramData)
 
