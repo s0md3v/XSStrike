@@ -52,7 +52,7 @@ def _replacement_match(regex, data):
             return ver
 
         return None
-    except:
+    except Exception:
         return None
 
 
