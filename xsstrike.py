@@ -43,6 +43,8 @@ parser.add_argument('--data', help='post data', dest='paramData')
 parser.add_argument('-e', '--encode', help='encode payloads', dest='encode')
 parser.add_argument('--fuzzer', help='fuzzer',
                     dest='fuzz', action='store_true')
+parser.add_argument('--prompt-injection', help='scan for LLM prompt injection',
+                    dest='promptInjection', action='store_true')
 parser.add_argument('--update', help='update',
                     dest='update', action='store_true')
 parser.add_argument('--timeout', help='timeout',
@@ -90,6 +92,7 @@ jsonData = args.jsonData
 paramData = args.paramData
 encode = args.encode
 fuzz = args.fuzz
+promptInjection = args.promptInjection
 update = args.update
 timeout = args.timeout
 proxy = args.proxy
@@ -121,6 +124,7 @@ from core.utils import extractHeaders, reader, converter
 
 from modes.bruteforcer import bruteforcer
 from modes.crawl import crawl
+from modes.promptInjection import promptInjection
 from modes.scan import scan
 from modes.singleFuzz import singleFuzz
 
@@ -167,6 +171,8 @@ if not target and not args_seeds:  # if the user hasn't supplied a url
 
 if fuzz:
     singleFuzz(target, paramData, encoding, headers, delay, timeout)
+elif promptInjection:
+    promptInjection(target, paramData, encoding, headers, delay, timeout, skip)
 elif not recursive and not args_seeds:
     if args_file:
         bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)

@@ -57,8 +57,18 @@ Apart from that, XSStrike has crawling, fuzzing, parameter discovery, WAF detect
 - Highly researched work-flow
 - Complete HTTP support
 - Bruteforce payloads from a file
+- LLM prompt injection scanning
 - Powered by [Photon](https://github.com/s0md3v/Photon), [Zetanize](https://github.com/s0md3v/zetanize) and [Arjun](https://github.com/s0md3v/Arjun)
 - Payload Encoding
+
+### Prompt Injection Scanning
+Test an LLM-backed endpoint for prompt injection by injecting instruction-override payloads into each parameter:
+
+```bash
+python xsstrike.py -u "https://example.com/chat?q=hi" --prompt-injection
+```
+
+Works with POST/JSON too (via `--data` / `--json`). To avoid false positives, findings are reported only when the response contains the exact output the injected instruction should produce, that output is absent from a baseline request, and it is not a mere reflection of the payload — so plain input-echoing endpoints are not flagged. HIGH-confidence payloads are proof-of-execution (randomized arithmetic, string-reversal, token-concatenation). Add your own payloads to [`db/prompt_injection_payloads.json`](db/prompt_injection_payloads.json).
 
 ### Installation
 Enter the following commands one by one in terminal:
