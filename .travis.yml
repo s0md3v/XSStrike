@@ -21,5 +21,6 @@ before_script:
   # exit-zero treats all errors as warnings.  The GitHub editor is 127 chars wide
   - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 script:
+  - python tests/test_prompt_injection.py
   - python xsstrike.py -u "https://public-firing-range.appspot.com/reflected/index.html" --crawl
   - echo "No" > input.txt && python xsstrike.py -u https://public-firing-range.appspot.com/reflected/parameter/body?q=query < input.txt
