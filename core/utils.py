@@ -201,9 +201,8 @@ def writer(obj, path):
 
 
 def reader(path):
-    with open(path, 'r') as f:
-        result = [line.rstrip(
-                    '\n').encode('utf-8').decode('utf-8') for line in f]
+    with open(path, 'r', encoding='utf-8') as f:
+        result = [line.rstrip('\n') for line in f]
     return result
 
 def js_extractor(response):
