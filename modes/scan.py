@@ -11,7 +11,7 @@ from core.filterChecker import filterChecker
 from core.generator import generator
 from core.htmlParser import htmlParser
 from core.requester import requester
-from core.utils import getUrl, getParams, getVar
+from core.utils import getUrl, getParams, getVar, converter
 from core.wafDetector import wafDetector
 from core.log import setup_logger
 
@@ -46,7 +46,11 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip):
     logger.debug('Url to scan: {}'.format(url))
     params = getParams(target, paramData, GET)
     logger.debug_json('Scan parameters:', params)
-    if not params:
+    if isinstance(params, str):
+        # --jsonData/--path modes pass the raw data through as a string,
+        # normalize it the same way requester does.
+        params = converter(params)
+    if not isinstance(params, dict) or not params:
         logger.error('No parameters to test.')
         quit()
     WAF = wafDetector(
