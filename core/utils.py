@@ -1,3 +1,7 @@
+# XSStrike is licensed under the GNU GPLv3 (see LICENSE).
+# Modified 2026-11-07: in getParams, preserve text after a second '?' in the
+# URL and values containing further '=' signs (url.split('?', 1)[1] and
+# part.split('=', 1)).  No encoding policy, key text or dict semantics changed.
 import json
 import random
 import re
@@ -162,7 +166,7 @@ def genGen(fillings, eFillings, lFillings, eventHandlers, tags, functions, ends,
 def getParams(url, data, GET):
     params = {}
     if '?' in url and '=' in url:
-        data = url.split('?')[1]
+        data = url.split('?', 1)[1]
         if data[:1] == '?':
             data = data[1:]
     elif data:
@@ -179,7 +183,7 @@ def getParams(url, data, GET):
     if not params:
         parts = data.split('&')
         for part in parts:
-            each = part.split('=')
+            each = part.split('=', 1)
             if len(each) < 2:
                 each.append('')
             try:
